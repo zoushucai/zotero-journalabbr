@@ -1,0 +1,8 @@
+content journalabbrbyzsc chrome/content/
+skin journalabbrbyzsc default	chrome/skin/default/journalabbrbyzsc/
+locale journalabbrbyzsc en-US chrome/locale/en-US/
+locale journalabbrbyzsc zh-CN chrome/locale/zh-CN/
+
+overlay chrome://zotero/content/zoteroPane.xul chrome://journalabbrbyzsc/content/overlay.xul
+
+

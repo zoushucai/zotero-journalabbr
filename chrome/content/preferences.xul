@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "chrome://journalabbrbyzsc/locale/overlay.dtd">
+
+
+<!-- 该文件在 zotero 的界面中定义 UI 功能  
+该插件未加载偏好设置 - 因为比较简单
+ 如果要加载该项， 需要在 Chrome.manifest  中添加如下命令
+overlay chrome://zotero/content/preferences/preferences.xul chrome://journalabbrbyzsc/content/preferences.xul
+ -->
+
+<overlay id="journalabbrbyzsc-preferences"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml">
+
+  <!-- 设置偏好设置上的插件信息 -->
+  <prefwindow id="zotero-prefs">
+    <prefpane id="zotero-prefpane-journalabbrbyzsc"
+            insertafter="zotero-prefpane-advanced"
+            label="zsc abbr"
+            image="chrome://journalabbrbyzsc/skin/favicon.png"
+						onpaneload="zoteroifinitPreferences();"
+            >
+      <preferences id="zotero-preferences-journalabbrbyzsc">
+        <preference id="pref-journalabbrbyzsc-automatic_updateif_zsc" name="extensions.zotero.journalabbrbyzsc.automatic_pdf_download" type="bool"/>
+        <preference id="pref-journalabbrbyzsc-journalabbrbyzsc-url" name="extensions.zotero.journalabbrbyzsc.journalabbrbyzsc_url" type="string"/>
+      </preferences>
+      
+      <tabbox>
+        <tabs>
+          <tab label="&zotero.journalabbrbyzsc.help.title.label;"/>
+        </tabs>
+      </tabbox>
+       <vbox height="10">
+       </vbox>
+
+      <vbox flex="1">
+        <grid>
+          <columns>
+            <column/>
+            <column flex="1"/>
+          </columns>
+          <rows>
+            <row>
+              <label value="偏好设置中的文字信息"/>
+              <checkbox id="id-journalabbrbyzsc-automatic_updateif_sharestuff" preference="pref-journalabbrbyzsc-automatic_updateif_sharestuff"/>
+            </row>
+            <row>
+              <label value="偏好设置中的文字信息2"/>
+              <checkbox id="id-journalabbrbyzsc-s" preference="pref-journalabbrbyzsc-automatic_updateif_sharestuff"/>
+            </row>
+          </rows>
+        </grid>
+      </vbox>
+    </prefpane>
+  </prefwindow>
+
+	<!-- Include the main extension logic -->
+	<script src="chrome://journalabbrbyzsc/content/scripts/preferences.js"/>
+
+</overlay>

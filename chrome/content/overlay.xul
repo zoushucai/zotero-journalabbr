@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://journalabbrbyzsc/skin/overlay.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://journalabbrbyzsc/locale/overlay.dtd">
+
+<!-- 该文件在 zotero 的界面中定义 UI 功能 -->
+
+    <!-- 这里定义了 id， 应该是指插件的 id ， 且可以再这个项目下面进行本地引用 -->
+<overlay
+    id="journalabbrbyzsc"   
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    
+    <!-- 引入 js 文件 -->
+    <script
+        type="application/x-javascript"
+        src="chrome://journalabbrbyzsc/content/scripts/journalabbrbyzsc.js"/>
+
+    <!-- 选中条目显示的菜单集合 -->
+    <menupopup id="zotero-itemmenu">
+		    <menuseparator id="journalabbr-separator"/>
+        <!-- 定义一级菜单 -->
+        <menu id="journalabbr-popup-menu-tools" 
+            label="&zotero.journalabbrbyzsc.tools.label;"
+            class="menu-iconic zotero-jabbr-favicon-icon">
+            <menupopup id="journalabbr">
+            <!-- 定义二级菜单 -->
+            <menuitem
+                id="journalabbr-itemmenu-updatejournal"
+                label="&zotero.journalabbrbyzsc.tools.updatejournal.label;"
+                oncommand="Zotero.journalabbrbyzsc.updateJournalabbrSelectedItems()"/>
+            <!-- 定义二级菜单  添加class = “menuitem-iconic zotero-jabbr-myname-icon” 可以添加图片-->
+            <menuitem
+                id="journalabbr-itemmenu-deletetag"
+                label="&zotero.journalabbrbyzsc.tools.deletetag.label;"
+                oncommand="Zotero.journalabbrbyzsc.deleteTagSelectedItems()"/>
+          </menupopup>
+        </menu>
+    </menupopup>
+
+</overlay>
