@@ -22,16 +22,25 @@
             label="&zotero.journalabbrbyzsc.tools.label;"
             class="menu-iconic zotero-jabbr-favicon-icon">
             <menupopup id="journalabbr">
-            <!-- 定义二级菜单 -->
+            <!-- 定义二级菜单   用户指定期刊缩写 -->
+            <menuitem
+                id="journalabbr-itemmenu-updateUserAbbr"
+                label="&zotero.journalabbrbyzsc.tools.updateUserAbbr.label;"
+                oncommand="Zotero.journalabbrbyzsc.updateUserJournalAbbrSelectedItems()"/>
+            <!-- 定义二级菜单   更新期刊缩写 -->
             <menuitem
                 id="journalabbr-itemmenu-updatejournal"
                 label="&zotero.journalabbrbyzsc.tools.updatejournal.label;"
-                oncommand="Zotero.journalabbrbyzsc.updateJournalabbrSelectedItems()"/>
+                oncommand="Zotero.journalabbrbyzsc.updateJournalAbbrSelectedItems()"/>
             <!-- 定义二级菜单  添加class = “menuitem-iconic zotero-jabbr-myname-icon” 可以添加图片-->
             <menuitem
                 id="journalabbr-itemmenu-deletetag"
                 label="&zotero.journalabbrbyzsc.tools.deletetag.label;"
                 oncommand="Zotero.journalabbrbyzsc.deleteTagSelectedItems()"/>
+            <menuitem
+                id="journalabbr-itemmenu-deleteUsertag"
+                label="&zotero.journalabbrbyzsc.tools.deleteUsertag.label;"
+                oncommand="Zotero.journalabbrbyzsc.deleteUserTagSelectedItems()"/>
           </menupopup>
         </menu>
     </menupopup>

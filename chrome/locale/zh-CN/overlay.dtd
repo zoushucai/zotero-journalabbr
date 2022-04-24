@@ -1,6 +1,8 @@
 <!ENTITY zotero.journalabbrbyzsc.tools.label "期刊缩写">
+<!ENTITY zotero.journalabbrbyzsc.tools.updateUserAbbr.label "用户指定期刊缩写">
 <!ENTITY zotero.journalabbrbyzsc.tools.updatejournal.label "更新期刊缩写">
 <!ENTITY zotero.journalabbrbyzsc.tools.deletetag.label "删除abbr标签">
+<!ENTITY zotero.journalabbrbyzsc.tools.deleteUsertag.label "删除abbr_user标签">
 <!ENTITY zotero.journalabbrbyzsc.updateCollection.label "文件夹期刊缩写">
 
 <!ENTITY zotero.journalabbrbyzsc.help.title.label "关于">

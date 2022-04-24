@@ -5,4 +5,3 @@ locale journalabbrbyzsc zh-CN chrome/locale/zh-CN/
 
 overlay chrome://zotero/content/zoteroPane.xul chrome://journalabbrbyzsc/content/overlay.xul
 
-
