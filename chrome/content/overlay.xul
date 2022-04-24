@@ -36,11 +36,11 @@
             <menuitem
                 id="journalabbr-itemmenu-deletetag"
                 label="&zotero.journalabbrbyzsc.tools.deletetag.label;"
-                oncommand="Zotero.journalabbrbyzsc.deleteTagSelectedItems()"/>
+                oncommand="Zotero.journalabbrbyzsc.deleteTagSelectedItems(['abbr'])"/>
             <menuitem
                 id="journalabbr-itemmenu-deleteUsertag"
                 label="&zotero.journalabbrbyzsc.tools.deleteUsertag.label;"
-                oncommand="Zotero.journalabbrbyzsc.deleteUserTagSelectedItems()"/>
+                oncommand="Zotero.journalabbrbyzsc.deleteTagSelectedItems(['abbr_user'])"/>
           </menupopup>
         </menu>
     </menupopup>
