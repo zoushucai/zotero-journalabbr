@@ -6,7 +6,7 @@
   - 删除了一些特殊的期刊, 比如期刊中还有 单双引号,  单反斜杠
   - 删除了期刊字符超过 80 以及期刊字符小于5的期刊
   - 对于带点的优先顺序 `点的个数 > 大写个数> 缩写短的`
-  - 对于不带点的优先顺序 `不带点的个数 > 大写个数> 缩写短的`,  参考
+  - 对于不带点的优先顺序 `不带点的个数 > 大写个数> 缩写短的`,  参考[zoushucai/zotero-journalabbr-nodot](https://github.com/zoushucai/zotero-journalabbr-nodot)
 
 - 仅在 `mac` 平台上进行测试
 
