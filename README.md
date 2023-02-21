@@ -1,5 +1,15 @@
 # zotero-journalabbr
 
+#### 2023年2月23日 更新
+
+- 感谢 @[longzhanyuye5](https://github.com/longzhanyuye5) 的建议, 
+- 新增 [该网站](https://woodward.library.ubc.ca/woodward/research-help/journal-abbreviations/)  的期刊缩写数据库,  
+- 期刊缩写的权重优先级:  `自定义 > 该网站 > JabRef/abbrv.jabref.org`
+
+- 对于体积太大的问题, 个人是在不太会优化, 有会的,可以修改呀!
+
+#### 功能
+
 - 自用, 主要的功能是对 zotero 中的期刊进行缩写
 - 安装该插件以后, 直接选中条目右键, 找到`期刊缩写` -->`更新期刊缩写`  , 并点击,则可以执行期刊缩写任务
 - 期刊缩写的来源: [JabRef/abbrv.jabref.org](https://github.com/JabRef/abbrv.jabref.org), 我对其进行了整合,
