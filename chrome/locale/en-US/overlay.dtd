@@ -1,9 +1,12 @@
 <!ENTITY zotero.journalabbrbyzsc.tools.label "Journalabbr">
 <!ENTITY zotero.journalabbrbyzsc.tools.updateUserAbbr.label "Update user's journalabbr">
 <!ENTITY zotero.journalabbrbyzsc.tools.updatejournal.label "Update journalabbr">
+<!ENTITY zotero.journalabbrbyzsc.tools.abbrToupper.label "toUpperCase">
+<!ENTITY zotero.journalabbrbyzsc.tools.abbrTolower.label "toLowerCase">
+<!ENTITY zotero.journalabbrbyzsc.tools.abbrTocapitalize.label "Capitalize">
+<!ENTITY zotero.journalabbrbyzsc.tools.removeAbbrdot.label "remove dot">
 <!ENTITY zotero.journalabbrbyzsc.tools.deletetag.label "Delete 'abbr' tag">
 <!ENTITY zotero.journalabbrbyzsc.tools.deleteUsertag.label "Delete 'abbr_user' tag">
 <!ENTITY zotero.journalabbrbyzsc.updateCollection.label "Collection journalabbr">
-
 <!ENTITY zotero.journalabbrbyzsc.help.title.label "About">
 

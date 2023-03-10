@@ -32,6 +32,23 @@
                 id="journalabbr-itemmenu-updatejournal"
                 label="&zotero.journalabbrbyzsc.tools.updatejournal.label;"
                 oncommand="Zotero.journalabbrbyzsc.updateJournalAbbrSelectedItems()"/>
+            <!-- 定义二级菜单   简写期刊大小写化以及首字母化, 以及 移除点 -->
+            <menuitem
+            id="journalabbr-itemmenu-abbrToupper"
+            label="&zotero.journalabbrbyzsc.tools.abbrToupper.label;"
+            oncommand="Zotero.journalabbrbyzsc.abbrToupperSelectedItems()"/>
+            <menuitem
+            id="journalabbr-itemmenu-abbrTolower"
+            label="&zotero.journalabbrbyzsc.tools.abbrTolower.label;"
+            oncommand="Zotero.journalabbrbyzsc.abbrTolowerSelectedItems()"/>
+            <menuitem
+            id="journalabbr-itemmenu-abbrTocapitalize"
+            label="&zotero.journalabbrbyzsc.tools.abbrTocapitalize.label;"
+            oncommand="Zotero.journalabbrbyzsc.abbrTocapitalizeSelectedItems()"/>  
+            <menuitem
+            id="journalabbr-itemmenu-removeAbbrdot"
+            label="&zotero.journalabbrbyzsc.tools.removeAbbrdot.label;"
+            oncommand="Zotero.journalabbrbyzsc.removeAbbrdotSelectedItems()"/>  
             <!-- 定义二级菜单  添加class = “menuitem-iconic zotero-jabbr-myname-icon” 可以添加图片-->
             <menuitem
                 id="journalabbr-itemmenu-deletetag"
