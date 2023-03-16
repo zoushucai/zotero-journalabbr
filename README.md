@@ -36,6 +36,6 @@
 
 #### 自定义期刊缩写数据库
 
-- 可以更改`chrome/content/scripts/journalabbrbyzsc.js` 文件来定义新的数据库,用的是 json 格式来定义的
-- 然后, 在主目录下执行,`bash build.sh` 即可生成新的插件
+- 可以更改`chrome/content/scripts/journalabbrbyzsc.js` 文件来定义新的数据库,用的是 json 格式来定义的. 然后, 在主目录下执行,`bash build.sh` 即可生成新的插件
 
+- 可以添加自己 csv 数据库, 数据格式要求, 第一列是原始期刊的 title, 第二列是缩写期刊, 中间用分号隔开(注意:如果用 excel 打开的话,默认是用的逗号,要注意) , 不需要列名
