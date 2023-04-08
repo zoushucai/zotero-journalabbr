@@ -9,11 +9,12 @@
         RDF:about ="urn:mozilla:install-manifest"
       em:id="journal-abbr-for-Zotero@zoushucai.github.io"
       em:name="journal abbr for Zotero"
-      em:version="1.0.0"
+      em:version="0.5.1"
       em:type="2"
       em:creator="zsc"
       em:description="该插件进行更新期刊缩写以及添加或删除'abbr'标签!"
-      em:homepageURL="https://github.com/zoushucai/zotero-journalabbr">
+      em:homepageURL="https://github.com/zoushucai/zotero-journalabbr"
+      em:updateURL="https://github.com/zoushucai/zotero-journalabbr/releases/download/V0.5.1/zotero-journalabbr-pulgin-0.5.1.xpi">
       <em:type>2</em:type>
       
 

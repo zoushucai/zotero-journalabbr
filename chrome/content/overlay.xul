@@ -58,6 +58,11 @@
                 id="journalabbr-itemmenu-deleteUsertag"
                 label="&zotero.journalabbrbyzsc.tools.deleteUsertag.label;"
                 oncommand="Zotero.journalabbrbyzsc.deleteTagSelectedItems(['abbr_user'])"/>
+            <!--  交换期刊 -->
+            <menuitem
+                id="journalabbr-itemmenu-exchange"
+                label="&zotero.journalabbrbyzsc.tools.exchange.label;"
+                oncommand="Zotero.journalabbrbyzsc.exchangeSelectedItems()"/>
           </menupopup>
         </menu>
     </menupopup>
