@@ -5,7 +5,8 @@
     "target": "ES2016",
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "removeComments": true
   },
   "include": ["src", "typing", "node_modules/zotero-types"],
   "exclude": ["builds", "addon"]

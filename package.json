@@ -8,7 +8,7 @@
     "addonRef": "journalabbr",
     "addonInstance": "journalabbr",
     "releasepage": "https://github.com/zoushucai/zotero-journalabbr/releases/latest/download/zotero-journalabbr.xpi",
-    "updaterdf": "https://raw.githubusercontent.com/zoushucai/zotero-journalabbr/master/update.json"
+    "updaterdf": "https://raw.githubusercontent.com/zoushucai/zotero-journalabbr/main/update.json"
   },
   "main": "src/index.ts",
   "scripts": {
