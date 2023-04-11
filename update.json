@@ -1,0 +1,26 @@
+{
+  "addons": {
+    "journalabbr@zsc.com": {
+      "updates": [
+        {
+          "version": "0.6.0",
+          "update_link": "https://github.com/zoushucai/zotero-journalabbr/releases/latest/download/zotero-journalabbr.xpi",
+          "applications": {
+            "gecko": {
+              "strict_min_version": "60.0"
+            }
+          }
+        },
+        {
+          "version": "0.6.0",
+          "update_link": "https://github.com/zoushucai/zotero-journalabbr/releases/latest/download/zotero-journalabbr.xpi",
+          "applications": {
+            "zotero": {
+              "strict_min_version": "6.999"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
