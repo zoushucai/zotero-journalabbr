@@ -76,8 +76,7 @@ export class BasicExampleFactory {
     [
       ["CSV File(*.csv)", "*.csv"],
       ["Any(*.*)", "*"]
-    ],
-    "*.*"
+    ]
   ).open();
   
   // 判断选择的地址是否为空,以及是否为字符串 false 
@@ -266,13 +265,13 @@ export class UIExampleFactory {
   // // 右键菜单: 一键更新期刊缩写
   @example
     static registerRightClickMenuItem() {
-      const menuIcon = `chrome://${config.addonRef}/content/icons/favicon@0.5x.png`;
+      //const menuIcon = `chrome://${config.addonRef}/content/icons/favicon@0.5x.png`;
       // item menuitem with icon
       ztoolkit.Menu.register("item", {
         tag: "menuitem",
         id: "zotero-itemmenu-abbr-journal-onestepupate",
         label: getString("menuitem.onestepupate"),
-        icon: menuIcon,
+        //icon: menuIcon,
         commandListener: (ev) => HelperAbbrFactory.oneStepUpdate(),
       });
     }

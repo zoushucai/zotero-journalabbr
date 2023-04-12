@@ -1,10 +1,13 @@
 <!ENTITY zotero.__addonRef__.pref.title "插件设置">
+<!ENTITY zotero.__addonRef__.pref.groupbox.first.label "路径设置">
+
 <!ENTITY zotero.__addonRef__.pref.input.label "输入csv地址: ">
-<!ENTITY zotero.__addonRef__.pref.button.label "选择">
 <!ENTITY zotero.__addonRef__.pref.separator.label "文件分隔符(csv格式): ">
 <!ENTITY zotero.__addonRef__.pref.separator.semicolon.label "分号">
 <!ENTITY zotero.__addonRef__.pref.separator.comma.label "逗号">
 <!ENTITY zotero.__addonRef__.pref.separator.auto.label "自动(始终为逗号)">
+<!ENTITY zotero.__addonRef__.pref.button.label "选择">
+
 
 <!ENTITY zotero.__addonRef__.help.version.label "__addonName__ 版本 __buildVersion__">
 <!ENTITY zotero.__addonRef__.help.releasetime.label "Build __buildTime__">

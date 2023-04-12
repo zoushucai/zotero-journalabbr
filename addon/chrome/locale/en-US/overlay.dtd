@@ -1,15 +1,15 @@
-<!ENTITY zotero.__addonRef__.pref.title "Addon Template Example">
-<!ENTITY zotero.__addonRef__.itemmenu.test.label "addon template">
-<!ENTITY zotero.__addonRef__.pref.enable.label "Enable">
-<!ENTITY zotero.__addonRef__.pref.input.label "Input">
-
 <!ENTITY zotero.__addonRef__.pref.title "Journalabbr">
+<!ENTITY zotero.__addonRef__.pref.groupbox.first.label "Path Settings">
+
 <!ENTITY zotero.__addonRef__.pref.input.label "Enter the csv address: ">
-<!ENTITY zotero.__addonRef__.pref.button.label "Select">
 <!ENTITY zotero.__addonRef__.pref.separator.label "File separator (csv): ">
 <!ENTITY zotero.__addonRef__.pref.separator.semicolon.label "semicolon">
 <!ENTITY zotero.__addonRef__.pref.separator.comma.label "comma">
 <!ENTITY zotero.__addonRef__.pref.separator.auto.label "always comma">
+<!ENTITY zotero.__addonRef__.pref.button.label "Select">
+
+
+
 
 <!ENTITY zotero.__addonRef__.help.version.label "__addonName__ VERSION __buildVersion__">
 <!ENTITY zotero.__addonRef__.help.releasetime.label "Build __buildTime__">
