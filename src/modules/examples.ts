@@ -1,7 +1,14 @@
 import { config } from "../../package.json";
 import { getString } from "./locale";
 import { journal_abbr } from "./data";
-import { get } from "http";
+import {
+  splitStringByKeywords, 
+  checkPrefix, 
+  replaceStringByKeywords,
+  getFirstNWordsOrCharacters
+} from "./citeParser";
+
+Components.utils.import("resource://gre/modules/osfile.jsm");
 
 function example(
   target: any,
@@ -92,6 +99,23 @@ export class BasicExampleFactory {
   //ztoolkit.getGlobal("alert")(`Selected ${path}`);
   }
 
+
+  // 初始化设置
+  @example 
+  static async initPrefs () {
+    const initpref_data = {
+        [config.addonRef+".input"]:  Zotero.Prefs.get('dataDir'),
+        [config.addonRef+".separator"]: ","
+    };
+
+    // Check if preference is already set and set it if not
+    for (let p in initpref_data) {
+      if (typeof Zotero.Prefs.get(p) === "undefined") {
+        Zotero.Prefs.set(p,  initpref_data[p] as string);
+      }
+    }
+  }
+  
   ////////////////////////
   ///// 以下是模板自带的 ///
   ////////////////////////
@@ -264,21 +288,33 @@ export class UIExampleFactory {
   // // 右键菜单: 用来测试新功能用,  用完后可以删除
   // // 右键菜单: 一键更新期刊缩写
   @example
-    static registerRightClickMenuItem() {
-      //const menuIcon = `chrome://${config.addonRef}/content/icons/favicon@0.5x.png`;
-      // item menuitem with icon
-      ztoolkit.Menu.register("item", {
-        tag: "menuitem",
-        id: "zotero-itemmenu-abbr-journal-onestepupate",
-        label: getString("menuitem.onestepupate"),
-        //icon: menuIcon,
-        commandListener: (ev) => HelperAbbrFactory.oneStepUpdate(),
-      });
-    }
+  static registerRightClickMenuItem() {
+    //const menuIcon = `chrome://${config.addonRef}/content/icons/favicon@0.5x.png`;
+    // item menuitem with icon
+    ztoolkit.Menu.register("item", {
+      tag: "menuitem",
+      id: "zotero-itemmenu-abbr-journal-onestepupate",
+      label: getString("menuitem.onestepupate"),
+      //icon: menuIcon,
+      commandListener: (ev) => HelperAbbrFactory.oneStepUpdate(),
+    });
+  }
+  
+  // 右键菜单: 一键 生成带有 \\bibitem{citeKey} bibliography  的期刊
+  @example
+  static registerRightClickMenuItemBibitem() {
+    ztoolkit.Menu.register("item", {
+      tag: "menuitem",
+      id: "zotero-itemmenu-abbr-journal-bibliography",
+      label: getString("menuitem.bibliography"),
+      commandListener: (ev) => HelperAbbrFactory.getbibliography(),
+    });
+  }
 }
 
 
 export class HelperAbbrFactory {
+
   // 简写期刊大写 ----  根据 journalAbbreviation 的字段进行特殊转换
   static async journalAbbreviationToUpperCase() {
    try {
@@ -638,5 +674,114 @@ static async oneStepUpdate(){
   await HelperAbbrFactory.updateJournalAbbreviationUseInnerData();
   await HelperAbbrFactory.updateJournalAbbreviationUseUserData();
 }
+
+
+
+static async getbibliography(){
+  try {
+    // 获取参考文献的默认样式
+    var qc = Zotero.QuickCopy;
+    var format = await Zotero.Prefs.get("export.quickCopy.setting");
+    format = format as string; // 强制断言为字符串类型
+    if (format.split("=")[0] !== "bibliography") {
+      BasicExampleFactory.ShowError("No bibliography style is chosen in the settings for QuickCopy.");
+      return;
+    }
+    //await BasicExampleFactory.ShowPopUP(`${format.split("=")[1]}`, getString("prompt.show.bib.title"));
+
+
+    const selectedItems = await Zotero.getActiveZoteroPane().getSelectedItems(); // 获取选中的条目
+    if (selectedItems.length == 0) {
+      BasicExampleFactory.ShowInfo("No items are selected.");
+      return;
+    }
+
+    // 2. 遍历选定的条目
+    let final_bib = ""; // 用于存储最终的参考文献
+    let successfulCount = 0; // 用于记录成功的转换的条目数, 用于显示, 
+    let noActionCount = 0; // 用于记录没有进行任何操作的条目数, 用于显示,
+    let missingInfoItemCount = 0; // 用于记录不能够转换的条目数, 用于显示,原因是缺少某些关键信息,比如文章的作者, 标题等
+    // 统计规则的条目数
+    let ruleItemCount = 0; // 用于记录符合规则的条目数, 用于显示,
+    //await BasicExampleFactory.ShowPopUP("Converting references, please wait...", getString(`${config.addonRef}`),10000);
+    
+    for (let item of selectedItems) {
+      if (item.isRegularItem()) {
+            ruleItemCount ++;
+            // 0. 获取条目的参考文献
+            let biblio = await qc.getContentFromItems([item], format);
+            if (biblio == null || biblio == undefined || biblio == "") {
+              //BasicExampleFactory.ShowError("No bibliography style is chosen in the settings for QuickCopy.");
+              missingInfoItemCount ++;
+              continue;
+            }
+            let biblio_txt = await biblio.text; // 转为字符串
+  
+            if(biblio_txt == null || biblio_txt == undefined || biblio_txt===false){
+              //BasicExampleFactory.ShowError("No bibliography style is chosen in the settings for QuickCopy.");
+              missingInfoItemCount ++;
+              continue;
+            }
+  
+            // 1. 获取条目的第一作者
+            let isgetcreator = item.getCreator(0) // isgetcreator === false 等价 !isgetcreator
+            if( !isgetcreator || item.getCreatorJSON(0) == null || item.getCreatorJSON(0) == undefined){
+              //BasicExampleFactory.ShowError("No author is found in the selected item.");
+              missingInfoItemCount ++;
+              continue;
+            }
+  
+            let author_lastName = await item.getCreator(0)['lastName']; // 获取第一作者的姓氏
+            author_lastName = author_lastName as string; // 强制断言为字符串类型
+            author_lastName =  author_lastName.trim(); // 去除空格
+  
+            // 2. 获取条目的 title
+            let title = await item.getField('title');
+            if(title == null || title == undefined || title  === false){
+              //BasicExampleFactory.ShowError("No title is found in the selected item.");
+              missingInfoItemCount ++;
+              continue;
+            }
+
+            title = title as string; // 强制断言为字符串类型
+            let ntitle = await getFirstNWordsOrCharacters(title, 4)
+  
+            // 3.通过分隔符（第一作者前面的空格）拆分参考文献, 保留了作者
+            let bib = await splitStringByKeywords(biblio_txt, author_lastName, ntitle );// bib为数字字符串
+            let result = "";
+            if(bib.length === 3){
+                let bib_prefix = bib[0]; // 前缀中不一定全部是前缀,可能有作者的信息
+  
+                let addvalue =  "\\bibitem{" + item.getField('citationKey')+ "} "; // 准备添加的前缀 
+                let bib_prefix_new = await checkPrefix(bib_prefix,true, addvalue);
+                
+                let bib_author = await replaceStringByKeywords(bib[1]); // 对作者进行替换
+  
+                result = bib_prefix_new + " " + bib_author + " " + bib[2] + '\n';
+                successfulCount ++;
+            }else{
+                // 不做任何处理
+              result = biblio_txt + '\n';
+              noActionCount ++; // 
+            }
+            final_bib = final_bib  + result;
+      }
+    }
+    if (successfulCount > 0){
+      BasicExampleFactory.ShowStatus(ruleItemCount, successfulCount, "items are converted.");// 条目应该是规则的条目数
+    }
+    if (noActionCount > 0){
+      BasicExampleFactory.ShowStatus(ruleItemCount, noActionCount, "items are not converted.");
+    }
+    if (missingInfoItemCount > 0){
+      BasicExampleFactory.ShowStatus(ruleItemCount, missingInfoItemCount, "items is missing information.");
+    }
+    return final_bib;
+  } catch (error) {
+    BasicExampleFactory.ShowError(getString("prompt.error.bib.info"))
+    return;
+  }
+}
+
 
 }

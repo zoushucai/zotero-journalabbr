@@ -32,14 +32,14 @@ async function onStartup() {
       progress: 0,
     })
     .show();
-
-  BasicExampleFactory.registerPrefs();
+  
+  await BasicExampleFactory.registerPrefs();
   //BasicExampleFactory.registerNotifier();//行为监听, 留着吧以后说不定有用
-
+  await BasicExampleFactory.initPrefs();
   UIExampleFactory.registerRightClickMenuSeparator();// 分割线
   UIExampleFactory.registerRightClickMenuPopup(); // 二级菜单
   UIExampleFactory.registerRightClickMenuItem(); //用于测试的一级菜单
-
+  UIExampleFactory.registerRightClickMenuItemBibitem(); //用于一级菜单, bib 的生成
   await Zotero.Promise.delay(1000);
 
   popupWin.changeLine({
