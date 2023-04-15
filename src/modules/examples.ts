@@ -318,24 +318,33 @@ export class HelperAbbrFactory {
   // 简写期刊大写 ----  根据 journalAbbreviation 的字段进行特殊转换
   static async journalAbbreviationToUpperCase() {
    try {
-     var items = Zotero.getActiveZoteroPane().getSelectedItems(); 
-     var rn = 0; //计算替换条目个数
-     if(1 <= items.length){
-         for (var item of items) {
-             var currentabbr: string | number | boolean = item.getField('journalAbbreviation');
-             // 断言是字符串类型
-             currentabbr = (currentabbr as string).toUpperCase();
-             if(currentabbr=="" || currentabbr==null || currentabbr==undefined){
-                 // alert("为空");
-             }else{
-                 item.setField("journalAbbreviation", currentabbr); 
-                 await item.saveTx();
-                 rn ++;
-             }
-         }
-     }
-   //BasicExampleFactory.ShowError('转换失败');
-   BasicExampleFactory.ShowStatus(items.length, rn, getString("prompt.success.abbrToupper.info"));
+    const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems(); 
+    if(0 == selectedItems.length){
+        BasicExampleFactory.ShowStatus(0, 0, getString("prompt.success.abbrToupper.info"));
+        return;
+    }
+
+    const updateResults = await Promise.all(selectedItems.map(async (item) => {
+      const originalAbbr = item.getField('journalAbbreviation') as string;
+
+      // Checking if the current abbreviation is not empty, null, or undefined
+      if (originalAbbr) {
+        const current = originalAbbr.toUpperCase();
+
+        // If the current is different from the original, update the item's journal abbreviation field
+        if (current !== originalAbbr) {
+          item.setField("journalAbbreviation", current);
+          await item.saveTx();
+          //return true; // Return true to indicate a replaced item
+        }
+        return true; // 也表示已经替换成功
+      }
+      return false; // Return false to indicate no replacement occurred
+    }));
+  
+    // Calculate the total number of replaced items using reduce
+    const successCount = updateResults.filter(Boolean).length;
+    BasicExampleFactory.ShowStatus(selectedItems.length, successCount, getString("prompt.success.abbrToupper.info"));
  } catch (error) {
    BasicExampleFactory.ShowError(getString("prompt.error.execution.info"));
  }
@@ -344,24 +353,28 @@ export class HelperAbbrFactory {
 
 // 简写期刊小写  ----- 根据 journalAbbreviation 的字段进行特殊转换
 static async journalAbbreviationToLowerCase() {
- try {
-   var items = Zotero.getActiveZoteroPane().getSelectedItems(); 
-   var rn = 0; //计算替换条目个数
-   if(1 <= items.length){
-       for (var item of items) {
-           var currentabbr: string | number | boolean =item.getField('journalAbbreviation');
-           // // 也可以强制断言是字符串类型
-           currentabbr = (currentabbr as string).toLowerCase();
-           if(currentabbr=="" || currentabbr==null || currentabbr==undefined){
-               // alert("为空");
-           }else{
-               item.setField("journalAbbreviation", currentabbr); 
-               await item.saveTx();
-               rn ++;
-           }
-       }
-   }
-   BasicExampleFactory.ShowStatus(items.length, rn, getString("prompt.success.abbrTolower.info"))
+  try {
+    const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems(); 
+    if(0 == selectedItems.length){
+      BasicExampleFactory.ShowStatus(0, 0, getString("prompt.success.abbrToupper.info"));
+      return;
+    }
+
+  const updateResults = await Promise.all(selectedItems.map(async (item) => {
+    const originalAbbr = item.getField('journalAbbreviation') as string;
+    if (originalAbbr) {
+      const current = originalAbbr.toLowerCase();
+      if (current !== originalAbbr) {
+        item.setField("journalAbbreviation", current);
+        await item.saveTx();
+      }
+      return true; 
+    }
+    return false; 
+  }));
+
+  const successCount = updateResults.filter(Boolean).length; 
+  BasicExampleFactory.ShowStatus(selectedItems.length, successCount, getString("prompt.success.abbrTolower.info"))
  } catch (error) {
   BasicExampleFactory.ShowError(getString("prompt.error.execution.info"));
 }
@@ -370,26 +383,29 @@ static async journalAbbreviationToLowerCase() {
 //简写期刊首字母化 ---- 根据 journalAbbreviation 的字段进行特殊转换
 static async journalAbbreviationToCapitalize() {
  try {
-   var items = Zotero.getActiveZoteroPane().getSelectedItems(); 
-   var rn = 0; //计算替换条目个数
-   if(1 <= items.length){
-       for (var item of items) {
-           var currentabbr  =  item.getField('journalAbbreviation');
-           //强制断言是字符串类型
-           currentabbr = (currentabbr as string).toLowerCase()
-           currentabbr = currentabbr.replace(/(?:^|\s)\S/g, function(firstChar: string) {
-               return firstChar.toUpperCase();
-             });
-           if(currentabbr=="" || currentabbr==null || currentabbr==undefined){
-               // alert("为空");
-           }else{
-               item.setField("journalAbbreviation", currentabbr); 
-               await item.saveTx();
-               rn ++;
-           }
-       }
-   }
-   BasicExampleFactory.ShowStatus(items.length, rn, getString("prompt.success.abbrTocapitalize.info"))
+  const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems(); 
+  if(0 == selectedItems.length){
+    BasicExampleFactory.ShowStatus(0, 0, getString("prompt.success.abbrToupper.info"));
+    return;
+  }
+
+  const updateResults = await Promise.all(selectedItems.map(async (item) => {
+    const originalAbbr = item.getField('journalAbbreviation')  as string;
+    if (originalAbbr) {
+      const current =  originalAbbr.replace(/(?:^|\s)\S/g, function(firstChar: string) {
+        return firstChar.toUpperCase();
+      });
+      if (current !== originalAbbr) {
+        item.setField("journalAbbreviation", current);
+        await item.saveTx();
+      }
+      return true; 
+    }
+    return false; 
+  }));
+  const successCount = updateResults.filter(Boolean).length;
+
+  BasicExampleFactory.ShowStatus(selectedItems.length, successCount, getString("prompt.success.abbrTocapitalize.info"))
  } catch (error) {
   BasicExampleFactory.ShowError(getString("prompt.error.execution.info"));
  }
@@ -398,23 +414,27 @@ static async journalAbbreviationToCapitalize() {
 // 移除简写期刊中的点
 static async removeJournalAbbreviationDot() {
  try {
-     var items = Zotero.getActiveZoteroPane().getSelectedItems(); 
-     var rn = 0; //计算替换条目个数
-     if(1 <= items.length){
-         for (var item of items) {
-             var currentabbr  =  item.getField('journalAbbreviation')
-             //强制断言是字符串类型
-             currentabbr = (currentabbr as string).replace(/\./g, "");
-             if(currentabbr=="" || currentabbr==null || currentabbr==undefined){
-                 // alert("为空");
-             }else{
-                 item.setField("journalAbbreviation", currentabbr); 
-                 await item.saveTx();
-                 rn ++;
-             }
-         }
-     }
-   BasicExampleFactory.ShowStatus(items.length, rn, getString("prompt.success.removeAbbrdot.info"))
+    const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems(); 
+    if(0 == selectedItems.length){
+      BasicExampleFactory.ShowStatus(0, 0, getString("prompt.success.abbrToupper.info"));
+      return;
+    }
+
+    const updateResults = await Promise.all(selectedItems.map(async (item) => {
+      const originalAbbr = item.getField('journalAbbreviation')  as string;
+      if (originalAbbr) {
+        const current =  originalAbbr.replace(/\./g, "");
+        if (current !== originalAbbr) {
+          item.setField("journalAbbreviation", current);
+          await item.saveTx();
+        }
+        return true; 
+      }
+      return false; 
+    }));
+    const successCount = updateResults.filter(Boolean).length;
+
+    BasicExampleFactory.ShowStatus(selectedItems.length, successCount, getString("prompt.success.removeAbbrdot.info"))
  } catch (error) {
   BasicExampleFactory.ShowError(getString("prompt.error.execution.info"));
  }
@@ -424,20 +444,25 @@ static async removeJournalAbbreviationDot() {
 // 根据标签名称, 删除对应的标签
 static async removeTagByName(usertags: string[]) {
    try {
-     //获取 Zotero 窗口,并获取选中的条目信息， items包含所选条目的所有字段信息
-     var items = Zotero.getActiveZoteroPane().getSelectedItems(); 
-     var rn = 0; // 记录删除指定 tag 的个数
-     var nf = false;  // 删除 tag 是否成功
-     if(1 <= items.length){
-         for(var item of items){
-             nf = item.removeTag(usertags[0]);
-             if(nf){
-                 await item.saveTx();
-                 rn ++
-             }
-         }
-     }
-   BasicExampleFactory.ShowStatus(items.length, rn,  getString("prompt.success.removetag.info")+': '+usertags[0])
+    //获取 Zotero 窗口,并获取选中的条目信息， items包含所选条目的所有字段信息
+    const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems(); 
+    if(0 == selectedItems.length){
+      BasicExampleFactory.ShowStatus(0, 0, getString("prompt.success.abbrToupper.info"));
+      return;
+    }
+
+    const results = await Promise.all(selectedItems.map(async (item) => {
+      const nf = item.removeTag(usertags[0]);
+      if (nf) {
+        await item.saveTx();
+        return true;
+      } else {
+        return false;
+      }
+    }));
+    const successCount = results.filter(Boolean).length;
+
+    BasicExampleFactory.ShowStatus(selectedItems.length, successCount, getString("prompt.success.removetag.info")+': '+usertags[0])
  } catch (error) {
    //BasicExampleFactory.ShowError('删除'+usertags[0] + '标签失败') 
    BasicExampleFactory.ShowError(getString("prompt.error.removetag.info")+': '+ usertags[0] );
@@ -448,37 +473,31 @@ static async removeTagByName(usertags: string[]) {
 // 交换期刊名 --- 即简写期刊与期刊名互换
 static async exchangeJournalName() {
  try {
-   var items = Zotero.getActiveZoteroPane().getSelectedItems(); 
-   var rn = 0; //计算替换条目个数
-   if(1 <= items.length){
-       for (var item of items) {
-           let currentabbr  =  item.getField('journalAbbreviation');
-           let currentjournal  =  item.getField('publicationTitle');
-           item.setField("journalAbbreviation", currentjournal); 
-           item.setField("publicationTitle", currentabbr); 
-           await item.saveTx();
-           // 检查标签是否存在
-           let tagExists = false;
-           const tagName = 'exchange';
-           let tags = item.getTags();
-           for (const tag of tags) {
-               if (tag.tag === tagName) {
-                   tagExists = true;
-                   break;
-               }
-           }
-           // 如果标签存在，则移除；如果不存在，则添加
-           if (tagExists) {
-             await item.removeTag(tagName);
-           } else {
-             await item.addTag(tagName);
-           }
-           // 保存更改
-           await item.saveTx();   
-           rn ++;
-       }
-   }
-   BasicExampleFactory.ShowStatus(items.length, rn, getString("prompt.success.exchange.info"))
+  const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems(); 
+  if(0 == selectedItems.length){
+    BasicExampleFactory.ShowStatus(0, 0, getString("prompt.success.abbrToupper.info"));
+    return;
+  }
+  const tagName = 'exchange';
+  const updateResults = await Promise.all(selectedItems.map(async (item) => {
+    const currentabbr = item.getField('journalAbbreviation');
+    const currentjournal = item.getField('publicationTitle');
+    item.setField('journalAbbreviation', currentjournal);
+    item.setField('publicationTitle', currentabbr);
+    await item.saveTx();
+
+    const tagExists = item.getTags().some((tag) => tag.tag === tagName); // some() 方法遍历该数组, 并返回一个布尔值, 表示是否有元素满足提供的函数
+    if (tagExists) {
+      item.removeTag(tagName);
+    } else {
+      item.addTag(tagName);
+    }
+    await item.saveTx();
+    return true;
+  }));
+  const successCount = updateResults.filter(Boolean).length;
+
+  BasicExampleFactory.ShowStatus(selectedItems.length, successCount, getString("prompt.success.exchange.info"))
  } catch (error) {
   BasicExampleFactory.ShowError(getString("prompt.error.exchange.info"));
 }
@@ -490,17 +509,15 @@ static async exchangeJournalName() {
 static async buttonSelectFilePath() {
   var mypath = await BasicExampleFactory.filePickerExample();
   // 判断选择的地址是否为空
-  if (mypath === null) {
+  if (!mypath) {
     BasicExampleFactory.ShowPopUP(getString("prompt.show.cancel.selectpath.info"))
   }else{
     await Zotero.Prefs.set(`${config.addonRef}.input`, mypath);
     BasicExampleFactory.ShowPopUP(getString("prompt.show.success.selectpath.info")+ getString(`${mypath}`))
   }
-
 }
 
 // 删除字符串两边的空格, 删除成对的双引号或单引号
-@example
 static async trimAndRemoveQuotes(str: string) {
    // 删除两边的空格, \s+ 是一个正则表达式，用于匹配一个或多个空白字符，
    // 而 /g 则是一个标志，表示全局匹配。
@@ -516,31 +533,43 @@ static async trimAndRemoveQuotes(str: string) {
  // 读取 csv 文件并解析
  @example
  static async readAndParseCSV(filePath: string, delimiter: string = ',') {
-   try {
-     // Read CSV file content
-     let csvContent = await Zotero.File.getContentsAsync(filePath);
-     // 断言是字符串类型
-     csvContent = csvContent as string;
-     // Parse CSV content
-     let lines = csvContent.trim().split('\n');
-     let data: { [key: string]: any } = {};
-     for (let i = 0; i < lines.length; i++) {
-         let currentLine = lines[i].split(delimiter);
-         let key = await HelperAbbrFactory.trimAndRemoveQuotes(currentLine[0]);
-         key = key.toLowerCase();
-         let value = await HelperAbbrFactory.trimAndRemoveQuotes(currentLine[1]);
-         if(key == "" || value == ""){
-           BasicExampleFactory.ShowError('读取用户文件,大约第'+ i + "行解析出的格式中含有空字符")
-         }
-         if (!data.hasOwnProperty(key) && key != "" && value != "") {
-             data[key] = value; // 重复以先前的为准
-         }
-     }
-     return data;
- } catch (error) {
-   BasicExampleFactory.ShowError(getString("prompt.error.readfile.info"));
-   return null;
- }
+  try {
+    const csvContent = await Zotero.File.getContentsAsync(filePath) as string;
+    const lines = csvContent.trim().split('\n');
+    const data: {[key: string]: any} = {};
+    const errors: any[] = [];
+
+    await Promise.all(lines.map(async (line, i) => {
+      let currentLine = line.split(delimiter);
+      if (currentLine.length != 2) {
+        errors.push(i + 1);
+        return;
+      }
+      let key = await this.trimAndRemoveQuotes(currentLine[0]);
+      key = key.toLowerCase();
+      let value = await this.trimAndRemoveQuotes(currentLine[1]);
+
+      if(!key || !value){
+          errors.push(i + 1);
+      }
+
+      if (!data.hasOwnProperty(key) && key != "" && value != "") {
+      data[key] = value; // 重复以先前的为准
+      }
+    }));
+    if (errors.length > 0 ) {
+      //console.log(errors)
+      if(errors.length > 5){
+        BasicExampleFactory.ShowError(getString("prompt.show.readfile.more.info") +" " + errors.length);
+      }else{
+        BasicExampleFactory.ShowError(getString("prompt.show.readfile.less.info") + " "+ errors.join(', '));
+      }
+    }
+    return data;
+  } catch (error) {
+    BasicExampleFactory.ShowError(getString("prompt.error.readfile.info"));
+    return null;
+  }
 }
 
 
@@ -551,66 +580,85 @@ static async trimAndRemoveQuotes(str: string) {
 // 定义一个共用的函数, 用于更新期刊缩写, 传递的第一个参数为数据, 第二个参数为数组字符串
 // 这个数据的要求: 数据集在 js 中是一个字典对象,  第一列key为原始期刊名(全部是小写且删除多余的空格), 第二列value为缩写
 // 第二个参数为进行期刊缩写的条目添加给定的标签, 用于标记识别
-static async updateJournalAbbr(data: { [key: string]: any }, addtagsname: string[], removetagsname: string[], str: string) {
+static async updateJournalAbbr(
+  data: { [key: string]: any }, 
+  addtagsname: string[], 
+  removetagsname: string[], 
+  successinfo: string, 
+  errorinfo: string
+) {
  try {
    //1. 先获取选择的条目
    var items = Zotero.getActiveZoteroPane().getSelectedItems(); //items包含所选条目的所有字段信息
-   let rn = 0; //计算替换条目个数
-
    //2. 判断是否有条目被选中
-   
-   if(1 <= items.length){
-       for (let item of items) {
-           let currentjournal  =  item.getField('publicationTitle'); //1. 字段精确查询 
-           if (!currentjournal) {
-            break;
-           }
-           currentjournal = currentjournal as string; // 强制断言为字符串类型
-           currentjournal  =  currentjournal.trim().toLowerCase(); //2. 转换为小写, 删除多余的空格
-           currentjournal = currentjournal.replace(/\s+/g, ' ').trim();
-          if(currentjournal=="" || currentjournal==null || currentjournal==undefined){
-            // alert("为空");
-            break;
-          }
-           if(data.hasOwnProperty(currentjournal)){
-               item.setField("journalAbbreviation", data[currentjournal]); 
-               await item.saveTx();
-               // 对条目的标签进行处理
-               const addtags = addtagsname[0];
-               const removetags = removetagsname[0];
-              
-               // 如果准备移除的标签存在, 则移除, 如果准备添加的标签不存在, 则添加
-               let tags = item.getTags();//获取条目的所有标签
-               for (const tag of tags) {
-                  if (tag.tag === removetags) {
-                       await item.removeTag(removetags);
-                       break;
-                   }
-               }
-               let tagExists = false;
-               //tags = item.getTags();
-               for(const tag of tags ){
-                  if (tag.tag === addtags) {
-                    tagExists = true;
-                    break;
-                  }
-               }
-               // 如果标签不存在, 则添加
-               if (!tagExists) {
-                 await item.addTag(addtags); // 表示这些期刊进行了自动期刊缩写
-               }
-               //await item.saveTx();
-               await item.save({
-                 skipDateModifiedUpdate: true
-               });
-               rn ++;
-           }
-       }
-   }
-   BasicExampleFactory.ShowStatus(items.length, rn, str)
- } catch (error) {
+   if (items.length === 0) {
+    BasicExampleFactory.ShowStatus(items.length, 0, successinfo);
+    return;
+  }
 
-   BasicExampleFactory.ShowError(getString("prompt.error.updatejournal.info"));
+  const tasks = items.map(async (item) => {
+    let currentjournal = item.getField('publicationTitle'); //1. 字段精确查询 
+    if (!currentjournal) {
+      return ;
+    }
+
+    currentjournal = currentjournal as string;
+    currentjournal = currentjournal.trim().toLowerCase(); //2. 转换为小写, 删除多余的空格
+    currentjournal = currentjournal.replace(/\s+/g, ' ').trim();
+
+    if (currentjournal == "" || currentjournal == null || currentjournal == undefined) {
+      return ;
+    }
+
+    if (data.hasOwnProperty(currentjournal)) {
+      item.setField("journalAbbreviation", data[currentjournal]);
+      //await item.saveTx();
+
+      // 对条目的标签进行处理
+      const addtags = addtagsname[0];
+      const removetags = removetagsname[0];
+            
+      let tags = item.getTags(); //获取条目的所有标签
+
+      // 如果条目没有标签, 则直接添加
+      if (tags.length === 0) {
+        item.addTag(addtags);
+        return true;
+      }
+
+       // 如果准备移除的标签存在, 则移除, 如果准备添加的标签不存在, 则添加
+      for (const tag of tags) {
+        // 如果准备移除的标签存在, 则移除
+        if (tag.tag === removetags) {
+          item.removeTag(removetags);
+          break;
+        }
+      }
+
+      // 检查准备添加的标签是否存在
+      let tagExists = false;
+      for (const tag of tags) {
+        if (tag.tag === addtags) {
+          tagExists = true;
+          break;
+        }
+      }
+      // 如果标签不存在, 则添加
+      if (!tagExists) {
+        item.addTag(addtags); // 表示这些期刊进行了自动期刊缩写
+      }
+      await item.saveTx();
+      return true;
+    }
+    return ;
+  });
+
+  const results = await Promise.all(tasks);
+  const updateCount = results.filter(result => result).length; //筛选出成功更新的数量
+  BasicExampleFactory.ShowStatus(items.length, updateCount, successinfo);
+  
+ } catch (error) {
+  BasicExampleFactory.ShowError(errorinfo);
  }
  return;
 }
@@ -618,7 +666,13 @@ static async updateJournalAbbr(data: { [key: string]: any }, addtagsname: string
 
 // 1. 使用内部数据集进行更新
 static async updateJournalAbbreviationUseInnerData() {
- await HelperAbbrFactory.updateJournalAbbr(journal_abbr, ['abbr'], ['abbr_user'], getString("prompt.success.updatejournal.info"))
+ await this.updateJournalAbbr(
+  journal_abbr, 
+  ['abbr'], 
+  ['abbr_user'], 
+  getString("prompt.success.updatejournal.inner.info"), 
+  getString("prompt.error.updatejournal.inner.info")
+  )
 }
 
 //2 . 使用用户数据集进行更新
@@ -641,27 +695,26 @@ static async updateJournalAbbreviationUseUserData() {
     // 2. 读取用户数据集, 以及数据的分割符号
    var pref_separator = await Zotero.Prefs.get(`${config.addonRef}.separator`); // 获得持久化的变量
    pref_separator = pref_separator as string; // 强制断言为字符串类型
-  //  // 3. 判断分割符号是否为分号或逗号
-  //   if(pref_separator != "," && pref_separator != ";"){
-  //     ztoolkit.getGlobal("alert")(`请先选择正确的分隔符号`);
-  //     return;
-  //   }else{
-  //     BasicExampleFactory.ShowPopUP("自动选择逗号(,)分隔符号")
-  //     pref_separator = ',' //默认为逗号
-  //   }
-   var user_abbr_data = await HelperAbbrFactory.readAndParseCSV(userfile, pref_separator);
+
+   // 3. 读取 csv 文件, 并解析为字典对象
+   var user_abbr_data = await this.readAndParseCSV(userfile, pref_separator);
 
    // 4.判断返回的 user_abbr_data 的类型
    if(typeof user_abbr_data != "object" || user_abbr_data == null || user_abbr_data == undefined){
-     //ztoolkit.getGlobal("alert")(`读取 csv 文件失败, 可能不存在该文件，或文件未按指定格式书写!`);
      BasicExampleFactory.ShowError('读取 csv 文件失败, 可能不存在该文件或文件未按指定格式书写!');
      return;
    }
 
    // 5. 更新期刊缩写 -- 返回的信息为 已有 2/2 条目缩写更新
-   await HelperAbbrFactory.updateJournalAbbr(user_abbr_data, ['abbr_user'], ['abbr'], getString("prompt.success.updatejournal.info"));
+   await this.updateJournalAbbr(
+    user_abbr_data, 
+    ['abbr_user'], 
+    ['abbr'],
+    getString("prompt.success.updatejournal.user.info"), 
+    getString("prompt.error.updatejournal.user.info")
+  );
  } catch (error) {
-   BasicExampleFactory.ShowError('采用用户数据集更新简写期刊失败')
+   BasicExampleFactory.ShowError(getString("prompt.error.updatejournal.user.info"))
  }
 }
 
@@ -671,117 +724,126 @@ static async oneStepUpdate(){
   // ztoolkit.getGlobal("alert")(`hhhh==kk${aa}`)
   //
   // 1. 一键更新期刊, 先使用内部数据集,在使用自定义数据集, 
-  await HelperAbbrFactory.updateJournalAbbreviationUseInnerData();
-  await HelperAbbrFactory.updateJournalAbbreviationUseUserData();
+  await this.updateJournalAbbreviationUseInnerData();
+  await this.updateJournalAbbreviationUseUserData();
 }
 
 
 
+
+// 定义一个获取参考文献的异步函数
 static async getbibliography(){
   try {
-    // 获取参考文献的默认样式
-    var qc = Zotero.QuickCopy;
-    var format = await Zotero.Prefs.get("export.quickCopy.setting");
-    format = format as string; // 强制断言为字符串类型
-    if (format.split("=")[0] !== "bibliography") {
-      BasicExampleFactory.ShowError("No bibliography style is chosen in the settings for QuickCopy.");
-      return;
-    }
-    //await BasicExampleFactory.ShowPopUP(`${format.split("=")[1]}`, getString("prompt.show.bib.title"));
+    // 获取参考文献的默认格式
+    const format = await this.getQuickCopyFormat();
+    if (!format) return;
 
-
-    const selectedItems = await Zotero.getActiveZoteroPane().getSelectedItems(); // 获取选中的条目
+    //  获取选定的 Zotero 条目
+    const selectedItems = await Zotero.getActiveZoteroPane().getSelectedItems();
     if (selectedItems.length == 0) {
       BasicExampleFactory.ShowInfo("No items are selected.");
       return;
     }
+  
+    //  为选定的每个项目创建一个 bibTasks 数组，其中包含异步操作
+    const bibTasks = selectedItems.map(async (item) => {
+      if (!item.isRegularItem()) return ""; // 如果 item 不是一个规则的条目，返回空字符串
+      
+      // 获取当前条目的参考文献信息
+      const biblio = await Zotero.QuickCopy.getContentFromItems([item], format);
+      if (!biblio) return { type: "missingInfo" }; // 如果获取失败，返回 missingInfo 类型
 
-    // 2. 遍历选定的条目
-    let final_bib = ""; // 用于存储最终的参考文献
-    let successfulCount = 0; // 用于记录成功的转换的条目数, 用于显示, 
-    let noActionCount = 0; // 用于记录没有进行任何操作的条目数, 用于显示,
-    let missingInfoItemCount = 0; // 用于记录不能够转换的条目数, 用于显示,原因是缺少某些关键信息,比如文章的作者, 标题等
-    // 统计规则的条目数
-    let ruleItemCount = 0; // 用于记录符合规则的条目数, 用于显示,
-    //await BasicExampleFactory.ShowPopUP("Converting references, please wait...", getString(`${config.addonRef}`),10000);
-    
-    for (let item of selectedItems) {
-      if (item.isRegularItem()) {
-            ruleItemCount ++;
-            // 0. 获取条目的参考文献
-            let biblio = await qc.getContentFromItems([item], format);
-            if (biblio == null || biblio == undefined || biblio == "") {
-              //BasicExampleFactory.ShowError("No bibliography style is chosen in the settings for QuickCopy.");
-              missingInfoItemCount ++;
-              continue;
-            }
-            let biblio_txt = await biblio.text; // 转为字符串
-  
-            if(biblio_txt == null || biblio_txt == undefined || biblio_txt===false){
-              //BasicExampleFactory.ShowError("No bibliography style is chosen in the settings for QuickCopy.");
-              missingInfoItemCount ++;
-              continue;
-            }
-  
-            // 1. 获取条目的第一作者
-            let isgetcreator = item.getCreator(0) // isgetcreator === false 等价 !isgetcreator
-            if( !isgetcreator || item.getCreatorJSON(0) == null || item.getCreatorJSON(0) == undefined){
-              //BasicExampleFactory.ShowError("No author is found in the selected item.");
-              missingInfoItemCount ++;
-              continue;
-            }
-  
-            let author_lastName = await item.getCreator(0)['lastName']; // 获取第一作者的姓氏
-            author_lastName = author_lastName as string; // 强制断言为字符串类型
-            author_lastName =  author_lastName.trim(); // 去除空格
-  
-            // 2. 获取条目的 title
-            let title = await item.getField('title');
-            if(title == null || title == undefined || title  === false){
-              //BasicExampleFactory.ShowError("No title is found in the selected item.");
-              missingInfoItemCount ++;
-              continue;
-            }
+      const biblioTxt = await biblio.text;
+      if (!biblioTxt) return { type: "missingInfo" };
 
-            title = title as string; // 强制断言为字符串类型
-            let ntitle = await getFirstNWordsOrCharacters(title, 4)
-  
-            // 3.通过分隔符（第一作者前面的空格）拆分参考文献, 保留了作者
-            let bib = await splitStringByKeywords(biblio_txt, author_lastName, ntitle );// bib为数字字符串
-            let result = "";
-            if(bib.length === 3){
-                let bib_prefix = bib[0]; // 前缀中不一定全部是前缀,可能有作者的信息
-  
-                let addvalue =  "\\bibitem{" + item.getField('citationKey')+ "} "; // 准备添加的前缀 
-                let bib_prefix_new = await checkPrefix(bib_prefix,true, addvalue);
-                
-                let bib_author = await replaceStringByKeywords(bib[1]); // 对作者进行替换
-  
-                result = bib_prefix_new + " " + bib_author + " " + bib[2] + '\n';
-                successfulCount ++;
-            }else{
-                // 不做任何处理
-              result = biblio_txt + '\n';
-              noActionCount ++; // 
-            }
-            final_bib = final_bib  + result;
-      }
-    }
-    if (successfulCount > 0){
-      BasicExampleFactory.ShowStatus(ruleItemCount, successfulCount, "items are converted.");// 条目应该是规则的条目数
-    }
-    if (noActionCount > 0){
-      BasicExampleFactory.ShowStatus(ruleItemCount, noActionCount, "items are not converted.");
-    }
-    if (missingInfoItemCount > 0){
-      BasicExampleFactory.ShowStatus(ruleItemCount, missingInfoItemCount, "items is missing information.");
-    }
-    return final_bib;
-  } catch (error) {
-    BasicExampleFactory.ShowError(getString("prompt.error.bib.info"))
-    return;
-  }
+      // 获取作者姓氏和条目标题
+      const [authorLastName, title] = await Promise.all([
+        this.getAuthorLastName(item),
+        this.getItemTitle(item),
+      ]);
+      if (!authorLastName || !title) return { type: "missingInfo" };
+      
+      // 获取标题的前三个字符(单词或字符)
+      const nTitle = await getFirstNWordsOrCharacters(title, 3);
+      const bib = await splitStringByKeywords(biblioTxt, authorLastName, nTitle); // 根据关键词分割字符串
+      return bib.length === 3
+          ? { type: "success", content: this.buildFormattedBibItem(bib, item) }
+          : { type: "noAction", content: biblioTxt + '\n' };
+    });
+
+    const bibResults = await Promise.all(bibTasks); // 等待所有任务完成
+
+        // 使用 reduce 函数处理结果，得到最终参考文献字符串和各种计数器值
+    const [finalBib, ruleItemCount, successfulCount, noActionCount, missingInfoItemCount] =
+    bibResults.reduce(
+      ([finalBib, ruleItemCount, successfulCount, noActionCount, missingInfoItemCount], result) => {
+        if (result === "") return [finalBib, ruleItemCount, successfulCount, noActionCount, missingInfoItemCount];
+        ruleItemCount++;
+        switch (result.type) {
+          case "success":
+            successfulCount++;
+            finalBib += result.content;
+            break;
+          case "noAction":
+            noActionCount++;
+            finalBib += result.content;
+            break;
+          case "missingInfo":
+            missingInfoItemCount++;
+            break;
+        }
+        return [finalBib, ruleItemCount, successfulCount, noActionCount, missingInfoItemCount];
+      },
+      ["", 0, 0, 0, 0] // 初始值
+    );
+
+  this.showBibConversionStatus(ruleItemCount, successfulCount, noActionCount, missingInfoItemCount);
+  return finalBib;
+} catch (error) {
+  BasicExampleFactory.ShowError(getString("prompt.error.bib.info"));
+  return;
+}
 }
 
+
+static async getQuickCopyFormat() {
+  const format = Zotero.Prefs.get("export.quickCopy.setting") as string;
+  if (!format || format.split("=")[0] !== "bibliography") {
+    BasicExampleFactory.ShowError("No bibliography style is chosen in the settings for QuickCopy.");
+    return null;
+  }
+  return format;
+}
+
+static async getAuthorLastName(item: any) {
+  const creator = item.getCreator(0);
+  return creator ? creator['lastName']?.trim() : null;
+}
+
+static async getItemTitle(item: any) {
+  return await item.getField('title') || null;
+}
+
+static buildFormattedBibItem(bib:any, item:any) {
+  const bibPrefix = bib[0];
+  const addValue = "\\bibitem{" + item.getField('citationKey') + "} ";
+  const bibPrefixNew = checkPrefix(bibPrefix, true, addValue);
+
+  const bibAuthor = replaceStringByKeywords(bib[1]);
+
+  return bibPrefixNew + " " + bibAuthor + " " + bib[2] + '\n';
+}
+
+static showBibConversionStatus(ruleItemCount: number, successfulCount: number, noActionCount: number, missingInfoItemCount: number) {
+  if (successfulCount > 0) {
+    BasicExampleFactory.ShowStatus(ruleItemCount, successfulCount, "items are converted.");
+  }
+  if (noActionCount > 0) {
+    BasicExampleFactory.ShowStatus(ruleItemCount, noActionCount, "items are not converted.");
+  }
+  if (missingInfoItemCount > 0) {
+    BasicExampleFactory.ShowStatus(ruleItemCount, missingInfoItemCount, "items are missing information.");
+  }
+}
 
 }

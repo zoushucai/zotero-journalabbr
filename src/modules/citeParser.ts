@@ -45,7 +45,8 @@ export async function splitStringByKeywords(text: string, stringA: string, strin
     if (typeof text !== 'string' || typeof stringA !== 'string' || typeof stringB !== 'string') {
         return [];
     }
-
+    stringA = stringA.trim();
+    stringB = stringB.trim();
     // 创建一个正则表达式，匹配字符串 A 和字符串 B（忽略大小写），前面带空格
     let regexA = new RegExp(`\\s${stringA}`, 'i');
     let regexB = new RegExp(`\\s${stringB}`, 'i');
