@@ -115,6 +115,8 @@ export class BasicExampleFactory {
         Zotero.Prefs.set(p,  initpref_data[p] as string);
       }
     }
+    // 用于限制弹窗频率 -- 有问题
+    //Zotero.Prefs.set(`${config.addonRef}.exchange.lastExeTime`, "1");
   }
   
   ////////////////////////
@@ -185,12 +187,60 @@ export class BasicExampleFactory {
 }
 
 export class UIExampleFactory {
+
+  // // 限制弹窗频率-- 有问题
+  // static throttlePopupMessage(popupMessage:string, interval:number) {
+  //   let lastExecutionTime = Zotero.Prefs.get(`${config.addonRef}.exchange.lastExeTime`) as number;
+
+  //   const currentTime = new Date().getTime();
+  //   if (currentTime - lastExecutionTime > interval) {
+  //     BasicExampleFactory.ShowPopUP(popupMessage);
+  //     Zotero.Prefs.set(`${config.addonRef}.exchange.lastExeTime`, currentTime as string)
+  //   }
+    
+  // }
+  
+    //禁止显示某些菜单
+    static displayMenuitem() {
+      const items = ZoteroPane.getSelectedItems();// 等价于 Zotero.getActiveZoteroPane().getSelectedItems();
+      //const exchange = document.getElementById('zotero-itemmenu-abbr-journal-exchange'); // 交换期刊名
+      // 检查是否存在 exchange tag
+      //var elementss = document.querySelectorAll('[id^="zotero-itemmenu-abbr-"]');
+      // 定义一个包含特殊 ID 的数组
+      const excludeIds = [
+        'zotero-itemmenu-abbr-journal-exchange',
+        'zotero-itemmenu-abbr-journal-deleteAbbrTag',
+        'zotero-itemmenu-abbr-journal-bibliography',
+        'zotero-itemmenu-abbr-journal-deleteUserTag',
+        'zotero-itemmenu-abbr-journal-selectFile',
+      ];
+
+      // 获取所有以 'zotero-itemmenu-abbr-journal-' 开头的元素
+      const elements = document.querySelectorAll('[id^="zotero-itemmenu-abbr-journal-"]');
+
+      // 使用 Array.prototype.filter() 函数过滤特殊 ID 的元素
+      const filteredElements = Array.from(elements).filter(element => !excludeIds.includes(element.id));
+
+      let hasExchangeTag = items.some((item) => {
+        return item.hasTag('exchange');
+      });
+   
+      
+      if (hasExchangeTag) {
+        filteredElements.forEach((element) => element.setAttribute('disabled', 'true'));
+        //BasicExampleFactory.ShowPopUP(getString("prompt.show.disabled.info"));
+      }else{
+        filteredElements.forEach((element) => element.setAttribute('disabled', 'false'));
+      }
+    }
+
+
   // 分割条
   @example
   static registerRightClickMenuSeparator() {
     ztoolkit.Menu.register("item", {
       tag: "menuseparator",
-      id: "zotero-itemmenu-separator",
+      id: "zotero-itemmenu-abbr-separator",
     });
   }
   // 右键菜单: 期刊缩写
@@ -317,7 +367,8 @@ export class UIExampleFactory {
 
 // 以下为辅助函数........................................................
  async function filterSelectedItems() {
-  const items = Zotero.getActiveZoteroPane().getSelectedItems();
+  //const items = Zotero.getActiveZoteroPane().getSelectedItems();
+  const items = ZoteroPane.getSelectedItems();// 等价于 Zotero.getActiveZoteroPane().getSelectedItems();
   const selectedItems = items.filter((item) => !item.isNote() && item.isRegularItem()); // 过滤笔记 且 是规则的 item
   const selectedItemsLength = selectedItems.length;
   if (selectedItemsLength == 0) {
@@ -399,9 +450,7 @@ function exchangeJournalNameHandler(key1: string, key2: string, exchangetagname:
     item.setField(key1, journalName);
     item.setField(key2, journalAbbreviation);
 
-    const tags = item.getTags();
-    const tagExists = tags.some((tag: any) => tag.tag === exchangetagname);
-
+    const tagExists = item.hasTag(exchangetagname);
     if (tagExists) {
       item.removeTag(exchangetagname);
     } else {
@@ -457,7 +506,7 @@ function updateJournalAbbrHandler(
   };
 }
 
-function selectedItems_bib(items:any) {
+function getselectedItems_bib(items:any) {
   const format = Zotero.Prefs.get("export.quickCopy.setting") as string;
   if (!format || format.split("=")[0] !== "bibliography") {
     BasicExampleFactory.ShowError("No bibliography style is chosen in the settings for QuickCopy.");
@@ -502,6 +551,7 @@ function selectedItems_bib(items:any) {
 
 ///////////////////////////////
 export class HelperAbbrFactory {
+
   // 简写期刊大写 ----  根据 journalAbbreviation 的字段进行特殊转换
   static async journalAbbreviationToUpperCase() {
     const transformFn = (value: any) => value.toUpperCase();
@@ -546,19 +596,50 @@ export class HelperAbbrFactory {
   }
 
   // 交换期刊名 --- 即简写期刊与期刊名互换
+  // static async exchangeJournalName(
+  //   key1: string = "journalAbbreviation",
+  //   key2: string = "publicationTitle",
+  //   exchangetagname: string = "exchange"
+  // ) {
+  //   await processSelectedItemsWithPromise(
+  //     exchangeJournalNameHandler(key1, key2, exchangetagname),
+  //     getString("prompt.success.exchange.info"),
+  //     getString("prompt.error.exchange.info")
+  //   );
+  // }
+
+  // 交换期刊名 --- 即简写期刊与期刊名互换 --- 还是循环的方式
   static async exchangeJournalName(
-    key1: string = "journalAbbreviation",
-    key2: string = "publicationTitle",
+    key1: any = "journalAbbreviation",
+    key2: any = "publicationTitle",
     exchangetagname: string = "exchange"
   ) {
-    await processSelectedItemsWithPromise(
-      exchangeJournalNameHandler(key1, key2, exchangetagname),
-      getString("prompt.success.exchange.info"),
-      getString("prompt.error.exchange.info")
-    );
+    try {
+      const selectedItems = await filterSelectedItems();
+      if (!selectedItems) return;
+      const selectedItemsLength = selectedItems.length;
+
+      let successCount = 0;
+      for(let i = 0; i < selectedItemsLength; i++) {
+        const item = selectedItems[i];
+        const currentabbr = item.getField(key1);
+        const currentjournal  = item.getField(key2);
+        item.setField(key1, currentjournal); 
+        item.setField(key2, currentabbr); 
+        // 检查标签是否存在
+        if(item.hasTag(exchangetagname)){
+          item.removeTag(exchangetagname);
+        }else{
+          item.addTag(exchangetagname);
+        }
+        await item.saveTx();    
+        successCount++;
+      }
+      BasicExampleFactory.ShowStatus(selectedItemsLength, successCount, getString("prompt.success.exchange.info"))
+    } catch (error) {
+      BasicExampleFactory.ShowError(getString("prompt.error.exchange.info") + error);
+    }
   }
-
-
 // 绑定按钮事件 
 @example
 static async buttonSelectFilePath() {
@@ -715,7 +796,7 @@ static async getbibliography2(){
 
     // 获得选中的条目的 bibliography
     //const citestr = await Zotero.BetterBibTeX.exportItems(selectedItems, {format: 'bibtex', quickCopyMode: true});
-    const citestr_arr = selectedItems_bib(selectedItems); // 获得选中的条目的 bibliography,是一个字符串数组
+    const citestr_arr = getselectedItems_bib(selectedItems); // 获得选中的条目的 bibliography,是一个字符串数组
     if(!citestr_arr) return;
 
     //测试 for 循环更快

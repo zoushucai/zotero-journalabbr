@@ -22,31 +22,34 @@ async function onStartup() {
     `chrome://${config.addonRef}/content/icons/favicon.png`
   );
 
-  const popupWin = new ztoolkit.ProgressWindow(config.addonName, {
-    closeOnClick: true,
-    closeTime: -1,
-  })
-    .createLine({
-      text: getString("startup.begin"),
-      type: "default",
-      progress: 0,
-    })
-    .show();
+  ////用于测试的进度条
+  // const popupWin = new ztoolkit.ProgressWindow(config.addonName, {
+  //   closeOnClick: true,
+  //   closeTime: -1,
+  // })
+  //   .createLine({
+  //     text: getString("startup.begin"),
+  //     type: "default",
+  //     progress: 0,
+  //   })
+  //   .show();
   
   await BasicExampleFactory.registerPrefs();
   //BasicExampleFactory.registerNotifier();//行为监听, 留着吧以后说不定有用
   await BasicExampleFactory.initPrefs();
+  ZoteroPane.itemsView.onSelect.addListener(UIExampleFactory.displayMenuitem); //监听右键显示菜单
+  
   UIExampleFactory.registerRightClickMenuSeparator();// 分割线
   UIExampleFactory.registerRightClickMenuPopup(); // 二级菜单
   UIExampleFactory.registerRightClickMenuItem(); //用于测试的一级菜单
   UIExampleFactory.registerRightClickMenuItemBibitem(); //用于一级菜单, bib 的生成
-  await Zotero.Promise.delay(1000);
+  //await Zotero.Promise.delay(1000);
 
-  popupWin.changeLine({
-    progress: 100,
-    text: `[100%] ${getString("startup.finish")}`,
-  });
-  popupWin.startCloseTimer(5000);
+  // popupWin.changeLine({
+  //   progress: 100,
+  //   text: `[100%] ${getString("startup.finish")}`,
+  // });
+  // popupWin.startCloseTimer(5000);
 
   //addon.hooks.onDialogEvents("dialogExample");
 }
