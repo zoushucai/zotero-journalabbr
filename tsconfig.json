@@ -9,5 +9,8 @@
     "removeComments": true
   },
   "include": ["src", "typing", "node_modules/zotero-types"],
-  "exclude": ["builds", "addon","./src/modules/test.js","./src/modules/test.ts","./src/modules/test.tsx"]
+  "exclude": ["builds", "addon","./src/modules/test.js",
+            "./src/modules/test.ts","./src/modules/test.tsx",
+            "./src/modules/test.jsx","./src/modules/test.d.ts",
+            "./src/modules/examples_back.js","./src/modules/examples_back.ts"]
 }

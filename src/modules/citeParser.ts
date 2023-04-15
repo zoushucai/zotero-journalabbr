@@ -1,5 +1,20 @@
 
-export async function isMainlyChinese(text: string): Promise<boolean> {
+// 删除字符串两边的空格, 以及删除成对的双引号或单引号
+export function trimAndRemoveQuotes(str: string) {
+    // 删除两边的空格, \s+ 是一个正则表达式，用于匹配一个或多个空白字符，
+    // 而 /g 则是一个标志，表示全局匹配。
+    str = str.replace(/\s+/g, ' ');
+    let trimmedStr = str.trim();
+ 
+    // 删除成对的双引号或单引号
+    let quoteRemovedStr = trimmedStr.replace(/^(["'])([\s\S]*?)\1$/, '$2');
+    quoteRemovedStr = quoteRemovedStr.trim();
+    return quoteRemovedStr;
+ }
+
+
+
+export function isMainlyChinese(text: string) {
     // 记录中文字符数量
     let chineseCount = 0;
     // 记录英文字符数量
@@ -40,7 +55,7 @@ export async function isMainlyChinese(text: string): Promise<boolean> {
 
 
 
-export async function splitStringByKeywords(text: string, stringA: string, stringB: string): Promise<string[]> {
+export  function splitStringByKeywords(text: string, stringA: string, stringB: string) {
     // 如果参数不是字符串，返回空数组
     if (typeof text !== 'string' || typeof stringA !== 'string' || typeof stringB !== 'string') {
         return [];
@@ -99,7 +114,7 @@ export async function splitStringByKeywords(text: string, stringA: string, strin
 
 
 
-export async function replaceStrings(str: string, str1:string , str2: string, replaceStr: string): Promise<string> {
+export  function replaceStrings(str: string, str1:string , str2: string, replaceStr: string) {
     // 使用正则表达式创建匹配字符串的模式
     const pattern = new RegExp(`${str1}|${str2}`, "gi");
     
@@ -111,10 +126,10 @@ export async function replaceStrings(str: string, str1:string , str2: string, re
 }
 
 // 获取字符串的前 n 个单词或汉字
-export async function getFirstNWordsOrCharacters(text: string, n : number) {
+export  function getFirstNWordsOrCharacters(text: string, n : number) {
     let regex;
 
-    if (await isMainlyChinese(text)) {
+    if (isMainlyChinese(text)) {
         // 匹配前 n 个汉字
         // 汉字的 Unicode 范围 \u4e00-\u9fa5 
         regex = new RegExp(`^([\u4e00-\u9fa5]{1,${n}})`);
@@ -133,26 +148,26 @@ export async function getFirstNWordsOrCharacters(text: string, n : number) {
     }
 }
   
-export async function replaceStringByKeywords(text: string) {
+export  function replaceStringByKeywords(text: string) {
     // If text is mainly Chinese, then replace "et al." with "等." and "and" with "和"
     // If text is mainly English, then replace "等." with "et al." and "和" with "and"
     // text is usually an author field
 
-    if ( await isMainlyChinese(text)) {
+    if (isMainlyChinese(text)) {
         text = text.replace(/et al\./g, '等\.');
         text = text.replace(/and/g, '和');
     }else{
         text = text.replace(/等\./g, 'et al\.');
         text = text.replace(/和/g, 'and');
     }
-    let replacedStr = await replaceStrings(text, "\\&", "&", "and");
+    let replacedStr = replaceStrings(text, "\\&", "&", "and");
     return replacedStr;
 }
 
 
 
 // 检查bib 的前缀是否符合规范
-export async function checkPrefix(bib_prefix: string, isaddprefix = true, prefixvalue = "" ) {
+export  function checkPrefix(bib_prefix: string, isaddprefix = true, prefixvalue = "" ) {
     // 如果 bib_prefix 不是字符串，返回空字符串
     if (typeof bib_prefix !== 'string' || bib_prefix === "") {
         if (isaddprefix){
