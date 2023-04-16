@@ -816,6 +816,8 @@ static async getbibliography2(){
     // 1. 获得选中的条目
     const selectedItems = await filterSelectedItems();
     if (!selectedItems) return;
+    // 记录获取的条目原始顺序
+    let origin_id = selectedItems.map((item) => item.id);
 
     //测试 for 循环更快
     const nkey = [], ntitle = [], nauthor = [], fianl_bib = [], finalBib = [], citestr_arr = [ ], nTitle = [];
@@ -862,9 +864,27 @@ static async getbibliography2(){
           missingInfoItemCount.push(i);
         }
     }
-    // 生成最终的参考文献字符串
-    const sortarr = sortColumns([nkey, fianl_bib], 0, true);
-    const finalBib_str = sortarr[1].filter(item => Boolean(item)).join('\n'); // 过滤掉空值
+    
+    //////// 最终的参考文献的处理 //////////
+    // 理论上 id_arr 和 fianl_bib 长度是一样的
+    const fianl_biblength = fianl_bib.length;
+    let finalBib_str = ""; // 生成最终的参考文献字符串
+    // 生成最终的参考文献字符串// 
+    if (fianl_biblength === ruleItemCount) {
+      let id_arr = []; // 记录条目的原始顺序
+      for (let i = 0; i < fianl_biblength; i++) {
+        id_arr.push(i);
+      }
+      // 这里可以根据 origin_id, ic_arr 等 进行排序
+      const sortarr = sortColumns([fianl_bib, id_arr, origin_id, nkey], 0, true);// 始终把 fianl_bib 放在第一列,然后执行更改数字即可排序
+      finalBib_str = sortarr[0].filter(item => Boolean(item)).join('\n'); // 选择适当的列排序, 过滤掉空值
+    }else{
+      // 直接处理
+      BasicExampleFactory.ShowError(getString("出现错误"));
+      //ztoolkit.debug("fianl_biblength != ruleItemCount")
+      const sortarr = sortColumns([fianl_bib, nkey], 0, true);
+      finalBib_str = sortarr[0].filter(item => Boolean(item)).join('\n'); // 过滤掉空值
+    }
     await BasicExampleFactory.copyToClipboard(finalBib_str);
     this.showBibConversionStatus(ruleItemCount, successfulCount.length, noActionCount.length, missingInfoItemCount.length);
   } catch (error) {
