@@ -8,6 +8,8 @@ import {
   getFirstNWordsOrCharacters,
   trimAndRemoveQuotes,
 } from "./citeParser";
+import { ClipboardHelper } from "zotero-plugin-toolkit/dist/helpers/clipboard";
+
 
 Components.utils.import("resource://gre/modules/osfile.jsm");
 
@@ -30,6 +32,11 @@ function example(
 }
 
 export class BasicExampleFactory {
+  // 剪贴板
+  @example
+  static async copyToClipboard(text: string) {
+    new ClipboardHelper().addText(text, "text/unicode").copy();
+  }
   // 显示状态
   @example
   static ShowStatus(totol: number, sucess: number, str: string) {
@@ -442,25 +449,25 @@ function removeTagHandler(usertags: string[]) {
 }
 
 
-function exchangeJournalNameHandler(key1: string, key2: string, exchangetagname: string) {
-  return async (item: any) => {
-    const journalAbbreviation = item.getField(key1);
-    const journalName = item.getField(key2);
+// function exchangeJournalNameHandler(key1: string, key2: string, exchangetagname: string) {
+//   return async (item: any) => {
+//     const journalAbbreviation = item.getField(key1);
+//     const journalName = item.getField(key2);
 
-    item.setField(key1, journalName);
-    item.setField(key2, journalAbbreviation);
+//     item.setField(key1, journalName);
+//     item.setField(key2, journalAbbreviation);
 
-    const tagExists = item.hasTag(exchangetagname);
-    if (tagExists) {
-      item.removeTag(exchangetagname);
-    } else {
-      item.addTag(exchangetagname);
-    }
+//     const tagExists = item.hasTag(exchangetagname);
+//     if (tagExists) {
+//       item.removeTag(exchangetagname);
+//     } else {
+//       item.addTag(exchangetagname);
+//     }
 
-    await item.saveTx();
-    return true;
-  };
-}
+//     await item.saveTx();
+//     return true;
+//   };
+// }
 
 
 function updateJournalAbbrHandler(
@@ -504,47 +511,6 @@ function updateJournalAbbrHandler(
     }
     return true;
   };
-}
-
-function getselectedItems_bib(items:any) {
-  const format = Zotero.Prefs.get("export.quickCopy.setting") as string;
-  if (!format || format.split("=")[0] !== "bibliography") {
-    BasicExampleFactory.ShowError("No bibliography style is chosen in the settings for QuickCopy.");
-    return null;
-  }
-
-  // 转换
-  const format_obj =  Zotero.QuickCopy.unserializeSetting(format)
-  // // 转换为如下形式:
-  // format = {
-  //   mode: 'bibliography',
-  //   id: 'http://www.zotero.org/styles/ieee',
-  //   contentType: 'text',
-  //   locale: 'en-US'
-  // };
-
-  // 获得 locale
-  var locale = format_obj.locale ? format_obj.locale : Zotero.Prefs.get('export.quickCopy.locale');
-  var style = Zotero.Styles.get(format_obj.id);// 获得 csl 样式
-  var cslEngine = style.getCiteProc(locale, 'text'); // 获得 cslEngine 引擎
-
-  // 以上为参考文献的准备工作
-  // 直接生成参考文献,只不过是一个字符串
-  var citestr = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, items, "text");
-  cslEngine.free();// 释放 cslEngine
-
-  // 分割为数组字符串
-  const citestr_arr = citestr.split('\n').filter( (item: string) => {
-    return item.trim() && item.trim() !== "";
-  });
-
-  // 检查一下 citestr_arr 的长度
-  if(citestr_arr.length != items.length){
-    BasicExampleFactory.ShowError("生成的参考文献条目数目与选定的条目数目不一致" + citestr_arr.length + " " + items.length);
-    return;
-  }
-
-  return citestr_arr;
 }
 
 
@@ -786,58 +752,22 @@ static async oneStepUpdate(){
 
 
 
-// 定义一个获取参考文献的异步函数
-static async getbibliography2(){
-  // 利用 for 循序
-  try {
-    // 1. 获得选中的条目
-    const selectedItems = await filterSelectedItems();
-    if (!selectedItems) return;
 
-    // 获得选中的条目的 bibliography
-    //const citestr = await Zotero.BetterBibTeX.exportItems(selectedItems, {format: 'bibtex', quickCopyMode: true});
-    const citestr_arr = getselectedItems_bib(selectedItems); // 获得选中的条目的 bibliography,是一个字符串数组
-    if(!citestr_arr) return;
+//////// 参考文献格式化 //////////
 
-    //测试 for 循环更快
-    const nkey = [];
-    const ntitle = [];
-    const nauthor = [];
-    const fianl_bib = [];
-    let ruleItemCount =  selectedItems.length;
-    let successfulCount = 0;
-    let noActionCount = 0
-    let missingInfoItemCount =  selectedItems.length - citestr_arr.length;
-    for(let i = 0 ; i<selectedItems.length; i++){
-      // 获得 每一个条目的 key 以及作者, 以及 title
-       let item = selectedItems[i];
-       nkey[i] = item.getField('citationKey'); 
-       ntitle[i] = item.getField('title') as string;
-       nauthor[i] = item.getCreator(0).lastName;
-       // 获取标题的前三个字符(单词或字符)
-      const nTitle = getFirstNWordsOrCharacters(ntitle[i], 3);
-      const bib = splitStringByKeywords(citestr_arr[i], nauthor[i] as string, nTitle); // 根据关键词分割字符串
-      if (bib.length === 3){
-        fianl_bib[i] = this.buildFormattedBibItem2(bib, nkey[i] as string) 
-        successfulCount ++;
-      }else{
-        fianl_bib[i] = bib;
-        noActionCount ++;
-      }
-    }
-    // 生成最终的参考文献字符串
-    const finalBib = fianl_bib.join('\n');
-    this.showBibConversionStatus(ruleItemCount, successfulCount, noActionCount, missingInfoItemCount);
-  } catch (error) {
-    BasicExampleFactory.ShowError(getString("prompt.error.bib.info"));
-    return;
+static getQuickCopyFormat() {
+  const format = Zotero.Prefs.get("export.quickCopy.setting");
+  if (!format || format.split("=")[0] !== "bibliography") {
+    BasicExampleFactory.ShowError("No bibliography style is chosen in the settings for QuickCopy.");
+    return null;
   }
+  return format;
 }
 
-static buildFormattedBibItem2(bib: string[], addkey: string) {
+static buildFormattedBibItem2(bib, addkey) {
   //  bib:any 必须是分成三个部分的字符串数组
-  const bibPrefix = bib[0]; // 前缀
-  const bibPrefixNew = checkPrefix(bibPrefix, true, `\\bibitem{${addkey}} `); // 检查前缀,是否提取出错?
+  const bibPrefix = bib[0].trim(); // 前缀
+  const bibPrefixNew = checkPrefix(bibPrefix, true, "\\bibitem{" + addkey + "}"); // 检查前缀,是否提取出错?
   const bibAuthor = replaceStringByKeywords(bib[1]);// 对作者中的某些中英文进行替换
 
   return bibPrefixNew + " " + bibAuthor + " " + bib[2] + '\n';
@@ -845,14 +775,13 @@ static buildFormattedBibItem2(bib: string[], addkey: string) {
 
 
 
-
-static async getAuthorLastName(item: any) {
+static getAuthorLastName(item: any) {
   const creator = item.getCreator(0);
   return creator ? creator['lastName']?.trim() : null;
 }
 
-static async getItemTitle(item: any) {
-  return await item.getField('title') || null;
+static getItemTitle(item: any) {
+  return item.getField('title') || null;
 }
 
 static buildFormattedBibItem(bib:any, item:any) {
@@ -876,6 +805,73 @@ static showBibConversionStatus(ruleItemCount: number, successfulCount: number, n
     BasicExampleFactory.ShowStatus(ruleItemCount, missingInfoItemCount, "items are missing information.");
   }
 }
+
+
+
+// 定义一个获取参考文献的函数
+static async getbibliography2(){
+  // 利用 for 循序
+  try {
+    // 1. 获得选中的条目
+    const selectedItems = await filterSelectedItems();
+    if (!selectedItems) return;
+
+    //测试 for 循环更快
+    const nkey = [], ntitle = [], nauthor = [], fianl_bib = [], finalBib = [], citestr_arr = [ ], nTitle = [];
+    let ruleItemCount =  selectedItems.length;
+    let successfulCount = [];
+    let noActionCount = [];
+    let missingInfoItemCount = [];
+    // 2. 获得参考文献的格式
+    const format = this.getQuickCopyFormat();
+    if (!format) return;
+    //Zotero.debug(format)
+    
+    for(let i = 0 ; i < ruleItemCount; i++){
+        try {
+          // 获得 每一个条目的 key 以及作者, 以及 title
+          const item = selectedItems[i];
+          nkey[i] = item.getField('citationKey'); 
+          ntitle[i] = item.getField('title') ;
+          nauthor[i] = item.getCreator(0).lastName;
+          nTitle[i] = getFirstNWordsOrCharacters(ntitle[i], 3); // 获得 title 的前三个单词
+          
+          if(!ntitle[i] || !nauthor[i] || !nkey[i] ){
+            missingInfoItemCount.push(i);
+            continue;
+          }
+          
+          citestr_arr[i] = await Zotero.QuickCopy.getContentFromItems([item], format).text;  // 返回当前条目的参考文献
+          // Zotero.debug(citestr_arr[i])
+          // Zotero.debug(nauthor[i])
+          // Zotero.debug(nTitle[i])
+      
+          const bib = splitStringByKeywords(citestr_arr[i], nauthor[i], nTitle[i]); // 根据关键词分割字符串
+          // Zotero.debug(bib)
+
+          if (!bib || bib.length !== 3){
+            fianl_bib[i] = citestr_arr[i];
+            noActionCount.push(i);
+          }else{
+            fianl_bib[i] = this.buildFormattedBibItem2(bib, nkey[i]) 
+            successfulCount.push(i);
+          }
+        } catch (error) {
+          fianl_bib[i] = "";
+          missingInfoItemCount.push(i);
+        }
+    }
+    // 生成最终的参考文献字符串
+    const finalBib_str = fianl_bib.join('\n');
+    await BasicExampleFactory.copyToClipboard(finalBib_str);
+    this.showBibConversionStatus(ruleItemCount, successfulCount.length, noActionCount.length, missingInfoItemCount.length);
+  } catch (error) {
+    BasicExampleFactory.ShowError(getString("prompt.error.bib.info"));
+    return;
+  }
+
+}
+
 
 }
 

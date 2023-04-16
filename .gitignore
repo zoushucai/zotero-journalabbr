@@ -3,5 +3,7 @@ node_modules
 package-lock.json
 zotero-cmd.json
 **/.DS_Store
-**/test.js
-**/test.ts
+**/test[0-9]+.js
+**/test[0-9]+.ts
+**/test*.js
+**/test*.ts

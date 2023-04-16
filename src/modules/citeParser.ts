@@ -1,3 +1,9 @@
+import { BasicExampleFactory } from "./examples";
+
+
+Components.utils.import("resource://gre/modules/osfile.jsm");
+
+
 
 // 删除字符串两边的空格, 以及删除成对的双引号或单引号
 export function trimAndRemoveQuotes(str: string) {
@@ -55,59 +61,6 @@ export function isMainlyChinese(text: string) {
 
 
 
-export  function splitStringByKeywords(text: string, stringA: string, stringB: string) {
-    // 如果参数不是字符串，返回空数组
-    if (typeof text !== 'string' || typeof stringA !== 'string' || typeof stringB !== 'string') {
-        return [];
-    }
-    stringA = stringA.trim();
-    stringB = stringB.trim();
-    // 创建一个正则表达式，匹配字符串 A 和字符串 B（忽略大小写），前面带空格
-    let regexA = new RegExp(`\\s${stringA}`, 'i');
-    let regexB = new RegExp(`\\s${stringB}`, 'i');
-
-    // 查找字符串 A 和字符串 B 的位置
-    let indexA = text.search(regexA);
-    let indexB = text.search(regexB);
-
-    // 如果找不到字符串 A 或字符串 B，返回原始文本
-    if (indexA === -1 || indexB === -1) {
-        return [text];
-    }
-
-    // 如果字符串 A 的位置在字符串 B 的后面，返回空
-    if (indexA > indexB) {
-        return [];
-    }
-
-    // 切割字符串为三段
-    let part1 = text.slice(0, indexA);
-    let part2 = "";
-    let part3 = "";
-    // 下面等价  
-    // 运算符 || 和空数组 [ ] 来避免出现 null 或 undefined 的情况。
-    // 如果 text.match(regexA) 返回的是一个 RegExpMatchArray 类型的数组，则我们直接获取其中的第一个元素 matchA[0]；
-    // 否则，我们返回一个空数组 [ ] 并取其中的第一个元素，由于空数组没有任何元素，因此取到的值就是 undefined。   
-    //let matchA = text.match(regexA)[0];
-    let matchA = (text.match(regexA) || [])[0];
-    if (matchA === undefined) {
-        part2 = text.slice(indexA, indexB);
-    }else{
-        part2 = text.slice(indexA + matchA.length, indexB);
-    }
-    
-   
-    //let matchB = text.match(regexB)[0];
-    let matchB = (text.match(regexB) || [])[0];
-    if (matchB === undefined) {
-        part3 = text.slice(indexB);
-    }else{
-        part3 = text.slice(indexB + matchB.length);
-    }
-
-    return [part1, matchA + part2 , matchB + part3]; // 返回原始的字符串数组
-}
-
 
 
 
@@ -142,9 +95,9 @@ export  function getFirstNWordsOrCharacters(text: string, n : number) {
     let match = text.match(regex);
 
     if (match) {
-        return match[1];
+        return match[1].trim();
     } else {
-        return text;
+        return text.trim();
     }
 }
   
@@ -165,42 +118,105 @@ export  function replaceStringByKeywords(text: string) {
 }
 
 
-
-// 检查bib 的前缀是否符合规范
-export  function checkPrefix(bib_prefix: string, isaddprefix = true, prefixvalue = "" ) {
+//判断前缀是否存在某些特殊字符
+export  function checkPrefixSpecialChar(bib_prefix: string) {
     // 如果 bib_prefix 不是字符串，返回空字符串
     if (typeof bib_prefix !== 'string' || bib_prefix === "") {
-        if (isaddprefix){
-            return  prefixvalue + ""
-        }else{
-            return "";
-        }
+        return  false;
+    }
+    // 前缀中存在 "[数字]",数字是 0-200 之间的整数
+    //let match = new RegExp(/\[(0|[1-9]\d?|1\d{2}|200)\]/).test(bib_prefix);
+    
+    // 前缀中存在 "数字" 是 0-200 之间的整数 或 1700 -- 2099 之间的整数
+    let match2 = new RegExp(/(0|[1-9]\d?|1\d{2}|200|1[7-9]\d{2}|20[0-9]\d)/).test(bib_prefix);
+    if (match2) {
+        return  true;
+    }else{
+        return false;
     }
 
+}
+// 检查bib 的前缀是否符合规范
+export  function checkPrefix(bib_prefix: string, isaddprefix = true, prefixvalue = "" ) {
     // 查找字符串中的第一个空格在哪里
     let index = bib_prefix.search(/\s/);
-    // 如果找不到空格，返回原来的字符串
+    if (!isaddprefix){
+        prefixvalue="";
+    } 
+    // 如果找不到空格，
     if (index === -1) {
-        if (isaddprefix){
-            return  prefixvalue + bib_prefix
+        // 是否包含特殊字符
+        let ishaveSpecialChar = checkPrefixSpecialChar(bib_prefix);
+
+        if ( ishaveSpecialChar ){
+            // 如果 bib_prefix 中有特殊字符，丢弃前缀, 返回prefixvalue
+            return  prefixvalue 
         }else{
-            return bib_prefix;
+            // 如果 bib_prefix 中没有特殊字符，返回 bib_prefix
+            return prefixvalue + bib_prefix;
         }
-       
     }
 
     // 如果找到空格，返回空格前面的字符串
     let bibwithSpeace =  bib_prefix.slice(0, index);
-    // 判断 bibwithSpeace 中是否有数字
-    let bibwithSpeaceHasNumber = /\d/.test(bibwithSpeace);
-    // 如果 bibwithSpeace 中有数字 , 则赋值为空
-    if (bibwithSpeaceHasNumber) {
+    // 判断 bibwithSpeace 中是否包含特殊字符
+    let ishaveSpecialChar = checkPrefixSpecialChar(bibwithSpeace);
+    // 如果 bibwithSpeace 中有特殊字符，丢弃前缀, 返回prefixvalue
+    if (ishaveSpecialChar) {
         bibwithSpeace =  "";
     }
-    let bibstr = bibwithSpeace + bib_prefix.slice(index+1, bib_prefix.length);
-    if (isaddprefix) { 
-        return prefixvalue + bibstr;
-    }else{
-        return bibstr;
-    }
+    let bibstr = prefixvalue + bibwithSpeace + bib_prefix.slice(index+1, bib_prefix.length);
+    return bibstr;
 }
+
+
+export function escapeRegExp(string) {
+    return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // 将特殊字符前加上\
+  }
+  
+export function splitStringByKeywords(text, variableA, variableB) {
+    // 转义变量 A 和变量 B 中的特殊字符
+    const escapedVariableA = escapeRegExp(variableA);
+    const escapedVariableB = escapeRegExp(variableB);
+
+    // 使用正则表达式，使得匹配时忽略大小写
+    const regexA = new RegExp(`\\s${escapedVariableA}|^${escapedVariableA}`, 'i');
+    const regexB = new RegExp(`${escapedVariableB}`, 'i');
+
+    // 查找变量 A 和变量 B 在文本中的位置
+    const indexA = text.search(regexA);
+    const indexB = text.search(regexB);
+  
+    let part1, part2, part3;
+  
+    if (indexA !== -1 && indexB !== -1) {
+      // 如果变量 A 和变量 B 都存在，则按照变量 A 和变量 B 的位置，将文本分割为三部分
+      if (indexA < indexB) {
+        part1 = text.slice(0, indexA);
+        part2 = text.slice(indexA, indexB);
+        part3 = text.slice(indexB);
+      } else {
+        return false;
+        //console.error("变量 A 不在变量 B 之前，无法按要求分割文本。");
+        //return [text, "", ""];
+      }
+    } else if (indexA !== -1) {
+    // 如果只有变量 A 存在，则按照变量 A 的位置，将文本分割为三部分
+      part1 = text.slice(0, indexA);
+      part2 = text.slice(indexA);
+      part3 = "";
+    } else if (indexB !== -1) {
+        // 如果只有变量 B 存在，则按照变量 B 的位置，将文本分割为三部分
+      part1 = ""
+      part2 = text.slice(0, indexB);;
+      part3 = text.slice(indexB);
+    } else {
+      return false;
+      //console.error("无法按要求分割文本，变量 A 和变量 B 均不存在。");
+      //return ["", "", text];
+    }
+  
+    // 返回分割后的三段文本数组
+    return [part1, part2, part3];
+  }
+
