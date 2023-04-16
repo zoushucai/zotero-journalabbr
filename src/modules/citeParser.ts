@@ -220,3 +220,68 @@ export function splitStringByKeywords(text, variableA, variableB) {
     return [part1, part2, part3];
   }
 
+
+
+
+  // 定义一个函数 sortColumns，它将对数组的多个列进行排序
+// arrays: 数组数组，包含要排序的多个列
+// sortByColumn: 数字，指定按哪一列排序，默认为 0
+// ascending: 布尔值，表示是否升序排列，默认为 true
+export function sortColumns(arrays, sortByColumn = 0, ascending = true) {
+    // 检查输入参数是否符合要求
+    // 如果 arrays 不是数组类型或其元素不全都是数组类型，则抛出一个类型错误
+    if (!Array.isArray(arrays) || !arrays.every(arr => Array.isArray(arr))) {
+      throw new TypeError('输入参数必须是数组的数组');
+    }
+  
+    // 如果数组中有任何两个子数组长度不相等，则抛出一个错误
+    if (arrays.some((arr, i) => i > 0 && arr.length !== arrays[i - 1].length)) {
+      throw new Error('所有输入数组必须具有相同的长度');
+    }
+  
+    // 如果 sortByColumn 参数不在数组范围内，则抛出一个范围错误
+    if (sortByColumn < 0 || sortByColumn >= arrays.length) {
+      throw new RangeError('sortByColumn 参数超出范围');
+    }
+  
+    // 获取将要排序的那一列，并根据 ascending 参数确定排序顺序
+    const columnToSort = arrays[sortByColumn];
+    const sortOrder = ascending ? 1 : -1;
+  
+    // 将 columnToSort 数组中的每个元素映射为其索引
+    // 然后使用 sort 方法按索引排序，sort 方法返回已经排好序的索引数组
+    const sortedIndices = columnToSort
+      .map((value, index) => index)
+      .sort((a, b) => {
+        // 比较 columnToSort 数组中 a 和 b 两个位置的值
+        // 通过 typeof 判断类型，如果是数字则直接比较大小，否则按字符串比较
+        if (typeof columnToSort[a] === 'number' && typeof columnToSort[b] === 'number') {
+          return (columnToSort[a] - columnToSort[b]) * sortOrder;
+        }
+  
+        // 如果一个位置为 undefined，则将其视为空字符串，并将其作为较小值
+        if (typeof columnToSort[a] === 'undefined') return -1 * sortOrder;
+        if (typeof columnToSort[b] === 'undefined') return 1 * sortOrder;
+  
+        // 解析要比较的字符串为数字
+        const numA = parseFloat(columnToSort[a]);
+        const numB = parseFloat(columnToSort[b]);
+  
+        // 如果两个值都不是数字，则将它们视为字符串，并使用 localeCompare 方法进行比较
+        if (isNaN(numA) && isNaN(numB)) {
+          const strA = String(columnToSort[a]);
+          const strB = String(columnToSort[b]);
+          return strA.localeCompare(strB) * sortOrder;
+        }
+  
+        // 如果其中一个值是 NaN，则将其作为较大值，以便排序
+        if (isNaN(numA)) return 1 * sortOrder;
+        if (isNaN(numB)) return -1 * sortOrder;
+  
+        // 如果两个值都是数字，则使用它们之间的差值进行比较
+        return (numA - numB) * sortOrder;
+      });
+  
+    // 返回重新排列后的输入数组
+    return arrays.map(array => sortedIndices.map(index => array[index]));
+  }

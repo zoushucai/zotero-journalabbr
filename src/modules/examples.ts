@@ -7,6 +7,7 @@ import {
   replaceStringByKeywords,
   getFirstNWordsOrCharacters,
   trimAndRemoveQuotes,
+  sortColumns
 } from "./citeParser";
 import { ClipboardHelper } from "zotero-plugin-toolkit/dist/helpers/clipboard";
 
@@ -862,7 +863,8 @@ static async getbibliography2(){
         }
     }
     // 生成最终的参考文献字符串
-    const finalBib_str = fianl_bib.join('\n');
+    const sortarr = sortColumns([nkey, fianl_bib], 0, true);
+    const finalBib_str = sortarr[1].filter(item => Boolean(item)).join('\n'); // 过滤掉空值
     await BasicExampleFactory.copyToClipboard(finalBib_str);
     this.showBibConversionStatus(ruleItemCount, successfulCount.length, noActionCount.length, missingInfoItemCount.length);
   } catch (error) {
