@@ -305,6 +305,12 @@ export class UIExampleFactory {
                     commandListener: (ev) =>
                         HelperAbbrFactory.JA_update_UseInnerData(),
                 },
+                {
+                    tag: "menuitem",
+                    id: "zotero-itemmenu-abbr-journal-onestepupate",
+                    label: getString("menuitem.onestepupate"),
+                    commandListener: (ev) => HelperAbbrFactory.JA_oneStepUpdate(),
+                },
                 //添加分割条
                 {
                     tag: "menuseparator",
@@ -369,6 +375,12 @@ export class UIExampleFactory {
                     commandListener: (ev) =>
                         HelperAbbrFactory.buttonSelectFilePath(),
                 },
+                {
+                    tag: "menuitem",
+                    id: "zotero-itemmenu-abbr-journal-bibliography",
+                    label: getString("menuitem.bibliography"),
+                    commandListener: (ev) => HelperAbbrFactory.JA_getbibliography2(),
+                }
                 // {
                 //   tag: "menuitem",
                 //   label: getString("menuitem.updateCollection"), // 子菜单: 文件夹期刊缩写
@@ -381,29 +393,29 @@ export class UIExampleFactory {
 
     // // 右键菜单: 用来测试新功能用,  用完后可以删除
     // // 右键菜单: 一键更新期刊缩写
-    @example
-    static registerRightClickMenuItem() {
-        //const menuIcon = `chrome://${config.addonRef}/content/icons/favicon@0.5x.png`;
-        // item menuitem with icon
-        ztoolkit.Menu.register("item", {
-            tag: "menuitem",
-            id: "zotero-itemmenu-abbr-journal-onestepupate",
-            label: getString("menuitem.onestepupate"),
-            //icon: menuIcon,
-            commandListener: (ev) => HelperAbbrFactory.JA_oneStepUpdate(),
-        });
-    }
+    // @example
+    // static registerRightClickMenuItem() {
+    //     //const menuIcon = `chrome://${config.addonRef}/content/icons/favicon@0.5x.png`;
+    //     // item menuitem with icon
+    //     ztoolkit.Menu.register("item", {
+    //         tag: "menuitem",
+    //         id: "zotero-itemmenu-abbr-journal-onestepupate",
+    //         label: getString("menuitem.onestepupate"),
+    //         //icon: menuIcon,
+    //         commandListener: (ev) => HelperAbbrFactory.JA_oneStepUpdate(),
+    //     });
+    // }
 
     // 右键菜单: 一键 生成带有 \\bibitem{citeKey} bibliography  的期刊
-    @example
-    static registerRightClickMenuItemBibitem() {
-        ztoolkit.Menu.register("item", {
-            tag: "menuitem",
-            id: "zotero-itemmenu-abbr-journal-bibliography",
-            label: getString("menuitem.bibliography"),
-            commandListener: (ev) => HelperAbbrFactory.JA_getbibliography2(),
-        });
-    }
+    // @example
+    // static registerRightClickMenuItemBibitem() {
+    //     ztoolkit.Menu.register("item", {
+    //         tag: "menuitem",
+    //         id: "zotero-itemmenu-abbr-journal-bibliography",
+    //         label: getString("menuitem.bibliography"),
+    //         commandListener: (ev) => HelperAbbrFactory.JA_getbibliography2(),
+    //     });
+    // }
 }
 
 ///////////////////////////////
