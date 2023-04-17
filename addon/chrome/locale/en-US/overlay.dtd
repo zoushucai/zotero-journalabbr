@@ -9,7 +9,11 @@
 <!ENTITY zotero.__addonRef__.pref.button.label "Select">
 
 <!ENTITY zotero.__addonRef__.sortoptions.label "sort options">
-
+<!ENTITY zotero.__addonRef__.sortoptions.default.label "default">
+<!ENTITY zotero.__addonRef__.sortoptions.nkey.label "citekey">
+<!ENTITY zotero.__addonRef__.sortoptions.ntitle.label "title">
+<!ENTITY zotero.__addonRef__.sortoptions.nauthor.label "authorlastname">
+<!ENTITY zotero.__addonRef__.sortoptions.id.label "id">
 
 
 

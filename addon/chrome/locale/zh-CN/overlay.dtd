@@ -9,6 +9,12 @@
 <!ENTITY zotero.__addonRef__.pref.button.label "选择">
 <!ENTITY zotero.__addonRef__.sortoptions.label "排序">
 
+<!ENTITY zotero.__addonRef__.sortoptions.default.label "默认">
+<!ENTITY zotero.__addonRef__.sortoptions.nkey.label "citekey">
+<!ENTITY zotero.__addonRef__.sortoptions.ntitle.label "标题">
+<!ENTITY zotero.__addonRef__.sortoptions.nauthor.label "第一作者的姓">
+<!ENTITY zotero.__addonRef__.sortoptions.id.label "原始">
+
 
 <!ENTITY zotero.__addonRef__.help.version.label "__addonName__ 版本 __buildVersion__">
 <!ENTITY zotero.__addonRef__.help.releasetime.label "Build __buildTime__">

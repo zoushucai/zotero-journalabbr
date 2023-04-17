@@ -151,6 +151,30 @@ class Basefun {
         }
         return format;
     }
+
+    static getQuickCopyFormat2() {
+        let format = Zotero.Prefs.get("export.quickCopy.setting") as string;
+        if (!format || format.split("=")[0] !== "bibliography") {
+            BasicExampleFactory.ShowError(
+                "No bibliography style is chosen in the settings for QuickCopy."
+            );
+            return null;
+        }
+
+        format =  Zotero.QuickCopy.unserializeSetting(format);// 格式化 format,返回如下形式的对象
+        // {
+        //     "mode": "bibliography"
+        //     "contentType": ""
+        //     "id": "http://www.zotero.org/styles/china-national-standard-gb-t-7714-2005-aulower"
+        //     "locale": ""
+        // }
+
+        let locale = format.locale ? format.locale : Zotero.Prefs.get('export.quickCopy.locale');
+        let style = Zotero.Styles.get(format.id);
+        const cslEngine = style.getCiteProc(locale, 'text');
+        return cslEngine
+    }
+ 
 }
 
 // 以下为辅助类
@@ -316,8 +340,12 @@ class Selected {
         let noActionCount = [];
         let missingInfoItemCount = [];
         // 2. 获得参考文献的格式
-        const format = Basefun.getQuickCopyFormat();
-        if (!format) return;
+        // 方式 1-- 使用内置的
+        // const format = Basefun.getQuickCopyFormat();
+        // if (!format) return;
+        //
+        // 方式二: 忽略某些 html,直接返回 text
+        const cslEngine  = Basefun.getQuickCopyFormat2()
         //Zotero.debug(format)
 
         // 3. 获取排序的方式
@@ -340,17 +368,17 @@ class Selected {
                     missingInfoItemCount.push(i);
                     continue;
                 }
-
-                citestr_arr[i] = await Zotero.QuickCopy.getContentFromItems(
-                    [item],
-                    format
-                ).text; // 返回当前条目的参考文献
-
+                
+                // 方式一: 直接调用
+                //citestr_arr[i] = await Zotero.QuickCopy.getContentFromItems([item],format).text; // 返回当前条目的参考文献
+                // 方式二: 忽略某些 html,直接返回 text
+                citestr_arr[i] = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, [item], "text");
                 const bib_arr = StringUtil.splitStringByKeywords(
                     citestr_arr[i],
                     nauthor[i],
                     nTitle[i]
-                ); // 根据关键词分割字符串
+                ); 
+                // 根据关键词分割字符串
                 // Zotero.debug(bib)
 
                 if (!bib_arr || bib_arr.length !== 3) {
@@ -368,6 +396,8 @@ class Selected {
                 missingInfoItemCount.push(i);
             }
         }
+        // 方式二: 忽略某些 html,直接返回 text
+        cslEngine.free()
 
         //////// 最终的参考文献的处理 //////////
         // 理论上 id_arr 和 fianl_bib 长度是一样的
