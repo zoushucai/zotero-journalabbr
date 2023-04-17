@@ -13,7 +13,7 @@
     <radiogroup 
     id="zotero-prefpane-__addonRef__-separator"
     preference="extensions.zotero.__addonRef__.separator" 
-    oncommand="Zotero.__addonInstance__.hooks.handleRadioChange(event);">
+    oncommand="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);">
       <hbox flex="1">
         <html:label for="zotero-prefpane-__addonRef__-separator">&zotero.__addonRef__.pref.separator.label;</html:label>
         <radio label="&zotero.__addonRef__.pref.separator.semicolon.label;" value=";" selected="true"/>
@@ -39,6 +39,19 @@
     <!-- <hbox class="virtualized-table-container" flex="1" height="300px">
       <html:div id="__addonRef__-table-container" />
     </hbox> -->
+    <vbox>
+        <html:label for="zotero-prefpane-__addonRef__-sortoptions">&zotero.__addonRef__.sortoptions.label; </html:label>
+        <html:select 
+        id="zotero-prefpane-__addonRef__-sortoptions" 
+        preference="extensions.zotero.__addonRef__.sortoptions"
+        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);">
+          <html:option value="default">默认</html:option>
+          <html:option value="nkey">citekey</html:option>
+          <html:option value="ntitle">标题</html:option>
+          <html:option value="nauthor">第一作者的姓</html:option>
+          <html:option value="id">原始</html:option>
+        </html:select>
+    </vbox>
   </groupbox>
 </vbox>
 <!-- 

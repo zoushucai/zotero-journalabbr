@@ -7,6 +7,7 @@
 <!ENTITY zotero.__addonRef__.pref.separator.comma.label "逗号">
 <!ENTITY zotero.__addonRef__.pref.separator.auto.label "自动(始终为逗号)">
 <!ENTITY zotero.__addonRef__.pref.button.label "选择">
+<!ENTITY zotero.__addonRef__.sortoptions.label "排序">
 
 
 <!ENTITY zotero.__addonRef__.help.version.label "__addonName__ 版本 __buildVersion__">

@@ -8,6 +8,8 @@
 <!ENTITY zotero.__addonRef__.pref.separator.auto.label "always comma">
 <!ENTITY zotero.__addonRef__.pref.button.label "Select">
 
+<!ENTITY zotero.__addonRef__.sortoptions.label "sort options">
+
 
 
 
