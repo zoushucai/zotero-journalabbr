@@ -153,15 +153,15 @@ class Basefun {
     }
 
     static getQuickCopyFormat2() {
-        let format = Zotero.Prefs.get("export.quickCopy.setting") as string;
-        if (!format || format.split("=")[0] !== "bibliography") {
+        let format_str = Zotero.Prefs.get("export.quickCopy.setting") as string;
+        if (!format_str || format_str.split("=")[0] !== "bibliography") {
             BasicExampleFactory.ShowError(
                 "No bibliography style is chosen in the settings for QuickCopy."
             );
             return null;
         }
 
-        format =  Zotero.QuickCopy.unserializeSetting(format);// 格式化 format,返回如下形式的对象
+        let format =  Zotero.QuickCopy.unserializeSetting(format_str);// 格式化 format,返回如下形式的对象
         // {
         //     "mode": "bibliography"
         //     "contentType": ""
@@ -359,9 +359,9 @@ class Selected {
             try {
                 // 获得 每一个条目的 key 以及作者, 以及 title
                 const item = selectedItems[i];
-                nkey[i] = item.getField("citationKey");
-                ntitle[i] = item.getField("title");
-                nauthor[i] = item.getCreator(0).lastName;
+                nkey[i] = item.getField("citationKey") as string;
+                ntitle[i] = item.getField("title") as string;
+                nauthor[i] = item.getCreator(0).lastName as string;
                 nTitle[i] = StringUtil.getFirstNWordsOrCharacters(ntitle[i], 3); // 获得 title 的前三个单词
 
                 if (!ntitle[i] || !nauthor[i] || !nkey[i]) {
@@ -418,7 +418,7 @@ class Selected {
                 true
             ); // 始终把 fianl_bib 放在第一列,然后执行更改数字即可排序
             finalBib_str = sortarr[0]
-                .filter((item) => Boolean(item))
+                .filter((item: any) => Boolean(item))
                 .join("\n"); // 选择适当的列排序, 过滤掉空值
         }
 

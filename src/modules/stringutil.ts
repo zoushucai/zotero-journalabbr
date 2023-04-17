@@ -264,8 +264,8 @@ class StringUtil {
         // 将 columnToSort 数组中的每个元素映射为其索引
         // 然后使用 sort 方法按索引排序，sort 方法返回已经排好序的索引数组
         const sortedIndices = columnToSort
-            .map((value, index) => index)
-            .sort((a, b) => {
+            .map((value:any, index:any) => index)
+            .sort((a:any, b:any) => {
                 // 比较 columnToSort 数组中 a 和 b 两个位置的值
                 // 通过 typeof 判断类型，如果是数字则直接比较大小，否则按字符串比较
                 if (
@@ -302,7 +302,7 @@ class StringUtil {
 
         // 返回重新排列后的输入数组
         return arrays.map((array) =>
-            sortedIndices.map((index) => array[index])
+            sortedIndices.map((index:any) => array[index])
         );
     }
 
