@@ -41,8 +41,8 @@ async function onStartup() {
 
     UIExampleFactory.registerRightClickMenuSeparator(); // 分割线
     UIExampleFactory.registerRightClickMenuPopup(); // 二级菜单
-    UIExampleFactory.registerRightClickMenuItem(); //用于测试的一级菜单
-    UIExampleFactory.registerRightClickMenuItemBibitem(); //用于一级菜单, bib 的生成
+    //UIExampleFactory.registerRightClickMenuItem(); //用于测试的一级菜单
+    //UIExampleFactory.registerRightClickMenuItemBibitem(); //用于一级菜单, bib 的生成
     //await Zotero.Promise.delay(1000);
 
     // popupWin.changeLine({
