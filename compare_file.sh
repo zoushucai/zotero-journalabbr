@@ -66,6 +66,7 @@ echo "new_tag_env=$new_tag" >> $GITHUB_ENV
 echo "current_date=$(date +'%Y-%m-%d %T')" >> $GITHUB_ENV
 echo "已成功提交更改, 但未更新到远程仓库"
 
+# 如果仓库设置了保护分支，所以需要强制推送, 否则会报错
 git push origin main
 echo "---- 已成功提交更改, 并更新到远程仓库 ----"
 #git fetch origin --tags
