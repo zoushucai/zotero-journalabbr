@@ -24,10 +24,20 @@ jobs:
     - name: Set up Node
       uses: actions/setup-node@v3
       with:
-        node-version: 18.16.0    
-        cache: 'npm'  
-        cache-dependency-path: |
-          '**/package-lock.json'
+        node-version: "18.16.0"    
+
+    - name: Install dependencies
+      if: steps.cache-dependencies.outputs.cache-hit != 'true'
+      run: npm install
+
+    - name: Cache dependencies
+      id: cache-dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
 
     - name: Cache Node modules
       id: cache-modules
@@ -44,6 +54,10 @@ jobs:
 
     - name: Run script
       run: |
+        echo "-----------------------------------"
+        echo $(npm -v)
+        echo $(node -v)
+        echo "-----------------------------------"
         wget --header="Authorization: token ${{ secrets.MY_TOKEN }}"  --no-check-certificate -O data_new.ts ${{ secrets.MY_REPO }}
         bash ./compare_file.sh
         
