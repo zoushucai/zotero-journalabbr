@@ -14,9 +14,6 @@ if cmp -s "$file_a" "$file_b"; then
 else
     echo "文件内容不同"
     cp -f "$file_a" "$file_b"
-    git config user.name "${{ secrets.MY_GITHUB_NAME }}"
-    git config user.email "${{ secrets.MY_GITHUB_EMAIL }}"
-
     echo "-------------------------------------------------------"
     echo "正在检测文件的修改状态..."
     # 检测文件的修改状态

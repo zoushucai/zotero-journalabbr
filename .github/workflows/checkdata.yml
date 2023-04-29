@@ -54,6 +54,8 @@ jobs:
 
     - name: Run script
       run: |
+        git config user.name "${{ secrets.MY_GITHUB_NAME }}"
+        git config user.email "${{ secrets.MY_GITHUB_EMAIL }}"
         echo "-----------------------------------"
         echo $(npm -v)
         echo $(node -v)
