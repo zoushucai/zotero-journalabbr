@@ -8,3 +8,5 @@ zotero-cmd.json
 **/test*.js
 **/test*.ts
 data_new.ts
+content.txt
+README.md.tmp
