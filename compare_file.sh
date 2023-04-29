@@ -59,15 +59,15 @@ rm -f README.md.tmp
 
 git add .
 git commit -m "自动提交：更新了data.ts文件"
-
+git tag $new_tag
 
 
 echo "new_tag_env=$new_tag" >> $GITHUB_ENV
 echo "current_date=$(date +'%Y-%m-%d %T')" >> $GITHUB_ENV
 echo "已成功提交更改, 但未更新到远程仓库"
 
-git push origin master
-
+git push origin main
+echo "---- 已成功提交更改, 并更新到远程仓库 ----"
 #git fetch origin --tags
 
 

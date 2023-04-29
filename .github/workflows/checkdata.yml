@@ -61,7 +61,7 @@ jobs:
         echo $(node -v)
         echo "-----------------------------------"
         wget --header="Authorization: token ${{ secrets.MY_TOKEN }}"  --no-check-certificate -O data_new.ts ${{ secrets.MY_REPO }}
-        echo -e "\n\n\n export { journal_abbr }; \n" >> data_new.ts
+        echo -e "\nexport { journal_abbr };\n\n\n" >> data_new.ts
         bash ./compare_file.sh
 
     - name: Create Release and Upload Release Asset
