@@ -37,11 +37,11 @@ if [[ $(git status --porcelain .) ]]; then
     incremented_number=$((last_number + 1))
     new_tag=$(echo $latest_tag | sed "s/$last_number$/$incremented_number/")
     echo "准备添加最新的 tag: $new_tag"
-    new_tag_v="v$new_tag"
-    git tag $new_tag_v
-    echo "new_tag_v_env=$new_tag_v" >> $GITHUB_ENV
+    #new_tag="v$new_tag"
+    git tag $new_tag
+    echo "new_tag_env=$new_tag" >> $GITHUB_ENV
+    echo "current_date=$(date +'%Y-%m-%d %T')" >> $GITHUB_ENV
     echo "已成功提交更改, 但未更新到远程仓库"
-
 else
     echo "没有文件被修改，无需提交。"
 fi
