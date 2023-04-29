@@ -51,7 +51,8 @@ jobs:
     - name: Install dependencies
       if: steps.cache-modules.outputs.cache-hit != 'true'
       run: npm ci
-
+    
+    # 由于涉及到爬虫,这里从私有仓库拉取数据
     - name: Run script
       run: |
         git config user.name "${{ secrets.MY_GITHUB_NAME }}"
