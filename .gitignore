@@ -7,3 +7,4 @@ zotero-cmd.json
 **/test[0-9]+.ts
 **/test*.js
 **/test*.ts
+data_new.ts

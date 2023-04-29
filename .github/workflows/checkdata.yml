@@ -1,0 +1,60 @@
+
+name: update data.ts
+
+on: 
+  schedule:
+    - cron: '0 4 15 * *'
+  push:
+    branches: [main]
+
+jobs:
+  run_script_and_update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3 
+      with:
+        persist-credentials: true 
+        fetch-depth: 0
+        clean: true
+
+    - name: Set up Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.16.0    
+        cache: 'npm'  
+        cache-dependency-path: |
+          '**/package-lock.json'
+
+    - name: Cache Node modules
+      id: cache-modules
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-modules-
+
+    - name: Install dependencies
+      if: steps.cache-modules.outputs.cache-hit != 'true'
+      run: npm ci
+
+    - name: Run script
+      run: |
+        wget --header="Authorization: token ${{ secrets.MY_TOKEN }}"  --no-check-certificate -O data_new.ts ${{ secrets.MY_REPO }}
+        bash ./compare_file.sh
+        
+    # - name: Build
+    #   run: npm run build-dev
+
+    
+    # # 里面已经包含了 git提交信息
+    # - name: Run bash scripts
+    #   run: |
+    #     bash ./main.sh 
+    # # # 使得 action 进入 ssh 环境, 用于调试
+    # # - name: Setup tmate session
+    # #   uses: mxschmitt/action-tmate@v3
