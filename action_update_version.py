@@ -71,6 +71,6 @@ def modify_package_json(target_file: Path) -> None:
         json.dump(data, f, indent=2, ensure_ascii=False)
         f.write('\n')
 
-#modify_package_json(Path('package.json'))
+modify_package_json(Path('package.json'))
 
 print("修改版本号成功！")

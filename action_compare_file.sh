@@ -73,7 +73,7 @@ done
 
 
 git add .
-git commit -m "自动提交：更新了data.ts文件并更改版本号"
+git commit -m "Automatic submission: Updated data.ts and release $new_tag"
 git tag $new_tag
 
 
