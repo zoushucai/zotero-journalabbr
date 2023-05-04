@@ -51,7 +51,12 @@ jobs:
     - name: Install dependencies
       if: steps.cache-modules.outputs.cache-hit != 'true'
       run: npm ci
-    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip' # caching pip dependencies
+
     # 由于涉及到爬虫,这里从私有仓库拉取数据
     - name: Run script
       run: |
@@ -63,7 +68,7 @@ jobs:
         echo "-----------------------------------"
         wget --header="Authorization: token ${{ secrets.MY_TOKEN }}"  --no-check-certificate -O data_new.ts ${{ secrets.MY_REPO }}
         echo -e "\nexport { journal_abbr };\n\n\n" >> data_new.ts
-        bash ./compare_file.sh
+        bash ./action_compare_file.sh
 
     - name: Create Release and Upload Release Asset
       uses: softprops/action-gh-release@v1

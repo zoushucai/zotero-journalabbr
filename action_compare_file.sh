@@ -14,11 +14,10 @@ if cmp -s "$file_a" "$file_b"; then
 fi
 
 
-echo "文件内容不同"
+echo "=========文件内容不同======="
 cp -f "$file_a" "$file_b"
 
 npm run build-dev
- 
 
 echo "-------------------------------------------------------"
 echo "正在检测文件的修改状态..."
@@ -33,6 +32,8 @@ git status --porcelain . | while read line; do
     file=$(echo "$line" )
     echo "- $file"
 done
+
+
 
 # 拉取最新标签
 git fetch origin --tags
@@ -57,8 +58,22 @@ sed -e '4r content.txt' README.md > README.md.tmp && mv README.md.tmp README.md
 rm -f content.txt
 rm -f README.md.tmp
 
+
+###### 确认通过检测, 以下是文件有修改的情况 ######
+## 修改版本号
+python action_update_version.py $new_tag
+## 重新构建
+npm run build-dev
+
+echo "---------重新构建,此次更新的以下文件被修改：----------"
+git status --porcelain . | while read line; do
+    file=$(echo "$line" )
+    echo "- $file"
+done
+
+
 git add .
-git commit -m "自动提交：更新了data.ts文件"
+git commit -m "自动提交：更新了data.ts文件并更改版本号"
 git tag $new_tag
 
 
