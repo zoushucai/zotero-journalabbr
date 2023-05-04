@@ -4,8 +4,8 @@ name: update data.ts
 on: 
   schedule:
     - cron: '0 4 15 * *'
-  push:
-    branches: [main]
+  # push:
+  #   branches: [main]
 
 jobs:
   run_script_and_update:
@@ -73,7 +73,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: env.new_tag_env != ''
       with:
-        prerelease: true
+        prerelease: false
         tag_name: ${{ env.new_tag_env }}
         name: Release ${{ env.new_tag_env }}
         files: ./builds/zotero-journalabbr.xpi
@@ -81,6 +81,7 @@ jobs:
           This is an auto-generated release.
           Build date: ${{ env.current_date }}
           Commit message: ${{ github.event.head_commit.message }}
+          Commit hash: ${{ github.sha }}
     
     # # 里面已经包含了 git提交信息
     # - name: Run bash scripts
