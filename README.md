@@ -2,6 +2,12 @@
 
 - 备注:  内置缩写表不一定准确, 导出数据以后需要仔细检查
 
+ **[功能介绍](./introduce.md)**
+
+## 2023年05月14日 
+
+- 自定义简写期刊 支持 json 和 csv 格式
+
 ## 2023年05年04日 更新 0.6.7  (prerelease, action robot)
 
 - upadte data.ts

@@ -223,9 +223,9 @@ def clean_this_plugin_prefs(zotero_config_dir: Path,  addonRef = 'addonRef') -> 
 #######################################################################################
 
 ##### 0. 初始值的设定 ###############################################################
-peizhi_name =  "Default" # 'testmy' # 选择你要配置的那个名字, 建议先创建一个mytest 账号的配置文件, 
+peizhi_name =  "testmy" # 'testmy' # 选择你要配置的那个名字, 建议先创建一个mytest 账号的配置文件, 
 # 命令行 运行 /Applications/Zotero.app/Contents/MacOS/zotero -P  即可创建配置文件, 
-# 默认的配置文件为 default, 你可以在配置文件中修改配置文件的名字,
+# 默认的配置文件为 default, 你可以在配置文件中修改配置文件的名字,  Default
 # 可以在苹果系统使用 killall 来杀死进程   killall -9 zotero 
 
 isclearPrefs = True # 是否清理 prefs.js 文件中的特定内容, 即包括:  zotero.插件名字 

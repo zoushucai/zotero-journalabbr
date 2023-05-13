@@ -93,7 +93,7 @@ export class BasicExampleFactory {
     @example
     static async filePickerExample() {
         const path = await new ztoolkit.FilePicker("Import File", "open", [
-            ["CSV File(*.csv)", "*.csv"],
+            ["CSV/JSON (*.csv, *.json)", "*.csv;*.json"],
             ["Any(*.*)", "*"],
         ]).open();
         // 判断选择的地址是否为空,以及是否为字符串 false
@@ -535,7 +535,7 @@ export class HelperAbbrFactory {
 
     //2 . 使用用户数据集进行更新
     static async JA_update_UseUserData() {
-        const user_abbr_data = Basefun.getcsvdata();
+        const user_abbr_data = Basefun.get_user_data();
         if (!user_abbr_data) return;
 
         // 更新期刊缩写 -- 返回的信息为 已有 2/2 条目缩写更新

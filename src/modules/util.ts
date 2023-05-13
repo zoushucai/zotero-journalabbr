@@ -2,6 +2,7 @@ import { BasicExampleFactory } from "./examples";
 import { getString } from "./locale";
 import { StringUtil } from "./stringutil";
 import { config } from "../../package.json";
+import { type } from "os";
 
 // 定义返回的结果的类,用于信息输出
 class ResultInfo {
@@ -102,41 +103,70 @@ class Basefun {
         }
     }
 
-    // 0. 从 csv 获取数据
-    static async getcsvdata() {
+    static async get_user_data(){
         //Zotero.Prefs.set("journalabbr.userpath", zoteroProfileDir); // 持久化设置
         var userfile = Zotero.Prefs.get(`${config.addonRef}.input`) as string; // 获得持久化的变量
-
         // 获得持久化变量,分隔符号
         if (!userfile) {
             BasicExampleFactory.ShowError("所选文件为空");
             return;
         }
-
-        // 1. 根据后缀名判断是否为 csv 文件
-        if (userfile.endsWith(".csv") == false) {
-            BasicExampleFactory.ShowError("请先选择 csv 文件");
+        // 1. 根据后缀名判断是否为 csv 文件 或者 json 文件
+        if ( !userfile.endsWith(".csv") && !userfile.endsWith(".json")) {
+            BasicExampleFactory.ShowError("请先选择 csv 或者 json 文件");
             return;
         }
+        // 2. 根据后缀名选择不同的读取方式
+        let user_abbr_data = null;
+        if (userfile.endsWith(".csv")) {
+            user_abbr_data = await this.read_csv(userfile);
+        }
+        if (userfile.endsWith(".json")) {
+            user_abbr_data = await this.read_json(userfile);
+        }
+        // 3.判断返回的 user_abbr_data 的类型
+        if (typeof user_abbr_data !== "object" || !user_abbr_data) {
+            BasicExampleFactory.ShowError(
+                "读取 csv或 json 文件失败, 可能不存在该文件或文件未按指定格式书写!"
+            );
+            return;
+        }
+        return user_abbr_data;
+    }
 
-        // 2. 读取用户数据集, 以及数据的分割符号
+    // 1. 从 json 获取数据
+    static async read_json(filePath: string) {
+        const data_str = await Zotero.File.getContentsAsync(filePath) as string;
+        const data_obj = JSON.parse(data_str);
+        if (typeof data_obj !== 'object' || data_obj === null || Array.isArray(data_obj)) {
+            return;
+        }
+        
+        // 把 key 转换为小写且去除空格
+        let user_abbr_data: {[key: string]: any} = {};    // 用于存储转换后的数据
+        for (let key in data_obj) {
+            // 只保留字符串类型的键值对
+            if (typeof data_obj[key] === 'string' &&  typeof key === 'string') {
+                let normkey = key.toLowerCase().trim();   // 将当前键转为小写并去除两端空格
+                // 给新对象添加当前键值对, 且键重复时, 会覆盖旧值,即保留最后一次出现的键值对
+                user_abbr_data[normkey] = data_obj[key].trim();
+            }
+        }
+        return user_abbr_data;
+    }
+
+    // 0. 从 csv 获取数据
+    static async read_csv(filePath: string) {
+        // 1. 读取用户设置的分割符号
         let pref_separator = Zotero.Prefs.get(
             `${config.addonRef}.separator`
         ) as string; // 获得持久化的变量
 
-        // 3. 读取 csv 文件, 并解析为字典对象
+        // 2. 读取 csv 文件, 并解析为字典对象
         let user_abbr_data = await Selected.readAndParseCSV(
-            userfile,
+            filePath,
             pref_separator
         );
-
-        // 4.判断返回的 user_abbr_data 的类型
-        if (typeof user_abbr_data != "object" || !user_abbr_data) {
-            BasicExampleFactory.ShowError(
-                "读取 csv 文件失败, 可能不存在该文件或文件未按指定格式书写!"
-            );
-            return;
-        }
         return user_abbr_data;
     }
 
