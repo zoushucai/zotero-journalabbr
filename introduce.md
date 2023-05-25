@@ -2,7 +2,7 @@
 
 右键菜单如下:
 
-<img src="/Users/zsc/Desktop/Notetongbu/paperead/imgs/202305132204v6jxrC.png" alt="202305132204v6jxrC" style="zoom:33%;" />
+![202305252247202305132204v6jxrC](https://cdn.jsdelivr.net/gh/zoushucai/img_bed@master/uPic/202305252247202305132204v6jxrC.png)
 
 - `自定义缩写刊缩`:  即选择 `csv`或` json` 文件进行期刊缩写
   - 第一, 首先需要配置好 `csv` 或者 `json` 路径, **如果是 `csv` 文件,则需要在偏好面板中设置分隔符** 
