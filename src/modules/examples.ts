@@ -535,9 +535,8 @@ export class HelperAbbrFactory {
 
     //2 . 使用用户数据集进行更新
     static async JA_update_UseUserData() {
-        const user_abbr_data = Basefun.get_user_data();
+        const user_abbr_data = await Basefun.get_user_data();
         if (!user_abbr_data) return;
-
         // 更新期刊缩写 -- 返回的信息为 已有 2/2 条目缩写更新
         await Selected.updateJournalAbbr(
             user_abbr_data,

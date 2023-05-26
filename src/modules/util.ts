@@ -480,16 +480,11 @@ class SelectedWithHandler {
         removetagsname: string[]
     ) {
         return async (item: any) => {
-            const currentjournal = item.getField("publicationTitle");
+            const currentjournal = await item.getField("publicationTitle");
             if (!currentjournal) {
                 return false;
             }
-
-            const journalKey = currentjournal
-                .trim()
-                .toLowerCase()
-                .replace(/\s+/g, " ")
-                .trim();
+            const journalKey = currentjournal.trim().toLowerCase().replace(/\s+/g, " ").trim();
             const data_in_journal = data[journalKey];
             if (!journalKey || !data_in_journal) {
                 return false;
