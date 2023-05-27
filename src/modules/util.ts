@@ -481,16 +481,18 @@ class SelectedWithHandler {
     ) {
         return async (item: any) => {
             const currentjournal = await item.getField("publicationTitle");
+            const currentabbr = await item.getField("journalAbbreviation");
             if (!currentjournal) {
                 return false;
             }
+            
             const journalKey = currentjournal.trim().toLowerCase().replace(/\s+/g, " ").trim();
             const data_in_journal = data[journalKey];
             if (!journalKey || !data_in_journal) {
                 return false;
             }
 
-            const isIdentical = currentjournal === data_in_journal;
+            const isIdentical = currentabbr.trim() === data_in_journal.trim();
             if (!isIdentical) {
                 // not identical, update
                 item.setField("journalAbbreviation", data_in_journal);
