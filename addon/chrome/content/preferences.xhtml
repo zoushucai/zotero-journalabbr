@@ -44,6 +44,7 @@
         <html:select 
         id="zotero-prefpane-__addonRef__-sortoptions" 
         preference="extensions.zotero.__addonRef__.sortoptions"
+        style="margin-right: 5%;"
         onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);">
           <html:option value="default">&zotero.__addonRef__.sortoptions.default.label;</html:option>
           <html:option value="nkey">&zotero.__addonRef__.sortoptions.nkey.label;</html:option>
@@ -51,7 +52,44 @@
           <html:option value="nauthor">&zotero.__addonRef__.sortoptions.nauthor.label;</html:option>
           <html:option value="id">&zotero.__addonRef__.sortoptions.id.label;</html:option>
         </html:select>
+
+      
+      <html:label for="zotero-prefpane-__addonRef__-keyornum">&zotero.__addonRef__.keyornum.label; </html:label>
+      <html:select
+      id="zotero-prefpane-__addonRef__-keyornum" 
+      preference="extensions.zotero.__addonRef__.keyornum"
+      style="margin-right: 5%;"
+      onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);">
+        <html:option value="key">&zotero.__addonRef__.keyornum.key.label;</html:option>
+        <html:option value="num">&zotero.__addonRef__.keyornum.num.label;</html:option>
+      </html:select>
     </vbox>
+
+    <vbox>
+      <html:input
+        type="checkbox"
+        id="zotero-prefpane-__addonRef__-discardDOI"
+        preference="extensions.zotero.__addonRef__.discardDOI"
+        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
+      ></html:input>
+      <html:label 
+      for="zotero-prefpane-__addonRef__-discardDOI"
+      style="margin-right: 13%;"
+      >&zotero.__addonRef__.discardDOI.label; </html:label>
+
+      <html:input
+        type="checkbox"
+        id="zotero-prefpane-__addonRef__-bibemptyline"
+        preference="extensions.zotero.__addonRef__.bibemptyline"
+        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
+      ></html:input>
+      <html:label 
+      for="zotero-prefpane-__addonRef__-bibemptyline"
+      style="margin-right: 5%;"
+      >&zotero.__addonRef__.bibemptyline.label; </html:label>
+  </vbox>
+
+
   </groupbox>
 </vbox>
 <!-- 

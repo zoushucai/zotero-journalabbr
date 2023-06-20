@@ -15,7 +15,12 @@
 <!ENTITY zotero.__addonRef__.sortoptions.nauthor.label "authorlastname">
 <!ENTITY zotero.__addonRef__.sortoptions.id.label "id">
 
+<!ENTITY zotero.__addonRef__.keyornum.label "bib format">
+<!ENTITY zotero.__addonRef__.keyornum.key.label "key">
+<!ENTITY zotero.__addonRef__.keyornum.num.label "num">
 
+<!ENTITY zotero.__addonRef__.discardDOI.label "discard DOI">
+<!ENTITY zotero.__addonRef__.bibemptyline.label "Separator is an empty line">
 
 <!ENTITY zotero.__addonRef__.help.version.label "__addonName__ VERSION __buildVersion__">
 <!ENTITY zotero.__addonRef__.help.releasetime.label "Build __buildTime__">

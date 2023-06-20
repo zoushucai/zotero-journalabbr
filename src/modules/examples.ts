@@ -111,12 +111,22 @@ export class BasicExampleFactory {
         //ztoolkit.getGlobal("alert")(`Selected ${path}`);
     }
 
-    // 显示事件改变的信息
+    // 显示事件改变的信息 -- 下拉框/复选框
     @example
     static async showChangeEventInfo(event: Event) {
-        const selectedValue = (event.target as HTMLInputElement).value;
-        this.ShowPopUP(`select ${selectedValue}`);
+        const target = event.target as HTMLInputElement;
+        const selectedValue = target.value.trim();
+        const isChecked = target.checked;
+
+        if (selectedValue && typeof isChecked === 'boolean') {
+            this.ShowPopUP(`Checkbox is ${isChecked ? '' : 'not '}checked.`);
+          } else if (selectedValue) {
+            this.ShowPopUP(`Select ${selectedValue}.`);
+          } else {
+            this.ShowPopUP('No option is selected.');
+          }
     }
+    
 
     // 显示参考文献转换信息
     static async showBibConversionStatus(
@@ -155,6 +165,9 @@ export class BasicExampleFactory {
             [config.addonRef + ".input"]: Zotero.Prefs.get("dataDir"),
             [config.addonRef + ".separator"]: ",",
             [config.addonRef + ".sortoptions"]: "default", // [fianl_bib, id_arr, origin_id, nkey]
+            [config.addonRef + ".keyornum"]: "key", //
+            [config.addonRef + ".discardDOI"]: true,
+            [config.addonRef + ".bibemptyline"]: true,
         };
 
         // Check if preference is already set and set it if not
@@ -377,8 +390,14 @@ export class UIExampleFactory {
                 },
                 {
                     tag: "menuitem",
-                    id: "zotero-itemmenu-abbr-journal-bibliography",
-                    label: getString("menuitem.bibliography"),
+                    id: "zotero-itemmenu-abbr-journal-bibliography1",
+                    label: getString("menuitem.bibliography1"),
+                    commandListener: (ev) => HelperAbbrFactory.JA_getbibliography1(),
+                },
+                {
+                    tag: "menuitem",
+                    id: "zotero-itemmenu-abbr-journal-bibliography2",
+                    label: getString("menuitem.bibliography2"),
                     commandListener: (ev) => HelperAbbrFactory.JA_getbibliography2(),
                 }
                 // {
@@ -553,7 +572,22 @@ export class HelperAbbrFactory {
         await this.JA_update_UseUserData();
     }
 
-    // 定义一个获取参考文献的函数
+    // //定义一个获取参考文献的函数 -- 方法 1
+    static async JA_getbibliography1() {
+        Basefun.executeFunctionWithTryCatch(
+            async () => {
+                const resultInfo = await Selected.getbibliography1();
+                if (!resultInfo) return;
+
+                await BasicExampleFactory.copyToClipboard(resultInfo.strinfo);
+                return resultInfo;
+            },
+            getString("prompt.success.bib.info"),
+            getString("prompt.error.bib.info")
+        );
+    }
+
+    // //定义一个获取参考文献的函数 -- 方法 2
     static async JA_getbibliography2() {
         Basefun.executeFunctionWithTryCatch(
             async () => {
@@ -567,4 +601,5 @@ export class HelperAbbrFactory {
             getString("prompt.error.bib.info")
         );
     }
+
 }

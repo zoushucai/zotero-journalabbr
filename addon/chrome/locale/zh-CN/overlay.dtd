@@ -15,6 +15,12 @@
 <!ENTITY zotero.__addonRef__.sortoptions.nauthor.label "第一作者的姓">
 <!ENTITY zotero.__addonRef__.sortoptions.id.label "原始">
 
+<!ENTITY zotero.__addonRef__.keyornum.label "bib format">
+<!ENTITY zotero.__addonRef__.keyornum.key.label "key">
+<!ENTITY zotero.__addonRef__.keyornum.num.label "num">
+
+<!ENTITY zotero.__addonRef__.discardDOI.label "discard DOI">
+<!ENTITY zotero.__addonRef__.bibemptyline.label "Separator is an empty line">
 
 <!ENTITY zotero.__addonRef__.help.version.label "__addonName__ 版本 __buildVersion__">
 <!ENTITY zotero.__addonRef__.help.releasetime.label "Build __buildTime__">

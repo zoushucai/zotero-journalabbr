@@ -25,7 +25,7 @@ class StringUtil {
         let englishCount = 0;
         // 记录其他字符数量
         let otherCount = 0;
-
+        
         for (let i = 0; i < text.length; i++) {
             // 获取当前字符的编码
             let charCode = text.codePointAt(i);
@@ -93,22 +93,6 @@ class StringUtil {
         }
     }
 
-    // 4. 根据语言替换 等和et al.
-    static replaceStringByKeywords(text: string) {
-        // If text is mainly Chinese, then replace "et al." with "等." and "and" with "和"
-        // If text is mainly English, then replace "等." with "et al." and "和" with "and"
-        // text is usually an author field
-
-        if (this.isMainlyChinese(text)) {
-            text = text.replace(/et al\./g, "等.");
-            text = text.replace(/and/g, "和");
-        } else {
-            text = text.replace(/等\./g, "et al.");
-            text = text.replace(/和/g, "and");
-        }
-        let replacedStr = this.replaceStrings(text, "\\&", "&", "and");
-        return replacedStr;
-    }
 
     //判断前缀是否存在某些特殊字符
     static checkPrefixSpecialChar(bib_prefix: string) {
@@ -306,18 +290,126 @@ class StringUtil {
         );
     }
 
-    //////// 参考文献格式化 //////////
-    static buildFormattedBibItem2(bib: string[], addkey: string) {
-        //  bib:string[] 必须是分成三个部分的字符串数组
+    // 把字符转为 Unicode 编码
+    static toUnicode(input: string) {
+        let result = "";
+        for (let i = 0; i < input.length; i++) {
+            // 获取每个字符的 Unicode 编码，并转换为16进制
+            result += "\\u" + input.charCodeAt(i).toString(16);
+        }
+        return result;
+    }
+
+
+
+    static bibdiscardDOI(text:string){
+        text = text.trim();
+
+        let doiRegex = /http[s]?:\/\/doi\.org\/[\w\.\/\-]+$/i; // 检查文本中是否存在 DOI
+        let fianl_text = doiRegex.test(text) ? text.replace(doiRegex, "") : text;
+        return fianl_text.trim();
+    }
+    //////////////////////////////////////////////
+    //////// 参考文献格式化2 //////////
+    // 根据语言替换 等和et al.
+    static replaceStringByKeywords(text: string) {
+        // If text is mainly Chinese, then replace "et al." with "等." and "and" with "和"
+        // If text is mainly English, then replace "等." with "et al." and "和" with "and"
+        // text is usually an author field
+
+        if (this.isMainlyChinese(text)) {
+            text = text.replace(/et al\./, "等.");
+            text = text.replace(/and/, "和");
+        } else {
+            text = text.replace(/等|\u7b49\./u, "et al.");
+            text = text.replace(/和|\u548c/u, "and");
+        }
+        let replacedStr = this.replaceStrings(text, "\\&", "&", "and");
+        return replacedStr;
+    }
+    
+    static handleBibtoFormat2(bib: string[], nkey: string, bibformat: string, bibprenum: number, isdiscardDOI: boolean) {
+        // bib:string[] 必须是分成三个部分的字符串数组
+        // nkey:string 为引用的关键字, 用于生成 \\bibitem{nkey} 的格式
+        // bibformat:string 为引用格式, num为数字, key为关键字, 
+        //      如果为key, 则需要提供则是以 \\bibitem{nkey} 的格式
+        //      如果为num, 则需要提供序号(由 bibprenum 提供), 则是以 [num] 的格式
+        // bibprenum:number 为引用的序号, 只有当 bibformat 为 num 时才有用
+        // isdiscardDOI:boolean 是否去除DOI
         const bibPrefix = bib[0].trim(); // 前缀
+        let bibpre = (bibformat === "num") ? "[" + bibprenum + "]" : "\\bibitem{" + nkey + "}";
         const bibPrefixNew = this.checkPrefix(
             bibPrefix,
             true,
-            "\\bibitem{" + addkey + "}"
+            bibpre
         ); // 检查前缀,是否提取出错?
         const bibAuthor = this.replaceStringByKeywords(bib[1]); // 对作者中的某些中英文进行替换
 
-        return bibPrefixNew + " " + bibAuthor + " " + bib[2] + "\n";
+        let bibnew = bibPrefixNew + " " + bibAuthor + " " + bib[2];
+
+        if(isdiscardDOI){
+            bibnew = this.bibdiscardDOI(bibnew);
+        }
+        bibnew = bibnew.replace(/[ ]+/g, " ");
+        return bibnew;
+    }
+
+
+
+
+
+    //////// 参考文献格式化1 //////////
+    // static replaceStringByKeywordsUnicode(text: string) {
+    //     let final_text = "";
+    //     let result = this.isMainlyChinese(text)
+    //     if (result) {
+    //         final_text = text.replace(/et al\./, "等.");
+    //     } else {
+    //         final_text = text.replace(/(等|\u7b49)\s*\./u, "et al.");
+    //     }
+    //     return final_text;
+    // }
+    static replaceStringByKeywordsUnicode(text: string) {
+        // If text is mainly Chinese, then replace "et al." with "等." 
+        // If text is mainly English, then replace "等." with "et al." a
+        // text is usually an author field
+        const keyword = this.isMainlyChinese(text) ? "等." : "et al.";
+        // Replace the matching pattern with the keyword
+        return text.replace(keyword === "等." ? /et al\./ : /(等|\u7b49)\s*\./u, keyword);
+      }
+      
+    static handleBibtoFormat1(text: string, nkey: string, bibformat: string, bibprenum: number, isdiscardDOI: boolean) {
+        // text:string 是一个字符串
+        // nkey:string 为引用的关键字, 用于生成 \\bibitem{nkey} 的格式
+        // bibformat:string 为引用格式, num为数字, key为关键字, 
+        //      如果为key, 则需要提供则是以 \\bibitem{nkey} 的格式
+        //      如果为num, 则需要提供序号(由 bibprenum 提供), 则是以 [num] 的格式
+        // bibprenum:number 为引用的序号, 只有当bibformat为num时才有用
+        // isdiscardDOI:boolean 是否去除DOI
+        let successfulCount = false;
+        let noActionCount = false;
+        let bibpre = (bibformat === "num") ? "[" + bibprenum + "]" : "\\bibitem{" + nkey + "}";
+        text = text.trim();
+        
+        let fianl_text = "";
+        const regex = /^(\[\d+\]|\d+\.|\(\d+\)|\\bibitem\{[0-9A-Za-z\-]+?\})/;
+        if (regex.test(text)) {
+          // 如果找到了符合条件的模式，则使用 replace 方法进行替换
+          fianl_text = text.replace(regex, bibpre);
+          fianl_text = this.replaceStringByKeywordsUnicode(fianl_text);
+          successfulCount = true;
+        } else {
+          fianl_text = "\\bibitem{" + nkey + "}"+ " " + text
+          noActionCount = true
+          Zotero.debug("Bib noActionCount, the reason might be starting with the name of the author directly.");
+        }
+        
+        if(isdiscardDOI){
+            fianl_text = this.bibdiscardDOI(fianl_text);
+        }
+
+        fianl_text = fianl_text.replace(/[ ]+/g, " ");
+        return [fianl_text, successfulCount, noActionCount];
     }
 }
 

@@ -353,7 +353,113 @@ class Selected {
         );
     }
 
-    // 生成参考文献
+
+    // 生成参考文献 --- 方法 1
+    static async getbibliography1() {
+        const selectedItems = Basefun.filterSelectedItems();
+        if (!selectedItems) return;
+        let origin_id = selectedItems.map((item) => item.id); // 记录获取的条目原始顺序
+        //测试 for 循环更快
+        const nkey = [],
+            ntitle = [],
+            nauthor = [],
+            fianl_bib = [],
+            citestr_arr = [];
+            //nTitle = [];
+        let ruleItemCount = selectedItems.length;
+        let successfulCount = [];
+        let noActionCount = [];
+        let missingInfoItemCount = [];
+        // 2. 获得参考文献的格式
+        // 方式 1-- 使用内置的
+        // const format = Basefun.getQuickCopyFormat();
+        // if (!format) return;
+        //
+        // 方式二: 忽略某些 html,直接返回 text
+        const cslEngine  = Basefun.getQuickCopyFormat2()
+
+        // 3. 获取排序的方式
+        const sortoptions = Zotero.Prefs.get(
+            `${config.addonRef}.sortoptions`
+        ) as string; // 获得持久化的变量
+        const optionarr = ["default", "nkey", "ntitle", "nauthor", "id"];
+        const sortindex = optionarr.indexOf(sortoptions);
+        
+        // 获取bib format
+        const bibformat = Zotero.Prefs.get(`${config.addonRef}.keyornum`) as string; // 获得持久化的变量
+        const isdiscardDOI = Zotero.Prefs.get(`${config.addonRef}.discardDOI`) as boolean; // 获得持久化的变量
+        const bibemptyline = Zotero.Prefs.get(`${config.addonRef}.bibemptyline`) as boolean; // 获得持久化的变量
+        let bibprenum = 1;
+
+        for (let i = 0; i < ruleItemCount; i++) {
+            try {
+                // 获得 每一个条目的 key 以及作者, 以及 title
+                const item = selectedItems[i];
+                nkey[i] = item.getField("citationKey") as string;
+                ntitle[i] = item.getField("title") as string;
+                nauthor[i] = item.getCreator(0).lastName as string;
+
+                if (!nkey[i]) {
+                    missingInfoItemCount.push(i);
+                    continue;
+                }
+                
+                // 方式一: 直接调用
+                citestr_arr[i] = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, [item], "text");
+                // 根据正则表达式, 替换参考文献开头的多余信息
+                // 1. 处理 [1] 或者 1. 或者 (1) 这种情况, 改成 \bibitem{key}
+                // 2. 处理 等. --> et al. 或者 et al.--> 等.
+                let [f, s, n] =  StringUtil.handleBibtoFormat1(citestr_arr[i], nkey[i], bibformat, bibprenum, isdiscardDOI);
+                bibprenum += 1;
+                fianl_bib[i] = f;
+                if (s) successfulCount.push(i);
+                if (n) noActionCount.push(i);
+
+            } catch (error) {
+                fianl_bib[i] = "";
+                missingInfoItemCount.push(i);
+            }
+        }
+        // 方式二: 忽略某些 html,直接返回 text
+        cslEngine.free()
+        let newseparator = bibemptyline ? "\n\n" : "\n";
+
+        //////// 最终的参考文献的处理 //////////
+        // 理论上 id_arr 和 fianl_bib 长度是一样的
+        const fianl_biblength = fianl_bib.length;
+        let finalBib_str = ""; // 生成最终的参考文献字符串
+        // 生成最终的参考文献字符串//
+        if (sortindex === 0 || fianl_biblength !== ruleItemCount) {
+            finalBib_str = fianl_bib.filter((item) => Boolean(item)).join(newseparator); // 过滤掉空值
+        } else {
+            let id_arr = []; // 记录条目的原始顺序
+            for (let i = 0; i < fianl_biblength; i++) {
+                id_arr.push(i);
+            }
+            // 这里可以根据 ['default','nkey','ntitle','nauthor','id']; 排序
+            const sortarr = StringUtil.sortColumns(
+                [fianl_bib, nkey, ntitle, nauthor, id_arr],
+                sortindex,
+                true
+            ); // 始终把 fianl_bib 放在第一列,然后执行更改数字即可排序
+            finalBib_str = sortarr[0]
+                .filter((item: any) => Boolean(item))
+                .join(newseparator); // 选择适当的列排序, 过滤掉空值
+        }
+
+        const resultInfo = new ResultInfo();
+        resultInfo.selectCount = ruleItemCount;
+        resultInfo.successCount = successfulCount.length;
+        resultInfo.error_arr = noActionCount.concat(missingInfoItemCount);
+        resultInfo.strinfo = finalBib_str;
+
+        return resultInfo;
+    }
+
+
+
+
+    // 生成参考文献 --- 方法 2
     static async getbibliography2() {
         const selectedItems = Basefun.filterSelectedItems();
         if (!selectedItems) return;
@@ -376,7 +482,6 @@ class Selected {
         //
         // 方式二: 忽略某些 html,直接返回 text
         const cslEngine  = Basefun.getQuickCopyFormat2()
-        //Zotero.debug(format)
 
         // 3. 获取排序的方式
         const sortoptions = Zotero.Prefs.get(
@@ -384,6 +489,12 @@ class Selected {
         ) as string; // 获得持久化的变量
         const optionarr = ["default", "nkey", "ntitle", "nauthor", "id"];
         const sortindex = optionarr.indexOf(sortoptions);
+        
+        // 获取bib format
+        const bibformat = Zotero.Prefs.get(`${config.addonRef}.keyornum`) as string; // 获得持久化的变量
+        const isdiscardDOI = Zotero.Prefs.get(`${config.addonRef}.discardDOI`) as boolean; // 获得持久化的变量
+        const bibemptyline = Zotero.Prefs.get(`${config.addonRef}.bibemptyline`) as boolean; // 获得持久化的变量
+        let bibprenum = 1;
 
         for (let i = 0; i < ruleItemCount; i++) {
             try {
@@ -403,22 +514,29 @@ class Selected {
                 //citestr_arr[i] = await Zotero.QuickCopy.getContentFromItems([item],format).text; // 返回当前条目的参考文献
                 // 方式二: 忽略某些 html,直接返回 text
                 citestr_arr[i] = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, [item], "text");
+                // 根据正则表达式, 替换参考文献开头的多余信息, 先进行关键词分割成三段, 然后对第一段进行处理, 最后再合并
+                // 1. 处理 [1] 或者 1. 或者 (1) 这种情况, 改成 \bibitem{key}
+                // 2. 处理 等. --> et al. 或者 et al. --> 等
+                // 3. 处理 多个作者中的& 以及\& --> and
                 const bib_arr = StringUtil.splitStringByKeywords(
                     citestr_arr[i],
                     nauthor[i],
                     nTitle[i]
                 ); 
                 // 根据关键词分割字符串
-                // Zotero.debug(bib)
 
                 if (!bib_arr || bib_arr.length !== 3) {
                     fianl_bib[i] = citestr_arr[i];
                     noActionCount.push(i);
                 } else {
-                    fianl_bib[i] = StringUtil.buildFormattedBibItem2(
+                    fianl_bib[i] = StringUtil.handleBibtoFormat2(
                         bib_arr,
-                        nkey[i]
+                        nkey[i],
+                        bibformat,
+                        bibprenum,
+                        isdiscardDOI
                     );
+                    bibprenum += 1;
                     successfulCount.push(i);
                 }
             } catch (error) {
@@ -428,6 +546,8 @@ class Selected {
         }
         // 方式二: 忽略某些 html,直接返回 text
         cslEngine.free()
+        let newseparator = bibemptyline ? "\n\n" : "\n";
+
 
         //////// 最终的参考文献的处理 //////////
         // 理论上 id_arr 和 fianl_bib 长度是一样的
@@ -435,7 +555,7 @@ class Selected {
         let finalBib_str = ""; // 生成最终的参考文献字符串
         // 生成最终的参考文献字符串//
         if (sortindex === 0 || fianl_biblength !== ruleItemCount) {
-            finalBib_str = fianl_bib.filter((item) => Boolean(item)).join("\n"); // 过滤掉空值
+            finalBib_str = fianl_bib.filter((item) => Boolean(item)).join(newseparator); // 过滤掉空值
         } else {
             let id_arr = []; // 记录条目的原始顺序
             for (let i = 0; i < fianl_biblength; i++) {
@@ -449,7 +569,7 @@ class Selected {
             ); // 始终把 fianl_bib 放在第一列,然后执行更改数字即可排序
             finalBib_str = sortarr[0]
                 .filter((item: any) => Boolean(item))
-                .join("\n"); // 选择适当的列排序, 过滤掉空值
+                .join(newseparator); // 选择适当的列排序, 过滤掉空值
         }
 
         const resultInfo = new ResultInfo();
@@ -460,6 +580,7 @@ class Selected {
 
         return resultInfo;
     }
+
 }
 
 // 以下为辅助类
