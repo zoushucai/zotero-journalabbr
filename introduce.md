@@ -2,7 +2,7 @@
 
 右键菜单如下:
 
-<img src="https://cdn.jsdelivr.net/gh/zoushucai/img_bed@master/uPic/202306201628202306201627T25tAM.png" alt="202306201628202306201627T25tAM" style="zoom:30%;" />
+<img src="https://cdn.jsdelivr.net/gh/zoushucai/img_bed@master/uPic/202306201628202306201627T25tAM.png" alt="202306201628202306201627T25tAM" width="500" />
 
 - `自定义缩写刊缩`:  即选择 `csv`或 ` json` 文件进行期刊缩写
   - 第一, 首先需要配置好 `csv` 或者 `json` 路径, **如果是 `csv` 文件,则需要在偏好面板中设置分隔符**
