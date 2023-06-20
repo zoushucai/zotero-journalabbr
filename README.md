@@ -2,6 +2,10 @@
 
 - 备注:  内置缩写表不一定准确, 导出数据以后需要仔细检查
 
+## 2023年06年15日 更新 0.6.11  (prerelease, action robot)
+
+- upadte data.ts
+
  **[功能介绍](./introduce.md)**
 
 ## 2023年05月14日 
