@@ -45,16 +45,16 @@ new_tag=$(echo $latest_tag | sed "s/$last_number$/$incremented_number/")
 echo "准备添加最新的 tag: $new_tag"
 #new_tag="v$new_tag"
 
-# 修改 README.md
+# 修改 README.md --- $(date +%Y-%m-%d | sed 's/-\(.*\)-/年\1月/; s/$/日/g') 
 cat > ./content.txt << EOF
-## $(date +%Y-%m-%d | sed 's/-/年/g; s/-/月/g; s/$/日/g') 更新 $new_tag  (prerelease, action robot)
+## $(date +%Y-%m-%d) update $new_tag (released by action)
 
-- upadte data.ts
+- update data.ts
 
 EOF
 
-## 把 content.txt 插入到 README.md 的第 4 行
-sed -e '4r content.txt' README.md > README.md.tmp && mv README.md.tmp README.md
+## 把 content.txt 插入到 README.md 的第 8 行
+sed -e '8r content.txt' README.md > README.md.tmp && mv README.md.tmp README.md
 rm -f content.txt
 rm -f README.md.tmp
 
