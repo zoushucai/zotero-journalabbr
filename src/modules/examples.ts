@@ -313,10 +313,17 @@ export class UIExampleFactory {
                 },
                 {
                     tag: "menuitem",
-                    label: getString("menuitem.updatejournal"), // 子菜单: 更新简写期刊
+                    label: getString("menuitem.updatejournal"), // 子菜单: 更新简写期刊 -- 从内置数据
                     id: "zotero-itemmenu-abbr-journal-updatejournal",
                     commandListener: (ev) =>
                         HelperAbbrFactory.JA_update_UseInnerData(),
+                },
+                {
+                    tag: "menuitem",
+                    label: "ISO-4 standard", // 子菜单: 更新简写期刊 -- 利用ISO4缩写
+                    id: "zotero-itemmenu-abbr-iso4",
+                    commandListener: (ev) =>
+                        HelperAbbrFactory.JA_update_UseISO4(),
                 },
                 {
                     tag: "menuitem",
@@ -399,13 +406,13 @@ export class UIExampleFactory {
                     id: "zotero-itemmenu-abbr-journal-bibliography2",
                     label: getString("menuitem.bibliography2"),
                     commandListener: (ev) => HelperAbbrFactory.JA_getbibliography2(),
-                }
+                },
                 // {
                 //   tag: "menuitem",
-                //   label: getString("menuitem.updateCollection"), // 子菜单: 文件夹期刊缩写
-                //   id: "zotero-itemmenu-abbr-journal-updateCollection",
-                //   commandListener: (ev) => HelperAbbrFactory.updateCollection(),
-                // },
+                //   label: "test", // 子菜单: 测试
+                //   id: "zotero-itemmenu-abbr-journal-test",
+                //   commandListener: (ev) => HelperAbbrFactory.JA_test(),
+                // }
             ],
         });
     }
@@ -422,17 +429,6 @@ export class UIExampleFactory {
     //         label: getString("menuitem.onestepupate"),
     //         //icon: menuIcon,
     //         commandListener: (ev) => HelperAbbrFactory.JA_oneStepUpdate(),
-    //     });
-    // }
-
-    // 右键菜单: 一键 生成带有 \\bibitem{citeKey} bibliography  的期刊
-    // @example
-    // static registerRightClickMenuItemBibitem() {
-    //     ztoolkit.Menu.register("item", {
-    //         tag: "menuitem",
-    //         id: "zotero-itemmenu-abbr-journal-bibliography",
-    //         label: getString("menuitem.bibliography"),
-    //         commandListener: (ev) => HelperAbbrFactory.JA_getbibliography2(),
     //     });
     // }
 }
@@ -546,7 +542,7 @@ export class HelperAbbrFactory {
         await Selected.updateJournalAbbr(
             journal_abbr,
             ["abbr"],
-            ["abbr_user"],
+            ["abbr_user", "abbr_iso4"],
             getString("prompt.success.updatejournal.inner.info"),
             getString("prompt.error.updatejournal.inner.info")
         );
@@ -560,14 +556,24 @@ export class HelperAbbrFactory {
         await Selected.updateJournalAbbr(
             user_abbr_data,
             ["abbr_user"],
-            ["abbr"],
+            ["abbr", "abbr_iso4"], // "amytest2","amytest"
             getString("prompt.success.updatejournal.user.info"),
             getString("prompt.error.updatejournal.user.info")
         );
     }
-
+    // 3. 采用 ISO4 规则进行更新
+    static async JA_update_UseISO4() {
+        await Selected.updateUseISO4(
+            {}, // 为了和上面的函数保持一致, 这里传入一个空对象
+            ["abbr_iso4"],
+            ["abbr_user", "abbr"],
+            getString("prompt.success.updatejournal.iso4.info"),
+            getString("prompt.error.updatejournal.iso4.info")
+        );
+    }
     static async JA_oneStepUpdate() {
-        // 1. 一键更新期刊, 先使用内部数据集,在使用自定义数据集,
+        // 1. 一键更新期刊, 首先使用 iso4 标准, 然后使用内部数据集, 最后使用自定义数据集,
+        await this.JA_update_UseISO4();
         await this.JA_update_UseInnerData();
         await this.JA_update_UseUserData();
     }
@@ -602,4 +608,10 @@ export class HelperAbbrFactory {
         );
     }
 
+    // static async JA_test() {
+    //     let abbrevIso = new AbbrevIso(ltwa, shortWords);
+    //     let s = 'International Journal of Geographical Information Science';
+    //     Zotero.debug("============")
+    //     Zotero.debug(abbrevIso.makeAbbreviation(s));
+    // }
 }

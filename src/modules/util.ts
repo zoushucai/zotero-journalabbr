@@ -2,7 +2,11 @@ import { BasicExampleFactory } from "./examples";
 import { getString } from "./locale";
 import { StringUtil } from "./stringutil";
 import { config } from "../../package.json";
-import { type } from "os";
+
+import { AbbrevIso } from "./nodeBundle";
+import { ltwa } from "./ltwa";
+import { shortWords } from "./shortwords";
+const abbrevIso = new AbbrevIso(ltwa, shortWords);
 
 // 定义返回的结果的类,用于信息输出
 class ResultInfo {
@@ -353,6 +357,24 @@ class Selected {
         );
     }
 
+    // 采用 iso-4 标准进行期刊缩写
+    static async updateUseISO4(
+        data: { [key: string]: any },
+        addtagsname: string[],
+        removetagsname: string[],
+        successinfo: string,
+        errorinfo: string
+    ) {
+        await Basefun.processSelectedItemsWithPromise(
+            SelectedWithHandler.updateJournalAbbrHandlerISO4(
+                data,
+                addtagsname,
+                removetagsname
+            ),
+            successinfo,
+            errorinfo
+        );
+    }
 
     // 生成参考文献 --- 方法 1
     static async getbibliography1() {
@@ -613,34 +635,79 @@ class SelectedWithHandler {
                 return false;
             }
 
-            const isIdentical = currentabbr.trim() === data_in_journal.trim();
+            // const isIdentical = currentabbr.trim() === data_in_journal.trim();
+            const isIdentical = currentabbr?.trim() === data_in_journal.trim();
             if (!isIdentical) {
                 // not identical, update
                 item.setField("journalAbbreviation", data_in_journal);
             }
-            const addtags = addtagsname[0];
-            const removetags = removetagsname[0];
 
-            const tags = item.getTags();
-            const removeTagExists = tags.some(
-                (tag: any) => tag.tag === removetags
-            );
-            const addTagExists = tags.some((tag: any) => tag.tag === addtags);
+            const tags = item.getTags(); // tags 是一个数组对象, 每个对象一般有两个属性: type, tag. 
 
-            if (removeTagExists) {
-                item.removeTag(removetags);
+            addtagsname = addtagsname.map(tag => tag.trim());
+            removetagsname = removetagsname.map(tag => tag.trim());
+
+            const removeTags = removetagsname.filter(tag => tags.some((t: any) => t.tag === tag));
+            const addTags = addtagsname.filter(tag => !tags.some((t: any) => t.tag === tag));
+
+            removeTags.forEach(tag => item.removeTag(tag));
+            addTags.forEach(tag => item.addTag(tag));
+    
+            if (removeTags.length > 0 || addTags.length > 0 || !isIdentical) {
+                await item.saveTx();
+            }
+            return true;
+        };
+    }
+
+    static updateJournalAbbrHandlerISO4(
+        data: { [key: string]: any },
+        addtagsname: string[],
+        removetagsname: string[]
+    ) {
+        return async (item: any) => {
+            let currentjournal = await item.getField("publicationTitle");
+            let currentabbr = await item.getField("journalAbbreviation");
+            if (!currentjournal) {
+                return false;
+            }
+            
+            currentjournal = currentjournal.replace(/\s+/g, " ").trim();
+
+            let abbred_iso4_journal = abbrevIso.makeAbbreviation(currentjournal);
+            if (!abbred_iso4_journal) {
+                return false;
             }
 
-            if (!addTagExists) {
-                item.addTag(addtags);
+            const isIdentical = currentabbr?.trim() === abbred_iso4_journal.trim();
+            if (!isIdentical) {
+                // not identical, update
+                item.setField("journalAbbreviation", abbred_iso4_journal);
             }
-            if (removeTagExists || !addTagExists || !isIdentical) {
+
+            const tags = item.getTags(); // tags 是一个数组对象, 每个对象一般有两个属性: type, tag. 
+            
+
+            addtagsname = addtagsname.map(tag => tag.trim());
+            removetagsname = removetagsname.map(tag => tag.trim());
+            
+            const removeTags = removetagsname.filter(tag => tags.some((t: any) => t.tag === tag));
+            const addTags = addtagsname.filter(tag => !tags.some((t: any) => t.tag === tag));
+
+            removeTags.forEach(tag => item.removeTag(tag));
+            addTags.forEach(tag => item.addTag(tag));
+    
+            if (removeTags.length > 0 || addTags.length > 0 || !isIdentical) {
                 await item.saveTx();
             }
             return true;
         };
     }
 }
+
+
+
+
 
 export {
     ResultInfo, // 返回结果信息类

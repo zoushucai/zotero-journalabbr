@@ -1,18 +1,34 @@
 ## 功能介绍
 
-右键菜单如下:
+- 备注:  内置缩写表不一定准确, 导出数据以后需要仔细检查
 
-<img src="https://cdn.jsdelivr.net/gh/zoushucai/img_bed@master/uPic/202306201628202306201627T25tAM.png" alt="202306201628202306201627T25tAM" width="500" />
+右键菜单如下(左中文, 右英文)
+
+<img src='https://cdn.jsdelivr.net/gh/zoushucai/img_bed@master/uPic/202306212109oCRRxc.png' alt='202306212109oCRRxc' width='500'/>
+
+
 
 - `自定义缩写刊缩`:  即选择 `csv`或 ` json` 文件进行期刊缩写
-  - 第一, 首先需要配置好 `csv` 或者 `json` 路径, **如果是 `csv` 文件,则需要在偏好面板中设置分隔符**
+  - 第一, 首先需要配置好 `csv` 或者 `json` 路径, **如果是 `csv` 文件, 则需要在偏好面板中设置响应的分隔符**
   - 第二, 如果是 `csv` 文件, 则第一列为期刊全名, 第二列为缩写期刊,
   - 第三, 如果是 `json` 文件, 则按照 `json` 格式书写即可, `key` 为期刊全名, `value` 为缩写期刊名
-  - 在进行期刊简写的时候, 会自动添加 `abbr_user`标签, 并且会自动检测该条目是否存在 `abbr` 标签, 如果存在则会删除,
-- `内置期刊缩写`: 即采用插件提供的数据进行期刊缩写
-  - 在进行期刊简写的时候, 会自动添加 `abbr`标签,  并且会自动检测该条目是否存在 `abbr_user` 标签, 如果存在则会删除
-  - 即保证每个条目只在 `abbr` 和 `abbr_user` 选择其一.
-- `一步更新`: 即先选择 内置期刊缩写,  然后选择 用户期刊缩写,
+  - 在进行期刊简写的时候, 会自动添加 `abbr_user`标签, 并且会自动检测该条目是否存在 `abbr` 和 `abbr-iso4` 标签, 如果存在则会删除,
+- `内置期刊缩写`: 即采用插件提供的内置数据进行期刊缩写
+  - 自动添加 `abbr` 标签, 并删除 `abbr_user` 和 `abbr-iso4` 标签
+  - 内置数据的来源:  [JabRef/abbrv.jabref.org](https://github.com/JabRef/abbrv.jabref.org) 和  [该网站](https://woodward.library.ubc.ca/woodward/research-help/journal-abbreviations/)  的期刊缩写数据库,  感谢
+    - 这里对其两个数据进行了整合,  按照一定规则进行数据处理排序,  基本思想,不改变数据中的值, 只当数据搬运工.
+    - 内置期刊缩写的权重优先级:  `该网站 > JabRef/abbrv.jabref.org `
+    - `JabRef/abbrv.jabref.org` 数据处理规则:  
+      - 删除了一些特殊的期刊, 比如期刊名中存在 单双引号,  单反斜杠等特殊字符
+      - 删除了期刊字符超过 80 以及期刊字符小于5的期刊
+      - 对于同一个期刊可能存在多个缩写, 其优先顺序 `点的个数 > 大写个数> 缩写短的`    
+- `ISO-4 standard` 采用 ISO-4 的标准来缩写期刊, 来源 [marcinwrochna/abbrevIso](https://github.com/marcinwrochna/abbrevIso), 这里只是做了整合, 感谢其作者
+  - 自动添加 `abbr-iso4` 标签, 并删除 `abbr_user` 和 `abbr` 标签
+
+- `一步更新`: 即首先选择`ISO-4 standard`, 然后选择 `内置期刊缩写`,  最后选择 `用户期刊缩写`
+  - 此时, 期刊缩写的优先级: `自定义 > 内置数据 > ISO-4 standard`
+
+
 - `大写简写期刊` :   简写期刊这个字段进行大写
 - `小写简写期刊` :  简写期刊这个字段进行小写
 - `首字母化简写`  :  简写期刊这个字段进行首字母化
@@ -22,7 +38,6 @@
 - `复制样式1到剪贴板`,
   - 主要是根据选择的条目生成 `bibliography` 格式的参考文献,
   - 根据条目自动处理了 `等` 和 `et al` 的转换,
-
 - `复制样式2到剪贴板`,
   - 主要是根据选择的条目生成 `bibliography` 格式的参考文献,
   - 根据条目自动处理了 `等` 和 `et al` 的转换,
