@@ -1,5 +1,5 @@
 import { BasicExampleFactory } from "./examples";
-import { getString } from "./locale";
+import { getString } from "../utils/locale";
 import { StringUtil } from "./stringutil";
 import { config } from "../../package.json";
 
@@ -10,10 +10,10 @@ const abbrevIso = new AbbrevIso(ltwa, shortWords);
 
 // 定义返回的结果的类,用于信息输出
 class ResultInfo {
-    selectCount: number = 0;
-    successCount: number = 0;
+    selectCount = 0;
+    successCount = 0;
     error_arr: Array<string | number> = [];
-    strinfo: string = "";
+    strinfo = "";
 }
 
 class Basefun {
@@ -77,11 +77,11 @@ class Basefun {
             let errorMsg = "";
             if (errorCount > 5) {
                 errorMsg =
-                    getString("prompt.show.readfile.more.info") +
+                    getString("prompt-show-readfile-more-info") +
                     `${errorInfo} ${errorCount}`;
             } else if (errorCount > 0) {
                 errorMsg =
-                    getString("prompt.show.readfile.less.info") +
+                    getString("prompt-show-readfile-less-info") +
                     `${errorInfo} ${error_arr.join(", ")}`;
             }
 
@@ -109,7 +109,7 @@ class Basefun {
 
     static async get_user_data(){
         //Zotero.Prefs.set("journalabbr.userpath", zoteroProfileDir); // 持久化设置
-        var userfile = Zotero.Prefs.get(`${config.addonRef}.input`) as string; // 获得持久化的变量
+        const userfile = Zotero.Prefs.get(`${config.addonRef}.input`) as string; // 获得持久化的变量
         // 获得持久化变量,分隔符号
         if (!userfile) {
             BasicExampleFactory.ShowError("所选文件为空");
@@ -151,7 +151,7 @@ class Basefun {
         for (let key in data_obj) {
             // 只保留字符串类型的键值对
             if (typeof data_obj[key] === 'string' &&  typeof key === 'string') {
-                let normkey = key.toLowerCase().trim();   // 将当前键转为小写并去除两端空格
+                const normkey = key.toLowerCase().trim();   // 将当前键转为小写并去除两端空格
                 // 给新对象添加当前键值对, 且键重复时, 会覆盖旧值,即保留最后一次出现的键值对
                 user_abbr_data[normkey] = data_obj[key].trim();
             }
@@ -315,13 +315,13 @@ class Selected {
                 //console.log(errors)
                 if (errors.length > 5) {
                     BasicExampleFactory.ShowError(
-                        getString("prompt.show.readfile.more.info") +
+                        getString("prompt-show-readfile-more-info") +
                             " " +
                             errors.length
                     );
                 } else {
                     BasicExampleFactory.ShowError(
-                        getString("prompt.show.readfile.less.info") +
+                        getString("prompt-show-readfile-less-info") +
                             " " +
                             errors.join(", ")
                     );
@@ -330,7 +330,7 @@ class Selected {
             return data;
         } catch (error) {
             BasicExampleFactory.ShowError(
-                getString("prompt.error.readfile.info")
+                getString("prompt-error-readfile-info")
             );
             return null;
         }
@@ -667,14 +667,14 @@ class SelectedWithHandler {
     ) {
         return async (item: any) => {
             let currentjournal = await item.getField("publicationTitle");
-            let currentabbr = await item.getField("journalAbbreviation");
+            const currentabbr = await item.getField("journalAbbreviation");
             if (!currentjournal) {
                 return false;
             }
             
             currentjournal = currentjournal.replace(/\s+/g, " ").trim();
 
-            let abbred_iso4_journal = abbrevIso.makeAbbreviation(currentjournal);
+            const abbred_iso4_journal = abbrevIso.makeAbbreviation(currentjournal);
             if (!abbred_iso4_journal) {
                 return false;
             }

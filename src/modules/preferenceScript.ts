@@ -1,8 +1,5 @@
 import { config } from "../../package.json";
-import { getString } from "./locale";
-import {
-  BasicExampleFactory,
-} from "./examples";
+import { getString } from "../utils/locale";
 
 export async function registerPrefsScripts(_window: Window) {
   // This function is called when the prefs window is opened
@@ -13,13 +10,13 @@ export async function registerPrefsScripts(_window: Window) {
       columns: [
         {
           dataKey: "title",
-          label: "prefs.table.title",
+          label: getString("prefs-table-title"),
           fixedWidth: true,
           width: 100,
         },
         {
           dataKey: "detail",
-          label: "prefs.table.detail",
+          label: getString("prefs-table-detail"),
         },
       ],
       rows: [
@@ -40,9 +37,8 @@ export async function registerPrefsScripts(_window: Window) {
   } else {
     addon.data.prefs.window = _window;
   }
-  //BasicExampleFactory.ShowInfo('测试信息提示');//  为了测试用
-  //updatePrefsUI();
-  //bindPrefEvents();
+  updatePrefsUI();
+  bindPrefEvents();
 }
 
 async function updatePrefsUI() {
@@ -50,17 +46,14 @@ async function updatePrefsUI() {
   // with addon.data.prefs.window.document
   // Or bind some events to the elements
   const renderLock = ztoolkit.getGlobal("Zotero").Promise.defer();
-  const tableHelper = new ztoolkit.VirtualizedTable(addon.data.prefs?.window!)
+  if (addon.data.prefs?.window == undefined) return;
+  const tableHelper = new ztoolkit.VirtualizedTable(addon.data.prefs?.window)
     .setContainerId(`${config.addonRef}-table-container`)
     .setProp({
       id: `${config.addonRef}-prefs-table`,
       // Do not use setLocale, as it modifies the Zotero.Intl.strings
       // Set locales directly to columns
-      columns: addon.data.prefs?.columns.map((column) =>
-        Object.assign(column, {
-          label: getString(column.label) || column.label,
-        })
-      ),
+      columns: addon.data.prefs?.columns,
       showHeader: true,
       multiSelect: true,
       staticColumns: true,
@@ -126,7 +119,7 @@ function bindPrefEvents() {
     });
 
   addon.data
-    .prefs!!.window.document.querySelector(
+    .prefs!.window.document.querySelector(
       `#zotero-prefpane-${config.addonRef}-input`
     )
     ?.addEventListener("change", (e) => {

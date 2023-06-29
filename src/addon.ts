@@ -10,18 +10,19 @@ class Addon {
     // ztoolkit: MyToolkit;
     ztoolkit: ZoteroToolkit;
     locale?: {
-      stringBundle: any;
+      current: any;
     };
     prefs?: {
       window: Window;
       columns: Array<ColumnOptions>;
       rows: Array<{ [dataKey: string]: string }>;
     };
+    dialog?: DialogHelper;
   };
   // Lifecycle hooks
   public hooks: typeof hooks;
   // APIs
-  public api: {};
+  public api: object;
 
   constructor() {
     this.data = {
@@ -53,6 +54,7 @@ class Addon {
 import { BasicTool, unregister } from "zotero-plugin-toolkit/dist/basic";
 import { UITool } from "zotero-plugin-toolkit/dist/tools/ui";
 import { PreferencePaneManager } from "zotero-plugin-toolkit/dist/managers/preferencePane";
+import { DialogHelper } from "zotero-plugin-toolkit/dist/helpers/dialog";
 
 export class MyToolkit extends BasicTool {
   UI: UITool;

@@ -73,8 +73,8 @@ def modify_zotero_cmd_json(target_file: Path) -> None:
     else:
         raise ValueError('不支持的操作系统')
     
-    data['startZotero'] = f"{temp_path} --debugger --purgecaches"  # 直接添加字段
-    find_key_and_replace(data, '6', temp_path)
+    # data['startZotero'] = f"{temp_path} --debugger --purgecaches"  # 直接添加字段
+    # find_key_and_replace(data, '6', temp_path)
     find_key_and_replace(data, '7', temp_path)
     # 将修改后的结果写回到原始文件
     with open(target_file, 'w') as f:
@@ -196,6 +196,8 @@ def clean_this_plugin_prefs(zotero_config_dir: Path,  addonRef = 'addonRef') -> 
         # If line contains both str_a and str_b, skip it
         if str_a in line and str_b in line:
             continue
+        if str_a in line and addonRef+"." in line:
+            continue
         processed_lines.append(line)
 
     # 前后对比,删除了多少行
@@ -223,7 +225,7 @@ def clean_this_plugin_prefs(zotero_config_dir: Path,  addonRef = 'addonRef') -> 
 #######################################################################################
 
 ##### 0. 初始值的设定 ###############################################################
-peizhi_name =  "Default" # 'testmy' # 选择你要配置的那个名字, 建议先创建一个mytest 账号的配置文件, 
+peizhi_name =  "testmy" # 'testmy' # 选择你要配置的那个名字, 建议先创建一个mytest 账号的配置文件, 
 # 命令行 运行 /Applications/Zotero.app/Contents/MacOS/zotero -P  即可创建配置文件, 
 # 默认的配置文件为 default, 你可以在配置文件中修改配置文件的名字,  Default
 # 可以在苹果系统使用 killall 来杀死进程   killall -9 zotero 
@@ -252,7 +254,9 @@ if not Path('./package.json').exists():
 
 # 输出当前工作路径
 print(Back.LIGHTBLACK_EX + f"========= 当前工作目录为: ==========" )
-print(f"{Path.cwd()} \n")
+## 打印当前工作目录
+print(f'当前工作目录: {Path.cwd()}')
+
 
 ######### 1. 复制  zotero-cmd.json   ########################
 source_file = Path('./scripts/zotero-cmd-default.json') # 这个地址可能需要更改

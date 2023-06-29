@@ -9,7 +9,7 @@ class StringUtil {
         // 删除两边的空格, \s+ 是一个正则表达式，用于匹配一个或多个空白字符，
         // 而 /g 则是一个标志，表示全局匹配。
         str = str.replace(/\s+/g, " ");
-        let trimmedStr = str.trim();
+        const trimmedStr = str.trim();
 
         // 删除成对的双引号或单引号
         let quoteRemovedStr = trimmedStr.replace(/^(["'])([\s\S]*?)\1$/, "$2");
@@ -84,7 +84,7 @@ class StringUtil {
             regex = new RegExp(`^((?:\\w+\\W*){1,${n}})`);
         }
 
-        let match = text.match(regex);
+        const match = text.match(regex);
 
         if (match) {
             return match[1].trim();
@@ -104,7 +104,7 @@ class StringUtil {
         //let match = new RegExp(/\[(0|[1-9]\d?|1\d{2}|200)\]/).test(bib_prefix);
 
         // 前缀中存在 "数字" 是 0-200 之间的整数 或 1700 -- 2099 之间的整数
-        let match2 = new RegExp(
+        const match2 = new RegExp(
             /(0|[1-9]\d?|1\d{2}|200|1[7-9]\d{2}|20[0-9]\d)/
         ).test(bib_prefix);
         if (match2) {
@@ -121,14 +121,14 @@ class StringUtil {
         prefixvalue = ""
     ) {
         // 查找字符串中的第一个空格在哪里
-        let index = bib_prefix.search(/\s/);
+        const index = bib_prefix.search(/\s/);
         if (!isaddprefix) {
             prefixvalue = "";
         }
         // 如果找不到空格，
         if (index === -1) {
             // 是否包含特殊字符
-            let ishaveSpecialChar = this.checkPrefixSpecialChar(bib_prefix);
+            const ishaveSpecialChar = this.checkPrefixSpecialChar(bib_prefix);
 
             if (ishaveSpecialChar) {
                 // 如果 bib_prefix 中有特殊字符，丢弃前缀, 返回prefixvalue
@@ -142,12 +142,12 @@ class StringUtil {
         // 如果找到空格，返回空格前面的字符串
         let bibwithSpeace = bib_prefix.slice(0, index);
         // 判断 bibwithSpeace 中是否包含特殊字符
-        let ishaveSpecialChar = this.checkPrefixSpecialChar(bibwithSpeace);
+        const ishaveSpecialChar = this.checkPrefixSpecialChar(bibwithSpeace);
         // 如果 bibwithSpeace 中有特殊字符，丢弃前缀, 返回prefixvalue
         if (ishaveSpecialChar) {
             bibwithSpeace = "";
         }
-        let bibstr =
+        const bibstr =
             prefixvalue +
             bibwithSpeace +
             bib_prefix.slice(index + 1, bib_prefix.length);
@@ -305,8 +305,8 @@ class StringUtil {
     static bibdiscardDOI(text:string){
         text = text.trim();
 
-        let doiRegex = /http[s]?:\/\/doi\.org\/[\w\.\/\-]+$/i; // 检查文本中是否存在 DOI
-        let fianl_text = doiRegex.test(text) ? text.replace(doiRegex, "") : text;
+        const doiRegex = /http[s]?:\/\/doi\.org\/[\w\.\/\-]+$/i; // 检查文本中是否存在 DOI
+        const fianl_text = doiRegex.test(text) ? text.replace(doiRegex, "") : text;
         return fianl_text.trim();
     }
     //////////////////////////////////////////////
@@ -324,7 +324,7 @@ class StringUtil {
             text = text.replace(/等|\u7b49\./u, "et al.");
             text = text.replace(/和|\u548c/u, "and");
         }
-        let replacedStr = this.replaceStrings(text, "\\&", "&", "and");
+        const replacedStr = this.replaceStrings(text, "\\&", "&", "and");
         return replacedStr;
     }
     
@@ -337,7 +337,7 @@ class StringUtil {
         // bibprenum:number 为引用的序号, 只有当 bibformat 为 num 时才有用
         // isdiscardDOI:boolean 是否去除DOI
         const bibPrefix = bib[0].trim(); // 前缀
-        let bibpre = (bibformat === "num") ? "[" + bibprenum + "]" : "\\bibitem{" + nkey + "}";
+        const bibpre = (bibformat === "num") ? "[" + bibprenum + "]" : "\\bibitem{" + nkey + "}";
         const bibPrefixNew = this.checkPrefix(
             bibPrefix,
             true,
@@ -388,7 +388,7 @@ class StringUtil {
         // isdiscardDOI:boolean 是否去除DOI
         let successfulCount = false;
         let noActionCount = false;
-        let bibpre = (bibformat === "num") ? "[" + bibprenum + "]" : "\\bibitem{" + nkey + "}";
+        const bibpre = (bibformat === "num") ? "[" + bibprenum + "]" : "\\bibitem{" + nkey + "}";
         text = text.trim();
         
         let fianl_text = "";
