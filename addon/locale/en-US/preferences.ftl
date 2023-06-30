@@ -1,7 +1,7 @@
 pref-title-one = Path Settings
 pref-groupbox-first = Path Settings:
 
-pref-input = Enter the csv address:  
+pref-input = Input the csv address:  
 pref-separator = File separator(csv):
 pref-separator-semicolon =
     .label = semicolon

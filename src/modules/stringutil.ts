@@ -305,7 +305,7 @@ class StringUtil {
     static bibdiscardDOI(text:string){
         text = text.trim();
 
-        const doiRegex = /http[s]?:\/\/doi\.org\/[\w\.\/\-]+$/i; // 检查文本中是否存在 DOI
+        const doiRegex = /http[s]?:\/\/doi\.org\/[\w.-]+$/i; // 检查文本中是否存在 DOI
         const fianl_text = doiRegex.test(text) ? text.replace(doiRegex, "") : text;
         return fianl_text.trim();
     }
@@ -411,7 +411,7 @@ class StringUtil {
         text = text.trim();
         
         let fianl_text = "";
-        const regex = /^(\[\d+\]|\d+\.|\(\d+\)|\\bibitem\{[0-9A-Za-z\-]+?\})/;
+        const regex = /^(\[\d+\]|\d+\.|\(\d+\)|\\bibitem\{[0-9A-Za-z-]+?\})/;
         if (regex.test(text)) {
           // 如果找到了符合条件的模式，则使用 replace 方法进行替换
           fianl_text = text.replace(regex, bibpre);

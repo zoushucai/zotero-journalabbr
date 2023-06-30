@@ -147,8 +147,8 @@ class Basefun {
         }
         
         // 把 key 转换为小写且去除空格
-        let user_abbr_data: {[key: string]: any} = {};    // 用于存储转换后的数据
-        for (let key in data_obj) {
+        const user_abbr_data: {[key: string]: any} = {};    // 用于存储转换后的数据
+        for (const key in data_obj) {
             // 只保留字符串类型的键值对
             if (typeof data_obj[key] === 'string' &&  typeof key === 'string') {
                 const normkey = key.toLowerCase().trim();   // 将当前键转为小写并去除两端空格
@@ -162,12 +162,12 @@ class Basefun {
     // 0. 从 csv 获取数据
     static async read_csv(filePath: string) {
         // 1. 读取用户设置的分割符号
-        let pref_separator = Zotero.Prefs.get(
+        const pref_separator = Zotero.Prefs.get(
             `${config.addonRef}.separator`
         ) as string; // 获得持久化的变量
 
         // 2. 读取 csv 文件, 并解析为字典对象
-        let user_abbr_data = await Selected.readAndParseCSV(
+        const user_abbr_data = await Selected.readAndParseCSV(
             filePath,
             pref_separator
         );
@@ -187,7 +187,7 @@ class Basefun {
     }
 
     static getQuickCopyFormat2() {
-        let format_str = Zotero.Prefs.get("export.quickCopy.setting") as string;
+        const format_str = Zotero.Prefs.get("export.quickCopy.setting") as string;
         if (!format_str || format_str.split("=")[0] !== "bibliography") {
             BasicExampleFactory.ShowError(
                 "No bibliography style is chosen in the settings for QuickCopy."
@@ -195,7 +195,7 @@ class Basefun {
             return null;
         }
 
-        let format =  Zotero.QuickCopy.unserializeSetting(format_str);// 格式化 format,返回如下形式的对象
+        const format =  Zotero.QuickCopy.unserializeSetting(format_str);// 格式化 format,返回如下形式的对象
         // {
         //     "mode": "bibliography"
         //     "contentType": ""
@@ -203,8 +203,8 @@ class Basefun {
         //     "locale": ""
         // }
 
-        let locale = format.locale ? format.locale : Zotero.Prefs.get('export.quickCopy.locale');
-        let style = Zotero.Styles.get(format.id);
+        const locale = format.locale ? format.locale : Zotero.Prefs.get('export.quickCopy.locale');
+        const style = Zotero.Styles.get(format.id);
         const cslEngine = style.getCiteProc(locale, 'text');
         return cslEngine
     }
@@ -252,7 +252,7 @@ class Selected {
     static async exchangeJournalName(
         key1: any = "journalAbbreviation",
         key2: any = "publicationTitle",
-        exchangetagname: string = "exchange"
+        exchangetagname = "exchange"
     ) {
         const selectedItems = Basefun.filterSelectedItems();
         if (!selectedItems) return;
@@ -281,7 +281,7 @@ class Selected {
         return resultInfo;
     }
     // 读取 csv 文件并解析
-    static async readAndParseCSV(filePath: string, delimiter: string = ",") {
+    static async readAndParseCSV(filePath: string, delimiter = ",") {
         try {
             const csvContent = (await Zotero.File.getContentsAsync(
                 filePath
@@ -292,21 +292,21 @@ class Selected {
 
             await Promise.all(
                 lines.map(async (line, i) => {
-                    let currentLine = line.split(delimiter);
+                    const currentLine = line.split(delimiter);
                     if (currentLine.length != 2) {
                         errors.push(i + 1);
                         return;
                     }
-                    let key = StringUtil.trimAndRemoveQuotes(
+                    const key = StringUtil.trimAndRemoveQuotes(
                         currentLine[0]
                     ).toLowerCase();
-                    let value = StringUtil.trimAndRemoveQuotes(currentLine[1]);
+                    const value = StringUtil.trimAndRemoveQuotes(currentLine[1]);
 
                     if (!key || !value) {
                         errors.push(i + 1);
                     }
 
-                    if (!data.hasOwnProperty(key) && key != "" && value != "") {
+                    if (!Object.prototype.hasOwnProperty.call(data, key) && key != "" && value != "") {
                         data[key] = value; // 重复以先前的为准
                     }
                 })
@@ -439,7 +439,7 @@ class Selected {
                 // 根据正则表达式, 替换参考文献开头的多余信息
                 // 1. 处理 [1] 或者 1. 或者 (1) 这种情况, 改成 \bibitem{key}
                 // 2. 处理 等. --> et al. 或者 et al.--> 等.
-                let [f, s, n] =  StringUtil.handleBibtoFormat1(citestr_arr[i], nkey[i], keyornum, bibprenum, isdiscardDOI);
+                const [f, s, n] =  StringUtil.handleBibtoFormat1(citestr_arr[i], nkey[i], keyornum, bibprenum, isdiscardDOI);
                 bibprenum += 1;
                 fianl_bib[i] = f;
                 if (s) successfulCount.push(i);

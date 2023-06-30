@@ -180,7 +180,7 @@ export class BasicExampleFactory {
         };
 
         // Check if preference is already set and set it if not
-        for (let p in initpref_data) {
+        for (const p in initpref_data) {
             if (typeof Zotero.Prefs.get(p) === "undefined") {
                 Zotero.Prefs.set(p, initpref_data[p] as string);
             }
@@ -525,7 +525,7 @@ export class HelperAbbrFactory {
   // 绑定按钮事件
   @example
   static async buttonSelectFilePath() {
-      var mypath = await BasicExampleFactory.filePickerExample();
+      const mypath = await BasicExampleFactory.filePickerExample();
 
       // 判断选择的地址是否为空
       if (!mypath) {
