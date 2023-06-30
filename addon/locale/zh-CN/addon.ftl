@@ -44,6 +44,13 @@ prompt-show-readfile-more-info=不符合要求的总行数为(已忽略):
 prompt-show-disabled-info=选'exchange'标签条目；功能受限。
 
 
+sortoptions-originid = originid
+sortoptions-nkey = citekey
+sortoptions-ntitle = title
+sortoptions-nauthor = authorlastname
+sortoptions-id = id
+keyornum-key = key
+keyornum-num = num
 
 
 

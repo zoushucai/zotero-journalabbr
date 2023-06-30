@@ -380,7 +380,7 @@ class Selected {
     static async getbibliography1() {
         const selectedItems = Basefun.filterSelectedItems();
         if (!selectedItems) return;
-        let origin_id = selectedItems.map((item) => item.id); // 记录获取的条目原始顺序
+        const originid = selectedItems.map((item) => item.id); // 记录获取的条目原始顺序
         //测试 for 循环更快
         const nkey = [],
             ntitle = [],
@@ -388,10 +388,10 @@ class Selected {
             fianl_bib = [],
             citestr_arr = [];
             //nTitle = [];
-        let ruleItemCount = selectedItems.length;
-        let successfulCount = [];
-        let noActionCount = [];
-        let missingInfoItemCount = [];
+        const ruleItemCount = selectedItems.length;
+        const successfulCount = [];
+        const noActionCount = [];
+        const missingInfoItemCount = [];
         // 2. 获得参考文献的格式
         // 方式 1-- 使用内置的
         // const format = Basefun.getQuickCopyFormat();
@@ -404,11 +404,13 @@ class Selected {
         const sortoptions = Zotero.Prefs.get(
             `${config.addonRef}.sortoptions`
         ) as string; // 获得持久化的变量
-        const optionarr = ["default", "nkey", "ntitle", "nauthor", "id"];
-        const sortindex = optionarr.indexOf(sortoptions);
+        // 与 [ fianl_bib, nkey, ntitle, nauthor, id_arr] 对应的索引, 其中 id_arr 为原始的 id, 用于排序
+        const optionarr = ["originid", "nkey", "ntitle", "nauthor", "id"];
+        let sortindex = optionarr.indexOf(sortoptions);
+        sortindex = (sortindex === -1) ? 0 : sortindex;
         
         // 获取bib format
-        const bibformat = Zotero.Prefs.get(`${config.addonRef}.keyornum`) as string; // 获得持久化的变量
+        const keyornum = Zotero.Prefs.get(`${config.addonRef}.keyornum`) as string; // 获得持久化的变量
         const isdiscardDOI = Zotero.Prefs.get(`${config.addonRef}.discardDOI`) as boolean; // 获得持久化的变量
         const bibemptyline = Zotero.Prefs.get(`${config.addonRef}.bibemptyline`) as boolean; // 获得持久化的变量
         let bibprenum = 1;
@@ -417,11 +419,17 @@ class Selected {
             try {
                 // 获得 每一个条目的 key 以及作者, 以及 title
                 const item = selectedItems[i];
-                nkey[i] = item.getField("citationKey") as string;
+                if (keyornum == "key"){
+                    nkey[i] = item.getField("citationKey") as string;
+                }else if (keyornum == "num"){
+                    nkey[i] = "[" + String(i + 1) +"]";
+                }else {
+                    nkey[i] = "";
+                }
                 ntitle[i] = item.getField("title") as string;
                 nauthor[i] = item.getCreator(0).lastName as string;
 
-                if (!nkey[i]) {
+                if (!ntitle[i] || !nauthor[i] || !nkey[i]) {
                     missingInfoItemCount.push(i);
                     continue;
                 }
@@ -431,7 +439,7 @@ class Selected {
                 // 根据正则表达式, 替换参考文献开头的多余信息
                 // 1. 处理 [1] 或者 1. 或者 (1) 这种情况, 改成 \bibitem{key}
                 // 2. 处理 等. --> et al. 或者 et al.--> 等.
-                let [f, s, n] =  StringUtil.handleBibtoFormat1(citestr_arr[i], nkey[i], bibformat, bibprenum, isdiscardDOI);
+                let [f, s, n] =  StringUtil.handleBibtoFormat1(citestr_arr[i], nkey[i], keyornum, bibprenum, isdiscardDOI);
                 bibprenum += 1;
                 fianl_bib[i] = f;
                 if (s) successfulCount.push(i);
@@ -444,7 +452,7 @@ class Selected {
         }
         // 方式二: 忽略某些 html,直接返回 text
         cslEngine.free()
-        let newseparator = bibemptyline ? "\n\n" : "\n";
+        const newseparator = bibemptyline ? "\n\n" : "\n";
 
         //////// 最终的参考文献的处理 //////////
         // 理论上 id_arr 和 fianl_bib 长度是一样的
@@ -454,11 +462,11 @@ class Selected {
         if (sortindex === 0 || fianl_biblength !== ruleItemCount) {
             finalBib_str = fianl_bib.filter((item) => Boolean(item)).join(newseparator); // 过滤掉空值
         } else {
-            let id_arr = []; // 记录条目的原始顺序
+            const id_arr = []; // 记录条目的原始顺序
             for (let i = 0; i < fianl_biblength; i++) {
                 id_arr.push(i);
             }
-            // 这里可以根据 ['default','nkey','ntitle','nauthor','id']; 排序
+            // 这里可以根据 ['originid','nkey','ntitle','nauthor','id']; 排序, 这里 origin_id === id_arr
             const sortarr = StringUtil.sortColumns(
                 [fianl_bib, nkey, ntitle, nauthor, id_arr],
                 sortindex,
@@ -485,7 +493,7 @@ class Selected {
     static async getbibliography2() {
         const selectedItems = Basefun.filterSelectedItems();
         if (!selectedItems) return;
-        let origin_id = selectedItems.map((item) => item.id); // 记录获取的条目原始顺序
+        const originid = selectedItems.map((item) => item.id); // 记录获取的条目原始顺序
         //测试 for 循环更快
         const nkey = [],
             ntitle = [],
@@ -493,10 +501,10 @@ class Selected {
             fianl_bib = [],
             citestr_arr = [],
             nTitle = [];
-        let ruleItemCount = selectedItems.length;
-        let successfulCount = [];
-        let noActionCount = [];
-        let missingInfoItemCount = [];
+        const ruleItemCount = selectedItems.length;
+        const successfulCount = [];
+        const noActionCount = [];
+        const missingInfoItemCount = [];
         // 2. 获得参考文献的格式
         // 方式 1-- 使用内置的
         // const format = Basefun.getQuickCopyFormat();
@@ -509,11 +517,11 @@ class Selected {
         const sortoptions = Zotero.Prefs.get(
             `${config.addonRef}.sortoptions`
         ) as string; // 获得持久化的变量
-        const optionarr = ["default", "nkey", "ntitle", "nauthor", "id"];
-        const sortindex = optionarr.indexOf(sortoptions);
-        
+        const optionarr = ["originid", "nkey", "ntitle", "nauthor", "id"];
+        let sortindex = optionarr.indexOf(sortoptions);
+        sortindex = sortindex === -1 ? 0 : sortindex;
         // 获取bib format
-        const bibformat = Zotero.Prefs.get(`${config.addonRef}.keyornum`) as string; // 获得持久化的变量
+        const keyornum = Zotero.Prefs.get(`${config.addonRef}.keyornum`) as string; // 获得持久化的变量
         const isdiscardDOI = Zotero.Prefs.get(`${config.addonRef}.discardDOI`) as boolean; // 获得持久化的变量
         const bibemptyline = Zotero.Prefs.get(`${config.addonRef}.bibemptyline`) as boolean; // 获得持久化的变量
         let bibprenum = 1;
@@ -522,7 +530,14 @@ class Selected {
             try {
                 // 获得 每一个条目的 key 以及作者, 以及 title
                 const item = selectedItems[i];
-                nkey[i] = item.getField("citationKey") as string;
+                if (keyornum == "key"){
+                    nkey[i] = item.getField("citationKey") as string;
+                }else if (keyornum == "num"){
+                    nkey[i] = "[" + String(i + 1) +"]";
+                }else {
+                    nkey[i] = ""; //String(i + 1);
+                }
+                
                 ntitle[i] = item.getField("title") as string;
                 nauthor[i] = item.getCreator(0).lastName as string;
                 nTitle[i] = StringUtil.getFirstNWordsOrCharacters(ntitle[i], 3); // 获得 title 的前三个单词
@@ -554,7 +569,7 @@ class Selected {
                     fianl_bib[i] = StringUtil.handleBibtoFormat2(
                         bib_arr,
                         nkey[i],
-                        bibformat,
+                        keyornum,
                         bibprenum,
                         isdiscardDOI
                     );
@@ -568,7 +583,7 @@ class Selected {
         }
         // 方式二: 忽略某些 html,直接返回 text
         cslEngine.free()
-        let newseparator = bibemptyline ? "\n\n" : "\n";
+        const newseparator = bibemptyline ? "\n\n" : "\n";
 
 
         //////// 最终的参考文献的处理 //////////
@@ -579,11 +594,11 @@ class Selected {
         if (sortindex === 0 || fianl_biblength !== ruleItemCount) {
             finalBib_str = fianl_bib.filter((item) => Boolean(item)).join(newseparator); // 过滤掉空值
         } else {
-            let id_arr = []; // 记录条目的原始顺序
+            const id_arr = []; // 记录条目的原始顺序
             for (let i = 0; i < fianl_biblength; i++) {
                 id_arr.push(i);
             }
-            // 这里可以根据 ['default','nkey','ntitle','nauthor','id']; 排序
+            // 这里可以根据 ['originid','nkey','ntitle','nauthor','id']; 排序
             const sortarr = StringUtil.sortColumns(
                 [fianl_bib, nkey, ntitle, nauthor, id_arr],
                 sortindex,

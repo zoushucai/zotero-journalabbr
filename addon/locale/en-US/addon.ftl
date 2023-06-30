@@ -44,8 +44,13 @@ prompt-show-readfile-more-info=Total number of non-compliant rows(ignored)
 prompt-show-disabled-info='Exchange' tag items, limited functions.
 
 
-
-
+sortoptions-originid = originid
+sortoptions-nkey = citekey
+sortoptions-ntitle = title
+sortoptions-nauthor = authorlastname
+sortoptions-id = id
+keyornum-key = key
+keyornum-num = num
 
 
 

@@ -328,16 +328,25 @@ class StringUtil {
         return replacedStr;
     }
     
-    static handleBibtoFormat2(bib: string[], nkey: string, bibformat: string, bibprenum: number, isdiscardDOI: boolean) {
+    static handleBibtoFormat2(bib: string[], nkey: string, keyornum: string, bibprenum: number, isdiscardDOI: boolean) {
         // bib:string[] 必须是分成三个部分的字符串数组
         // nkey:string 为引用的关键字, 用于生成 \\bibitem{nkey} 的格式
-        // bibformat:string 为引用格式, num为数字, key为关键字, 
+        // keyornum:string 为引用格式, num为数字, key为关键字, 
         //      如果为key, 则需要提供则是以 \\bibitem{nkey} 的格式
         //      如果为num, 则需要提供序号(由 bibprenum 提供), 则是以 [num] 的格式
-        // bibprenum:number 为引用的序号, 只有当 bibformat 为 num 时才有用
+        // bibprenum:number 为引用的序号, 只有当 keyornum 为 num 时才有用
         // isdiscardDOI:boolean 是否去除DOI
         const bibPrefix = bib[0].trim(); // 前缀
-        const bibpre = (bibformat === "num") ? "[" + bibprenum + "]" : "\\bibitem{" + nkey + "}";
+
+        let bibpre = "";
+        if (keyornum === "num") {
+            bibpre = "[" + bibprenum + "]";
+        } else if (keyornum === "key") {
+            bibpre = "\\bibitem{" + nkey + "}";
+        } else {
+            bibpre =  "";
+        }
+
         const bibPrefixNew = this.checkPrefix(
             bibPrefix,
             true,
@@ -378,17 +387,27 @@ class StringUtil {
         return text.replace(keyword === "等." ? /et al\./ : /(等|\u7b49)\s*\./u, keyword);
       }
       
-    static handleBibtoFormat1(text: string, nkey: string, bibformat: string, bibprenum: number, isdiscardDOI: boolean) {
+    static handleBibtoFormat1(text: string, nkey: string, keyornum: string, bibprenum: number, isdiscardDOI: boolean) {
         // text:string 是一个字符串
         // nkey:string 为引用的关键字, 用于生成 \\bibitem{nkey} 的格式
-        // bibformat:string 为引用格式, num为数字, key为关键字, 
+        // keyornum:string 为引用格式, num为数字, key为关键字, 
         //      如果为key, 则需要提供则是以 \\bibitem{nkey} 的格式
         //      如果为num, 则需要提供序号(由 bibprenum 提供), 则是以 [num] 的格式
-        // bibprenum:number 为引用的序号, 只有当bibformat为num时才有用
+        // bibprenum:number 为引用的序号, 只有当keyornum为num时才有用
         // isdiscardDOI:boolean 是否去除DOI
+        // ztoolkit.log(`handleBibtoFormat1: ${text}`)
         let successfulCount = false;
         let noActionCount = false;
-        const bibpre = (bibformat === "num") ? "[" + bibprenum + "]" : "\\bibitem{" + nkey + "}";
+
+        let bibpre = "";
+        if (keyornum === "num") {
+            bibpre = "[" + bibprenum + "]";
+        } else if (keyornum === "key") {
+            bibpre = "\\bibitem{" + nkey + "}";
+        } else {
+            bibpre =  "";
+        }
+
         text = text.trim();
         
         let fianl_text = "";
@@ -398,10 +417,13 @@ class StringUtil {
           fianl_text = text.replace(regex, bibpre);
           fianl_text = this.replaceStringByKeywordsUnicode(fianl_text);
           successfulCount = true;
+        } else if (keyornum === "num") {
+            fianl_text = bibpre + " " + text   
+            successfulCount = true;
         } else {
-          fianl_text = "\\bibitem{" + nkey + "}"+ " " + text
-          noActionCount = true
-          Zotero.debug("Bib noActionCount, the reason might be starting with the name of the author directly.");
+            fianl_text = bibpre + " " + text
+            noActionCount = true
+            Zotero.debug("Bib noActionCount, the reason might be starting with the name of the author directly.");
         }
         
         if(isdiscardDOI){

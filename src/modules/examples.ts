@@ -173,8 +173,8 @@ export class BasicExampleFactory {
         const initpref_data = {
             [config.addonRef + ".input"]: Zotero.Prefs.get("dataDir"),
             [config.addonRef + ".separator"]: ",",
-            [config.addonRef + ".sortoptions"]: "default", // [fianl_bib, id_arr, origin_id, nkey]
-            [config.addonRef + ".keyornum"]: "key", //
+            [config.addonRef + ".sortoptions"]: "originid", // 二维数组:[fianl_bib, nkey, ntitle, nauthor, id_arr], 利用['originid','nkey','ntitle','nauthor','id']来排序,这是他们的列名
+            [config.addonRef + ".keyornum"]: "num", //
             [config.addonRef + ".discardDOI"]: true,
             [config.addonRef + ".bibemptyline"]: true,
         };

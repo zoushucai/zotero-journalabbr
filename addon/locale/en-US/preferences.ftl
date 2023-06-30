@@ -14,22 +14,8 @@ pref-button =
 
 pref-title-two = bib setting
 sortoptions-label = sort options: 
-sortoptions-default = 
-    .label = default
-sortoptions-nkey = 
-    .label = citekey
-sortoptions-ntitle =
-    .label = title
-sortoptions-nauthor = 
-    .label = authorlastname
-sortoptions-id =
-    .label =  id
 
 keyornum-label = bib format:
-keyornum-key = 
-    .label = key
-keyornum-num = 
-    .label = num
 
 discardDOI-label = discard DOI
 bibemptyline-label = Separator is an empty line

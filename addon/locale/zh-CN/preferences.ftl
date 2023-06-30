@@ -14,22 +14,8 @@ pref-button =
 
 pref-title-two = bib 设置
 sortoptions-label = bib排序:
-sortoptions-default = 
-    .label = 默认
-sortoptions-nkey = 
-    .label = citekey
-sortoptions-ntitle =
-    .label = 标题
-sortoptions-nauthor =
-    .label = 第一作者的姓
-sortoptions-id = 
-    .label = 原始
 
 keyornum-label = bib format:
-keyornum-key = 
-    .label = key
-keyornum-num = 
-    .label = num
 
 discardDOI-label = discard DOI
 bibemptyline-label = Separator is an empty line
