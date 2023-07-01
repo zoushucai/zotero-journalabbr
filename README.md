@@ -6,6 +6,10 @@
 
 
 
+## 2023-07-01 update 0.6.14 (released by action)
+
+- update data.ts
+
 
 
 ## 2023-06-21更新
