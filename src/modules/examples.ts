@@ -32,6 +32,7 @@ function example(
 }
 
 export class BasicExampleFactory {
+    
     // 剪贴板
     @example
     static async copyToClipboard(text: string) {
@@ -251,9 +252,71 @@ export class BasicExampleFactory {
       };
       ztoolkit.PreferencePane.register(prefOptions);
     }
+
+
+    
 }
 
+
 export class UIExampleFactory {
+   // 在标题上添加自定义列名,通过该列可以进行排序
+   @example
+   static async registerExtraColumn() {
+     await ztoolkit.ItemTree.register(
+       "extraColumnabbr",
+       "abbr",
+       (
+         field: string,
+         unformatted: boolean,
+         includeBaseMapped: boolean,
+         item: Zotero.Item
+       ) => {
+          //ztoolkit.log(`field3: ${field}`) // field === 'extraColumnabbr' 
+          const fieldValue = ztoolkit.ExtraField.getExtraField(item, "itemBoxRowabbr");
+          return fieldValue !== undefined ? String(fieldValue) : "";
+       }
+     );
+   }
+
+   // 注册额外的字段
+  @example
+  static async registerCustomItemBoxRow() {
+    await ztoolkit.ItemBox.register(
+      "itemBoxRowabbr",
+      "abbr",
+      (field, unformatted, includeBaseMapped, item, original) => { 
+            //ztoolkit.log(`field1: ${field}`)
+            const fieldValue = ztoolkit.ExtraField.getExtraField(item, field);
+            return (
+                 fieldValue !== undefined ? String(fieldValue) : ""
+            );
+      },{
+        editable: true,
+        setFieldHook: (field, value, loadIn, item, original) => {
+            const extraField = String(item.getField('extra'));
+            const filteredExtra = extraField.split('\n').filter(line =>{
+            const regex = new RegExp("^" + field + ":\\s*");
+                // 这里多写了一个判断条件,主要是测试用的
+                return !(regex.test(line) || !/^[a-z0-9A-Z]+?:\s*/.test(line) || /^[a-z0-9A-Z]+?:\s*/.test(line));
+            }).join('\n');
+            ztoolkit.log(`filteredExtra: ${filteredExtra}`)
+
+            item.setField('extra', filteredExtra);
+            item.saveTx();
+
+            ztoolkit.log(`value: ${value}`)
+
+            if (value){
+                ztoolkit.ExtraField.setExtraField(item, field, value);
+            }
+            return true;
+        },
+        index: 12,
+        multiline: false, // 是否多行
+        collapsible: false, // 是否可折叠
+      }
+    );
+  }
   //禁止显示某些菜单
   static displayMenuitem() {
       const items = ZoteroPane.getSelectedItems(); // 等价于 Zotero.getActiveZoteroPane().getSelectedItems();
@@ -414,6 +477,12 @@ export class UIExampleFactory {
                   label: getString("menuitem-bibliography2"),
                   commandListener: (ev) => HelperAbbrFactory.JA_getbibliography2(),
               },
+              {
+                tag: "menuitem",
+                id: "zotero-itemmenu-abbr-journal-itemBoxRowabbr",
+                label: "abbrall",
+                commandListener: (ev) => HelperAbbrFactory.JA_transferAllItemsToCustomField(),
+            },
               // {
               //   tag: "menuitem",
               //   label: "test", // 子菜单: 测试
@@ -548,10 +617,13 @@ export class HelperAbbrFactory {
   static async JA_update_UseInnerData() {
       await Selected.updateJournalAbbr(
           journal_abbr,
+          "publicationTitle",
+          "journalAbbreviation",
           ["abbr"],
           ["abbr_user", "abbr_iso4"],
           getString("prompt-success-updatejournal-inner-info"),
-          getString("prompt-error-updatejournal-inner-info")
+          getString("prompt-error-updatejournal-inner-info"),
+          true
       );
   }
 
@@ -562,20 +634,26 @@ export class HelperAbbrFactory {
       // 更新期刊缩写 -- 返回的信息为 已有 2/2 条目缩写更新
       await Selected.updateJournalAbbr(
           user_abbr_data,
+          "publicationTitle",
+          "journalAbbreviation",
           ["abbr_user"],
           ["abbr", "abbr_iso4"], // "amytest2","amytest"
           getString("prompt-success-updatejournal-user-info"),
-          getString("prompt-error-updatejournal-user-info")
+          getString("prompt-error-updatejournal-user-info"),
+          true
       );
   }
   // 3. 采用 ISO4 规则进行更新
   static async JA_update_UseISO4() {
       await Selected.updateUseISO4(
           {}, // 为了和上面的函数保持一致, 这里传入一个空对象
+          "publicationTitle",
+          "journalAbbreviation",
           ["abbr_iso4"],
           ["abbr_user", "abbr"],
           getString("prompt-success-updatejournal-iso4-info"),
-          getString("prompt-error-updatejournal-iso4-info")
+          getString("prompt-error-updatejournal-iso4-info"),
+          true
       );
   }
   static async JA_oneStepUpdate() {
@@ -615,6 +693,54 @@ export class HelperAbbrFactory {
       );
   }
 
+  static async JA_transferAllItemsToCustomField(){
+    // 不显示任何信息
+    try {
+        const user_abbr_data = await Basefun.get_user_data();
+        if (!user_abbr_data) return;
+        const newField = "itemBoxRowabbr";
+
+        await Selected.transferAllItemsToCustomField();
+
+        await Selected.updateUseISO4(
+            {}, 
+            newField,
+            newField,
+            [""],
+            [""],
+            getString("prompt-success-updatejournal-iso4-info"),
+            getString("prompt-error-updatejournal-iso4-info"),
+            false
+        );
+
+        await Selected.updateJournalAbbr(
+            journal_abbr,
+            newField,
+            newField,
+            [""],
+            [""],
+            getString("prompt-success-updatejournal-inner-info"),
+            getString("prompt-error-updatejournal-inner-info"),
+            false
+        );
+        
+
+        await Selected.updateJournalAbbr(
+            user_abbr_data,
+            newField,
+            newField,
+            [""],
+            [""],
+            getString("prompt-success-updatejournal-inner-info"),
+            getString("prompt-error-updatejournal-inner-info"),
+            false
+        );
+        
+
+    } catch (error) {
+        ztoolkit.log("error", error);
+    }
+  }
   // static async JA_test() {
   //     let abbrevIso = new AbbrevIso(ltwa, shortWords);
   //     let s = 'International Journal of Geographical Information Science';

@@ -36,7 +36,8 @@ class Basefun {
     static async processSelectedItemsWithPromise(
         handler: (item: any) => Promise<boolean>,
         successMessage: string,
-        errorMessage: string
+        errorMessage: string,
+        showInfo=true
     ) {
         try {
             const selectedItems = this.filterSelectedItems();
@@ -45,14 +46,17 @@ class Basefun {
             const tasks = selectedItems.map(handler);
             const results = await Promise.all(tasks);
             const successCount = results.filter((result) => result).length;
-
-            BasicExampleFactory.ShowStatus(
-                selectedItems.length,
-                successCount,
-                successMessage
-            );
+            if (showInfo) {
+                BasicExampleFactory.ShowStatus(
+                    selectedItems.length,
+                    successCount,
+                    successMessage
+                );
+            }
         } catch (error) {
-            BasicExampleFactory.ShowError(errorMessage);
+            if (showInfo) {
+                BasicExampleFactory.ShowError(errorMessage);
+            }
         }
     }
 
@@ -341,38 +345,50 @@ class Selected {
     // 第二个参数为进行期刊缩写的条目添加给定的标签, 用于标记识别
     static async updateJournalAbbr(
         data: { [key: string]: any },
+        oldField: string,
+        newField: string,
         addtagsname: string[],
         removetagsname: string[],
         successinfo: string,
-        errorinfo: string
+        errorinfo: string,
+        showInfo: boolean
     ) {
         await Basefun.processSelectedItemsWithPromise(
             SelectedWithHandler.updateJournalAbbrHandler(
                 data,
+                oldField,
+                newField,
                 addtagsname,
                 removetagsname
             ),
             successinfo,
-            errorinfo
+            errorinfo,
+            showInfo
         );
     }
 
     // 采用 iso-4 标准进行期刊缩写
     static async updateUseISO4(
         data: { [key: string]: any },
+        oldField: string,
+        newField: string,
         addtagsname: string[],
         removetagsname: string[],
         successinfo: string,
-        errorinfo: string
+        errorinfo: string,
+        showInfo: boolean
     ) {
         await Basefun.processSelectedItemsWithPromise(
             SelectedWithHandler.updateJournalAbbrHandlerISO4(
                 data,
+                oldField,
+                newField,
                 addtagsname,
                 removetagsname
             ),
             successinfo,
-            errorinfo
+            errorinfo,
+            showInfo
         );
     }
 
@@ -618,6 +634,61 @@ class Selected {
         return resultInfo;
     }
 
+    // 把所有类型的条目按照一定规则转到自定义的字段上: 其中自定义字段为: 
+    static async transferAllItemsToCustomField(){
+        const selectedItems = Basefun.filterSelectedItems();
+        if (!selectedItems) return;
+        const ruleItemCount = selectedItems.length;
+        for (let i = 0; i < ruleItemCount; i++) {
+            try {
+                const mitem = selectedItems[i];
+                const itype = mitem.itemType.toLocaleLowerCase();
+
+                let fieldValue;
+                if (itype === "thesis") {
+                    fieldValue = mitem.getField("university");
+
+                } else if (itype === "book") {
+                    fieldValue = mitem.getField("publisher");
+
+                } else if (itype === "journalArticle".toLocaleLowerCase()) {
+                    fieldValue = mitem.getField("publicationTitle");
+
+                } else if (itype === "conferencePaper".toLocaleLowerCase()) {
+                    fieldValue = mitem.getField("conferenceName");
+
+                } else if (itype === "preprint") {
+                    fieldValue = mitem.getField("repository");
+
+                } else if (itype === "bookSection".toLocaleLowerCase()) {
+                    fieldValue = mitem.getField("publisher");
+                } else {
+                    fieldValue = ztoolkit.ExtraField.getExtraField(mitem, "itemBoxRowabbr") || "";
+                }
+                fieldValue =  fieldValue !== undefined ? String(fieldValue) : "";
+
+                const extraField = String(mitem.getField('extra'));
+    
+                const filteredExtra = extraField.split('\n').filter(line =>{
+                    const regex = new RegExp("^itemBoxRowabbr:\\s*");
+                    return !(regex.test(line) || !/^[a-z0-9A-Z]+?:\s*/.test(line) || /^[a-z0-9A-Z]+?:\s*/.test(line));
+                  }).join('\n');
+
+                ztoolkit.log(`extra:::: ${filteredExtra}`);
+    
+                mitem.setField('extra', filteredExtra);//清理无效的extra
+                mitem.saveTx();
+    
+                if (fieldValue){
+                    ztoolkit.ExtraField.setExtraField(mitem, "itemBoxRowabbr", fieldValue)
+                }
+
+            } catch (error) {
+                continue;
+            }
+        }
+    }
+    
 }
 
 // 以下为辅助类
@@ -634,12 +705,14 @@ class SelectedWithHandler {
 
     static updateJournalAbbrHandler(
         data: { [key: string]: any },
+        oldField: string,
+        newField: string,
         addtagsname: string[],
         removetagsname: string[]
     ) {
         return async (item: any) => {
-            const currentjournal = await item.getField("publicationTitle");
-            const currentabbr = await item.getField("journalAbbreviation");
+            const currentjournal = await item.getField(oldField);
+            const currentabbr = await item.getField(newField);
             if (!currentjournal) {
                 return false;
             }
@@ -654,9 +727,16 @@ class SelectedWithHandler {
             const isIdentical = currentabbr?.trim() === data_in_journal.trim();
             if (!isIdentical) {
                 // not identical, update
-                item.setField("journalAbbreviation", data_in_journal);
+                item.setField(newField, data_in_journal);
+            }
+            if( (addtagsname.length == 1 && addtagsname[0] == "" ) || (removetagsname.length == 1 && removetagsname[0] == "" )) {
+                if (!isIdentical) {
+                    await item.saveTx();
+                }
+                return true;
             }
 
+            
             const tags = item.getTags(); // tags 是一个数组对象, 每个对象一般有两个属性: type, tag. 
 
             addtagsname = addtagsname.map(tag => tag.trim());
@@ -677,12 +757,14 @@ class SelectedWithHandler {
 
     static updateJournalAbbrHandlerISO4(
         data: { [key: string]: any },
+        oldField: string,
+        newField: string,
         addtagsname: string[],
         removetagsname: string[]
     ) {
         return async (item: any) => {
-            let currentjournal = await item.getField("publicationTitle");
-            const currentabbr = await item.getField("journalAbbreviation");
+            let currentjournal = await item.getField(oldField);
+            const currentabbr = await item.getField(newField);
             if (!currentjournal) {
                 return false;
             }
@@ -697,12 +779,18 @@ class SelectedWithHandler {
             const isIdentical = currentabbr?.trim() === abbred_iso4_journal.trim();
             if (!isIdentical) {
                 // not identical, update
-                item.setField("journalAbbreviation", abbred_iso4_journal);
+                item.setField(newField, abbred_iso4_journal);
+            }
+
+            if ( (addtagsname.length == 1 && addtagsname[0] == "") || (removetagsname.length == 1 && removetagsname[0] == "")) {
+
+                if (!isIdentical) {
+                    await item.saveTx();
+                }
+                return true;
             }
 
             const tags = item.getTags(); // tags 是一个数组对象, 每个对象一般有两个属性: type, tag. 
-            
-
             addtagsname = addtagsname.map(tag => tag.trim());
             removetagsname = removetagsname.map(tag => tag.trim());
             
