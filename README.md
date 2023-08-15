@@ -6,6 +6,10 @@
 
 
 
+## 2023-08-15 update 0.7.3 (released by action)
+
+- update data.ts
+
 ## 2023-07-15 update 0.7.2 (released by action)
 
 - update data.ts
