@@ -4,6 +4,8 @@
 
  **[功能介绍](./introduce.md)**
 
+- 本插件基于[windingwind/zotero-plugin-template](https://github.com/windingwind/zotero-plugin-template) V0.1.6开发,  [![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)  
+
 
 
 ## 2023-08-15 update 0.7.3 (released by action)
@@ -17,6 +19,7 @@
 ## 2023-07-01 update 0.6.14 (released by action)
 
 - update data.ts
+
 
 
 

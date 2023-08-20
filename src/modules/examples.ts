@@ -696,10 +696,8 @@ export class HelperAbbrFactory {
   static async JA_transferAllItemsToCustomField(){
     // 不显示任何信息
     try {
-        const user_abbr_data = await Basefun.get_user_data();
-        if (!user_abbr_data) return;
         const newField = "itemBoxRowabbr";
-
+        
         await Selected.transferAllItemsToCustomField();
 
         await Selected.updateUseISO4(
@@ -724,7 +722,8 @@ export class HelperAbbrFactory {
             false
         );
         
-
+        const user_abbr_data = await Basefun.get_user_data();
+        if (!user_abbr_data) return;
         await Selected.updateJournalAbbr(
             user_abbr_data,
             newField,
@@ -736,7 +735,6 @@ export class HelperAbbrFactory {
             false
         );
         
-
     } catch (error) {
         ztoolkit.log("error", error);
     }

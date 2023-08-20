@@ -665,16 +665,21 @@ class Selected {
                 } else {
                     fieldValue = ztoolkit.ExtraField.getExtraField(mitem, "itemBoxRowabbr") || "";
                 }
-                fieldValue =  fieldValue !== undefined ? String(fieldValue) : "";
+
+                if (fieldValue === undefined || /^\s*$/.test(String(fieldValue))) {
+                    fieldValue = mitem.getField("journalAbbreviation");
+                }
+                fieldValue = fieldValue !== undefined ? String(fieldValue) : "";
+                fieldValue = fieldValue.trim();
+                //ztoolkit.log(`fieldValue:::: ${fieldValue}`);
 
                 const extraField = String(mitem.getField('extra'));
-    
                 const filteredExtra = extraField.split('\n').filter(line =>{
                     const regex = new RegExp("^itemBoxRowabbr:\\s*");
                     return !(regex.test(line) || !/^[a-z0-9A-Z]+?:\s*/.test(line) || /^[a-z0-9A-Z]+?:\s*/.test(line));
                   }).join('\n');
 
-                ztoolkit.log(`extra:::: ${filteredExtra}`);
+                //ztoolkit.log(`extra:::: ${filteredExtra}`);
     
                 mitem.setField('extra', filteredExtra);//清理无效的extra
                 mitem.saveTx();
