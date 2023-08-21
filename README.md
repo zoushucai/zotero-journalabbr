@@ -1,27 +1,16 @@
 # zotero-journalabbr
 
-- 备注:  内置缩写表不一定准确, 导出数据以后需要仔细检查
+- 备注: 内置缩写表不一定准确, 导出数据以后需要仔细检查
 
- **[功能介绍](./introduce.md)**
+  **[功能介绍](./introduce.md)**
 
-- 本插件基于[windingwind/zotero-plugin-template](https://github.com/windingwind/zotero-plugin-template) V0.1.6开发,  [![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)  
+- 该插件基于[windingwind/zotero-plugin-template](https://github.com/windingwind/zotero-plugin-template) V1.0.0开发, [![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)
 
+## 2023-08-21更新
 
-
-## 2023-08-15 update 0.7.3 (released by action)
-
-- update data.ts
-
-## 2023-07-15 update 0.7.2 (released by action)
-
-- update data.ts
-
-## 2023-07-01 update 0.6.14 (released by action)
-
-- update data.ts
-
-
-
+- 增加一个首字母缩写的功能
+- 采用了 v1.0.0模板
+- 修复了与其他插件有冲突的问题
 
 ## 2023-06-21更新
 
@@ -33,7 +22,7 @@
 - 新增对 bib 的简单处理,比如 可以选择 数字或 key 样式, 以及 丢弃 doi
 - 由于处理bib 需要用到key,因此需要 citationKey 字段, 该字段由[retorquere/zotero-better-bibtex](https://github.com/retorquere/zotero-better-bibtex) 提供, 因此这个插件依赖该插件, 才能生成 `\bibitem{xxx} xxxxxxxx `
 
-## 2023年06月15日 更新 0.6.11  (released by action)
+## 2023年06月15日 更新 0.6.11 (released by action)
 
 - update data.ts
 
@@ -41,11 +30,11 @@
 
 - 自定义简写期刊 支持 json 和 csv 格式
 
-## 2023年05月04日 更新 0.6.7  (released by action)
+## 2023年05月04日 更新 0.6.7 (released by action)
 
 - update data.ts
 
-## 2023年04月29日 更新 0.6.6  (released by action)
+## 2023年04月29日 更新 0.6.6 (released by action)
 
 - update data.ts
 
@@ -85,20 +74,21 @@
 ### 2023年2月23日 更新
 
 - 感谢 @[longzhanyuye5](https://github.com/longzhanyuye5) 的建议,
-- 新增 [该网站](https://woodward.library.ubc.ca/woodward/research-help/journal-abbreviations/)  的期刊缩写数据库,
-- 期刊缩写的权重优先级:  `自定义 > 该网站 > JabRef/abbrv.jabref.org`
+- 新增 [该网站](https://woodward.library.ubc.ca/woodward/research-help/journal-abbreviations/) 的期刊缩写数据库,
+- 期刊缩写的权重优先级: `自定义 > 该网站 > JabRef/abbrv.jabref.org`
 - 对于体积太大的问题, 个人是在不太会优化, 有会的,可以修改呀!
 
 ### 功能
 
 - 自用, 主要的功能是对 zotero 中的期刊进行缩写
-- 安装该插件以后, 直接选中条目右键, 找到 `期刊缩写` -->`更新期刊缩写`  , 并点击,则可以执行期刊缩写任务
+- 安装该插件以后, 直接选中条目右键, 找到 `期刊缩写` -->`更新期刊缩写` , 并点击,则可以执行期刊缩写任务
 - 期刊缩写的来源: [JabRef/abbrv.jabref.org](https://github.com/JabRef/abbrv.jabref.org), 我对其进行了整合,
 
-  - 删除了一些特殊的期刊, 比如期刊中还有 单双引号,  单反斜杠
+  - 删除了一些特殊的期刊, 比如期刊中还有 单双引号, 单反斜杠
   - 删除了期刊字符超过 80 以及期刊字符小于5的期刊
   - 对于带点的优先顺序 `点的个数 > 大写个数> 缩写短的`
-  - 对于不带点的优先顺序 `不带点的个数 > 大写个数> 缩写短的`,  参考[zoushucai/zotero-journalabbr-nodot](https://github.com/zoushucai/zotero-journalabbr-nodot)
+  - 对于不带点的优先顺序 `不带点的个数 > 大写个数> 缩写短的`, 参考[zoushucai/zotero-journalabbr-nodot](https://github.com/zoushucai/zotero-journalabbr-nodot)
+
 - 仅在 `mac` 平台上进行测试
 
 ### 自定义期刊缩写数据库

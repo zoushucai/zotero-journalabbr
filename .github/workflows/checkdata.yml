@@ -1,9 +1,8 @@
-
 name: update data.ts
 
-on: 
+on:
   schedule:
-    - cron: '0 4 1,15 * *'
+    - cron: "0 4 1 * *"
   # push:
   #   branches: [main]
 
@@ -12,81 +11,81 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
+
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3 
-      with:
-        persist-credentials: true 
-        fetch-depth: 0
-        clean: true
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+          clean: true
 
-    - name: Set up Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: "18.16.0"    
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.16.0"
 
-    - name: Install dependencies
-      if: steps.cache-dependencies.outputs.cache-hit != 'true'
-      run: npm install
+      - name: Install dependencies
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: npm install
 
-    - name: Cache dependencies
-      id: cache-dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+      - name: Cache dependencies
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-    - name: Cache Node modules
-      id: cache-modules
-      uses: actions/cache@v3
-      with:
-        path: node_modules
-        key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-modules-
+      - name: Cache Node modules
+        id: cache-modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
 
-    - name: Install dependencies
-      if: steps.cache-modules.outputs.cache-hit != 'true'
-      run: npm ci
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Install dependencies
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
 
-    # 由于涉及到爬虫,不知道合不合规矩, 这里从私有仓库拉取数据
-    - name: Run script
-      run: |
-        git config user.name "${{ secrets.MY_GITHUB_NAME }}"
-        git config user.email "${{ secrets.MY_GITHUB_EMAIL }}"
-        echo "-----------------------------------"
-        echo $(npm -v)
-        echo $(node -v)
-        echo "-----------------------------------"
-        wget --header="Authorization: token ${{ secrets.MY_TOKEN }}"  --no-check-certificate -O data_new.ts ${{ secrets.MY_REPO }}
-        echo -e "\nexport { journal_abbr };\n\n\n" >> data_new.ts
-        bash ./action_compare_file.sh
+      # 由于涉及到爬虫,不知道合不合规矩, 这里从私有仓库拉取数据
+      - name: Run script
+        run: |
+          git config user.name "${{ secrets.MY_GITHUB_NAME }}"
+          git config user.email "${{ secrets.MY_GITHUB_EMAIL }}"
+          echo "-----------------------------------"
+          echo $(npm -v)
+          echo $(node -v)
+          echo "-----------------------------------"
+          wget --header="Authorization: token ${{ secrets.MY_TOKEN }}"  --no-check-certificate -O data_new.ts ${{ secrets.MY_REPO }}
+          echo -e "\nexport { journal_abbr };\n\n\n" >> data_new.ts
+          bash ./action_compare_file.sh
 
-    - name: Create Release and Upload Release Asset
-      uses: softprops/action-gh-release@v1
-      if: env.new_tag_env != ''
-      with:
-        prerelease: false
-        tag_name: ${{ env.new_tag_env }}
-        name: Release ${{ env.new_tag_env }}
-        files: ./builds/zotero-journalabbr.xpi
-        body: |
-          This is an auto-generated release.
-          Build date: ${{ env.current_date }}
-          Commit message: ${{ github.event.head_commit.message }}
-          Commit hash: ${{ github.sha }}
-    
+      - name: Create Release and Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        if: env.new_tag_env != ''
+        with:
+          prerelease: false
+          tag_name: ${{ env.new_tag_env }}
+          name: Release ${{ env.new_tag_env }}
+          files: ./builds/zotero-journalabbr.xpi
+          body: |
+            This is an auto-generated release.
+            Build date: ${{ env.current_date }}
+            Commit message: ${{ github.event.head_commit.message }}
+            Commit hash: ${{ github.sha }}
+
     # # 里面已经包含了 git提交信息
     # - name: Run bash scripts
     #   run: |
-    #     bash ./main.sh 
+    #     bash ./main.sh
     # # # 使得 action 进入 ssh 环境, 用于调试
     # # - name: Setup tmate session
     # #   uses: mxschmitt/action-tmate@v3

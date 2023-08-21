@@ -1,4 +1,4 @@
-declare module './nodeBundle' {
-    export const AbbrevIso: any;
+declare module "./nodeBundle" {
+  export const AbbrevIso: any;
 }
 export {};

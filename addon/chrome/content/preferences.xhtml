@@ -1,73 +1,73 @@
 <linkset>
   <html:link rel="localization" href="__addonRef__-preferences.ftl" />
 </linkset>
-
 <vbox
   id="zotero-prefpane-__addonRef__"
   onload="Zotero.__addonInstance__.hooks.onPrefsEvent('load', {window})"
 >
-<groupbox>
-  <label><html:h2 data-l10n-id="pref-title-one"></html:h2></label>
-  <div style="display: inline-flex; align-items: center;">
-    <html:label data-l10n-id="pref-separator"></html:label>
-    <radiogroup
-      id="__addonRef__-separator"
-      preference="__prefsPrefix__.separator" 
-      orient="horizontal"
-      native="true"
-      oncommand="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);">
-        <radio data-l10n-id="pref-separator-semicolon" value=";"/>
-        <radio data-l10n-id="pref-separator-comma" value=","/>
-        <radio data-l10n-id="pref-separator-auto" value=","/>
-    </radiogroup>
-  </div>
-  
-  <div style="display: inline-flex; align-items: center;">
-    <html:label data-l10n-id="pref-input"></html:label>
-    <html:input
-      type="text"
-      id="__addonRef__-input"
-      preference="__prefsPrefix__.input"
-      style="width: 360px;"
-    ></html:input>
-    <button
-      id="__addonRef__-button"
-      data-l10n-id="pref-button"
-      disabled="false"
-      hidden="false"
-      oncommand="Zotero.__addonInstance__.hooks.onDialogEvents('buttonExample')" 
-    ></button>
-  </div>
+  <groupbox>
+    <label><html:h2 data-l10n-id="pref-title-one"></html:h2></label>
+    <div style="display: inline-flex; align-items: center">
+      <html:label data-l10n-id="pref-separator"></html:label>
+      <radiogroup
+        id="__addonRef__-separator"
+        preference="__prefsPrefix__.separator"
+        orient="horizontal"
+        native="true"
+        oncommand="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
+      >
+        <radio data-l10n-id="pref-separator-semicolon" value=";" />
+        <radio data-l10n-id="pref-separator-comma" value="," />
+        <radio data-l10n-id="pref-separator-auto" value="," />
+      </radiogroup>
+    </div>
 
-</groupbox>
+    <div style="display: inline-flex; align-items: center">
+      <html:label data-l10n-id="pref-input"></html:label>
+      <html:input
+        type="text"
+        id="__addonRef__-input"
+        preference="__prefsPrefix__.input"
+        style="width: 360px"
+      ></html:input>
+      <button
+        id="__addonRef__-button"
+        data-l10n-id="pref-button"
+        disabled="false"
+        hidden="false"
+        oncommand="Zotero.__addonInstance__.hooks.onDialogEvents('buttonExample')"
+      ></button>
+    </div>
+  </groupbox>
 
+  <groupbox>
+    <label><html:h2 data-l10n-id="pref-title-two"></html:h2></label>
+    <hox style="display: flex; align-items: center">
+      <html:label data-l10n-id="sortoptions-label"></html:label>
+      <box id="__addonRef__-sortoptions"></box>
 
-<groupbox>
-  <label><html:h2 data-l10n-id="pref-title-two"></html:h2></label>
-  <hox style="display: flex;  align-items: center;">
-    <html:label data-l10n-id="sortoptions-label" ></html:label>
-    <box id="__addonRef__-sortoptions"></box>
+      <html:label data-l10n-id="keyornum-label"></html:label>
+      <box id="__addonRef__-keyornum"></box>
+    </hox>
+    <div style="display: flex; align-items: center">
+      <html:input
+        type="checkbox"
+        id="__addonRef__-discardDOI"
+        preference="__prefsPrefix__.discardDOI"
+        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
+      ></html:input>
+      <html:label
+        data-l10n-id="discardDOI-label"
+        style="margin-right: 13%"
+      ></html:label>
 
-    <html:label data-l10n-id="keyornum-label" ></html:label>
-    <box id="__addonRef__-keyornum"></box>
-  </hox>
-  <div style="display: flex;  align-items: center;">
-    <html:input 
-    type="checkbox" 
-    id="__addonRef__-discardDOI"
-    preference="__prefsPrefix__.discardDOI"
-    onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
-    ></html:input>
-    <html:label data-l10n-id="discardDOI-label" style="margin-right: 13%;"></html:label>
-
-    <html:input
-      type="checkbox"
-      id="__addonRef__-bibemptyline"
-      preference="__prefsPrefix__.bibemptyline"
-      onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
-    ></html:input>
-    <html:label data-l10n-id="bibemptyline-label"></html:label>
-  </div>
-</groupbox>
+      <html:input
+        type="checkbox"
+        id="__addonRef__-bibemptyline"
+        preference="__prefsPrefix__.bibemptyline"
+        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
+      ></html:input>
+      <html:label data-l10n-id="bibemptyline-label"></html:label>
+    </div>
+  </groupbox>
 </vbox>
-

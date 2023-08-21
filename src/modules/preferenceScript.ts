@@ -2,9 +2,7 @@ import { config } from "../../package.json";
 import { getString } from "../utils/locale";
 import { getPref, setPref } from "../utils/prefs";
 
-import {
-  BasicExampleFactory,
-} from "./examples";
+import { BasicExampleFactory } from "./examples";
 
 export async function registerPrefsScripts(_window: Window) {
   // This function is called when the prefs window is opened
@@ -17,25 +15,23 @@ export async function registerPrefsScripts(_window: Window) {
   } else {
     addon.data.prefs.window = _window;
   }
-  
+
   // updatePrefsUI();
   // bindPrefEvents();
   buildPrefsPane();
 }
-
-
 
 function buildPrefsPane() {
   const doc = addon.data.prefs!.window?.document;
   if (!doc) {
     return;
   }
-  
+
   ztoolkit.UI.replaceElement(
     {
       tag: "menulist",
       attributes: {
-        value: getPref("sortoptions") as string ,
+        value: getPref("sortoptions") as string,
         native: "true",
       },
       listeners: [
@@ -88,19 +84,19 @@ function buildPrefsPane() {
                 label: getString("sortoptions-originid"),
                 value: "originid",
               },
-            }
+            },
           ],
         },
       ],
     },
-    doc.querySelector(`#${makeId("sortoptions")}`) as HTMLElement
+    doc.querySelector(`#${makeId("sortoptions")}`) as HTMLElement,
   );
 
   ztoolkit.UI.replaceElement(
     {
       tag: "menulist",
       attributes: {
-        value: getPref("keyornum") as string ,
+        value: getPref("keyornum") as string,
         native: "true",
       },
       listeners: [
@@ -132,20 +128,18 @@ function buildPrefsPane() {
                 label: getString("keyornum-num"),
                 value: "num",
               },
-            }
+            },
           ],
         },
       ],
     },
-    doc.querySelector(`#${makeId("keyornum")}`) as HTMLElement
+    doc.querySelector(`#${makeId("keyornum")}`) as HTMLElement,
   );
 
-  
   function handleDropdownChange(selectedValue: string) {
     ztoolkit.log("Selected value: ", selectedValue);
-    BasicExampleFactory.ShowPopUP(`Select ${selectedValue}`)
+    BasicExampleFactory.ShowPopUP(`Select ${selectedValue}`);
   }
-  
 }
 
 function makeId(type: string) {
