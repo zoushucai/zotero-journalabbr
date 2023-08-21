@@ -1,4 +1,4 @@
-**/builds
+**/build
 node_modules
 package-lock.json
 zotero-cmd.json
@@ -10,3 +10,4 @@ zotero-cmd.json
 data_new.ts
 content.txt
 README.md.tmp
+m.js

@@ -8,12 +8,20 @@
     "strict": true,
     "removeComments": true,
     "allowJs": true,
-    "outDir": "dist",
+    "outDir": "dist"
   },
   "include": ["src", "typing", "node_modules/zotero-types"],
-  "exclude": ["builds", "addon","./src/modules/test.js",
-            "./src/modules/test.ts","./src/modules/test.tsx",
-            "./src/modules/test[0-9].ts","./src/modules/test[0-9].tsx",
-            "./src/modules/test.jsx","./src/modules/test.d.ts",
-            "./src/modules/examples_back.js","./src/modules/examples_back.ts"]
+  "exclude": [
+    "builds",
+    "addon",
+    "./src/modules/test.js",
+    "./src/modules/test.ts",
+    "./src/modules/test.tsx",
+    "./src/modules/test[0-9].ts",
+    "./src/modules/test[0-9].tsx",
+    "./src/modules/test.jsx",
+    "./src/modules/test.d.ts",
+    "./src/modules/examples_back.js",
+    "./src/modules/examples_back.ts"
+  ]
 }

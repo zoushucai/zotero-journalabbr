@@ -7,6 +7,7 @@ menuitem-abbrToupper=toUpperCase
 menuitem-abbrTolower=toLowerCase
 menuitem-abbrTocapitalize=Capitalize
 menuitem-removeAbbrdot=Remove dot
+menuitem-InitialismAbbr=Initialism
 menuitem-deleteAbbrTag=Delete 'abbr' tag
 menuitem-deleteUserTag=Delete 'abbr_user' tag
 menuitem-exchange=Exchange abbr
@@ -19,6 +20,7 @@ prefs-title=Journalabbr
 prompt-success-abbrToupper-info=Uppercase Abbr J
 prompt-success-abbrTolower-info=Lowercase Abbr J
 prompt-success-abbrTocapitalize-info=Capitalize Abbr J
+prompt-success-InitialismAbbr-info=Initialism Abbr J
 prompt-success-removeAbbrdot-info=Abbr J without dot
 prompt-success-exchange-info=Exchange
 prompt-success-removetag-info=Removed Tag
@@ -43,6 +45,12 @@ prompt-show-readfile-less-info=Number of non-compliant rows(ignored):
 prompt-show-readfile-more-info=Total number of non-compliant rows(ignored)
 prompt-show-disabled-info='Exchange' tag items, limited functions.
 
+prompt-fail-abbrTolower-info=Lowercase Abbr J failed
+prompt-fail-abbrToupper-info=Uppercase Abbr J failed
+prompt-fail-abbrTocapitalize-info=Capitalize Abbr J failed
+prompt-fail-InitialismAbbr-info=Initialism Abbr J failed
+prompt-fail-removeAbbrdot-info=Abbr J without dot failed
+
 
 sortoptions-originid = originid
 sortoptions-nkey = citekey
@@ -56,5 +64,7 @@ keyornum-num = num
 
 
 
-
+# NO used
+prompt-fail-removetag-info=Removed Tag failed
+prompt-fail-exchange-info=Exchange failed
 

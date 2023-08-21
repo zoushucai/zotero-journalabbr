@@ -95,5 +95,5 @@ o
 its
 sul
 
-`; 
- export { shortWords }
+`;
+export { shortWords };

@@ -56125,5 +56125,5 @@ mikromechani-	mikromech.	pol,ext
 microengineer-	microeng.	eng,ext
 Cimmaron	n.a.	eng,ext
 PracTeX	n.a.	eng,ext
-`; 
- export { ltwa };
+`;
+export { ltwa };

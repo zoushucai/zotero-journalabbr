@@ -4,19 +4,13 @@
 
   **[功能介绍](./introduce.md)**
 
-- 本插件基于[windingwind/zotero-plugin-template](https://github.com/windingwind/zotero-plugin-template) V1.0.0开发, [![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)
+- 该插件基于[windingwind/zotero-plugin-template](https://github.com/windingwind/zotero-plugin-template) V1.0.0开发, [![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)
 
-## 2023-08-15 update 0.7.3 (released by action)
+## 2023-08-21更新
 
-- update data.ts
-
-## 2023-07-15 update 0.7.2 (released by action)
-
-- update data.ts
-
-## 2023-07-01 update 0.6.14 (released by action)
-
-- update data.ts
+- 增加一个首字母缩写的功能
+- 采用了 v1.0.0模板
+- 修复了与其他插件有冲突的问题
 
 ## 2023-06-21更新
 

@@ -20,7 +20,7 @@ async function onStartup() {
   initLocale();
   ztoolkit.ProgressWindow.setIconURI(
     "default",
-    `chrome://${config.addonRef}/content/icons/favicon.png`
+    `chrome://${config.addonRef}/content/icons/favicon.png`,
   );
 
   ////用于测试的进度条
@@ -39,13 +39,11 @@ async function onStartup() {
   ZoteroPane.itemsView.onSelect.addListener(UIExampleFactory.displayMenuitem); //监听右键显示菜单
   UIExampleFactory.registerWindowMenuWithSeparator(); // 分割线
   UIExampleFactory.registerRightClickMenuPopup(); // 二级菜单
-  await UIExampleFactory.registerCustomItemBoxRow();// 右边的`信息`下注册额外字段
+  await UIExampleFactory.registerCustomItemBoxRow(); // 右边的`信息`下注册额外字段
 
   await UIExampleFactory.registerExtraColumn(); // 菜单的额外列
-  
+
   // await UIExampleFactory.registerFel();
-
-
 }
 
 function onShutdown(): void {
@@ -64,7 +62,7 @@ async function onNotify(
   event: string,
   type: string,
   ids: Array<string | number>,
-  extraData: { [key: string]: any }
+  extraData: { [key: string]: any },
 ) {
   // You can add your code to the corresponding notify type
   ztoolkit.log("notify", event, type, ids, extraData);
@@ -97,20 +95,20 @@ async function onPrefsEvent(type: string, data: { [key: string]: any }) {
 
 async function onDialogEvents(type: string, event: Event) {
   switch (type) {
-      case "dialogExample":
-          //HelperExampleFactory.dialogExample();
-          break;
-      case "buttonExample":
-          await HelperAbbrFactory.buttonSelectFilePath();
-          break;
-      case "showChangeEventInfo":
-          BasicExampleFactory.showChangeEventInfo(event);
-          break;
-      case "showChangeMenulistEventInfo":
-          BasicExampleFactory.showChangeMenulistEventInfo(event);
-          break;
-      default:
-          break;
+    case "dialogExample":
+      //HelperExampleFactory.dialogExample();
+      break;
+    case "buttonExample":
+      await HelperAbbrFactory.buttonSelectFilePath();
+      break;
+    case "showChangeEventInfo":
+      BasicExampleFactory.showChangeEventInfo(event);
+      break;
+    case "showChangeMenulistEventInfo":
+      BasicExampleFactory.showChangeMenulistEventInfo(event);
+      break;
+    default:
+      break;
   }
 }
 
