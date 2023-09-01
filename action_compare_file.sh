@@ -24,7 +24,7 @@ check_changes() {
     if [[ -z $(git status --porcelain .) ]]; then
         echo "没有文件被修改，无需提交。"
         current_date=''
-        echo "$current_date" >>"$GITHUB_ENV"
+        echo "$current_date" >>$GITHUB_ENV
         exit 0
     fi
 
@@ -33,7 +33,7 @@ check_changes() {
         echo "- $line"
     done
     current_date=$(date +'%Y-%m-%d %T')
-    echo "$current_date" >>"$GITHUB_ENV"
+    echo "$current_date" >>$GITHUB_ENV
 
 }
 check_changes
