@@ -68,15 +68,15 @@ jobs:
           echo -e "\nexport { journal_abbr };\n\n\n" >> data_new.ts
           bash ./action_compare_file.sh
 
-      - name: Create Release and Upload Release Asset
-        uses: softprops/action-gh-release@v1
-        if: env.current_date != ''
-        with:
-          prerelease: false
-          body: |
-            This is an auto-generated commit.
-            Commit message: ${{ github.event.head_commit.message }}
-            Commit hash: ${{ github.sha }}
+      # - name: Create Release and Upload Release Asset
+      #   uses: softprops/action-gh-release@v1
+      #   if: env.current_date != ''
+      #   with:
+      #     prerelease: false
+      #     body: |
+      #       This is an auto-generated commit.
+      #       Commit message: ${{ github.event.head_commit.message }}
+      #       Commit hash: ${{ github.sha }}
     # # # 使得 action 进入 ssh 环境, 用于调试
     # # - name: Setup tmate session
     # #   uses: mxschmitt/action-tmate@v3

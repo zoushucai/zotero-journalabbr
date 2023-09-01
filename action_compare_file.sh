@@ -23,8 +23,8 @@ check_changes() {
     echo "正在检测文件的修改状态..."
     if [[ -z $(git status --porcelain .) ]]; then
         echo "没有文件被修改，无需提交。"
-        current_date=''
-        echo "$current_date" >>"$GITHUB_ENV"
+        # current_date=''
+        # echo "$current_date" >>"$GITHUB_ENV"
         exit 0
     fi
 
@@ -32,8 +32,8 @@ check_changes() {
     git status --porcelain . | while read -r line; do
         echo "- $line"
     done
-    current_date=$(date +'%Y-%m-%d %T')
-    echo "$current_date" >>"$GITHUB_ENV"
+    # current_date=$(date +'%Y-%m-%d %T')
+    # echo "$current_date" >>"$GITHUB_ENV"
 
 }
 check_changes
