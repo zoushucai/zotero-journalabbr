@@ -2,7 +2,7 @@ name: update data.ts
 
 on:
   schedule:
-    - cron: "0 4 1 * *"
+    - cron: "0 10 1 * *"
   # push:
   #   branches: [main]
 
@@ -70,22 +70,13 @@ jobs:
 
       - name: Create Release and Upload Release Asset
         uses: softprops/action-gh-release@v1
-        if: env.new_tag_env != ''
+        if: env.current_date != ''
         with:
           prerelease: false
-          tag_name: ${{ env.new_tag_env }}
-          name: Release ${{ env.new_tag_env }}
-          files: ./builds/zotero-journalabbr.xpi
           body: |
-            This is an auto-generated release.
-            Build date: ${{ env.current_date }}
+            This is an auto-generated commit.
             Commit message: ${{ github.event.head_commit.message }}
             Commit hash: ${{ github.sha }}
-
-    # # 里面已经包含了 git提交信息
-    # - name: Run bash scripts
-    #   run: |
-    #     bash ./main.sh
     # # # 使得 action 进入 ssh 环境, 用于调试
     # # - name: Setup tmate session
     # #   uses: mxschmitt/action-tmate@v3

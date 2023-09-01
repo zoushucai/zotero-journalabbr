@@ -298,11 +298,11 @@ class StringUtil {
     // text is usually an author field
 
     if (this.isMainlyChinese(text)) {
-      text = text.replace(/et al\./, "等.");
-      text = text.replace(/and/, "和");
+      text = text.replace(/\bet al\.\b/, "等.");
+      text = text.replace(/\band\b/, "和");
     } else {
-      text = text.replace(/等|\u7b49\./u, "et al.");
-      text = text.replace(/和|\u548c/u, "and");
+      text = text.replace(/(等|\u7b49)\./u, "et al.");
+      text = text.replace(/(和|\u548c)/u, "and");
     }
     const replacedStr = this.replaceStrings(text, "\\&", "&", "and");
     return replacedStr;
