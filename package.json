@@ -1,6 +1,6 @@
 {
   "name": "zotero-journalabbr",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "The plug-in updates journal abbreviations and adds or removes abbr tags!",
   "config": {
     "addonName": "zotero-journalabbr",
