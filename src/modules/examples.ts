@@ -291,6 +291,30 @@ export class UIExampleFactory {
       },
     );
   }
+
+  static async registerCustomItemBoxCitationkey() {
+    await ztoolkit.ItemBox.register(
+      "itemBoxCitationkey",
+      "abbrCkey",
+      (field, unformatted, includeBaseMapped, item, original) => {
+        //ztoolkit.log(`field1: ${field}`)
+        const fieldValue = ztoolkit.ExtraField.getExtraField(item, field);
+        return fieldValue !== undefined ? String(fieldValue) : "";
+      },
+      {
+        editable: true,
+        setFieldHook: (field, value, loadIn, item, original) => {
+          if (value) {
+            ztoolkit.ExtraField.setExtraField(item, field, value);
+          }
+          return true;
+        },
+        index: 1,
+        multiline: false, // 是否多行
+        collapsible: false, // 是否可折叠
+      },
+    );
+  }
   //禁止显示某些菜单
   static displayMenuitem() {
     const items = ZoteroPane.getSelectedItems(); // 等价于 Zotero.getActiveZoteroPane().getSelectedItems();
@@ -449,6 +473,12 @@ export class UIExampleFactory {
           id: "zotero-itemmenu-abbr-journal-bibliography2",
           label: getString("menuitem-bibliography2"),
           commandListener: (ev) => HelperAbbrFactory.JA_getbibliography2(),
+        },
+        {
+          tag: "menuitem",
+          id: "zotero-itemmenu-abbr-journal-abbrkey",
+          label: "Ckey", // 该key 直接从 biblatex 中获取, 用于生成 citationKey
+          commandListener: (ev) => HelperAbbrFactory.JA_exportAbbrKey(),
         },
         {
           tag: "menuitem",
@@ -792,6 +822,21 @@ export class HelperAbbrFactory {
       ztoolkit.log("error", error);
     }
   }
+
+  static async JA_exportAbbrKey() {
+    Basefun.executeFunctionWithTryCatch(
+      async () => {
+        const resultInfo = await Selected.exportCitationkey();
+        if (!resultInfo) return;
+
+        // await BasicExampleFactory.copyToClipboard(resultInfo.strinfo);
+        return resultInfo;
+      },
+      getString("prompt-success-exportkey"),
+      getString("prompt-error-exportkey"),
+    );
+  }
+
   // static async JA_test() {
   //     let abbrevIso = new AbbrevIso(ltwa, shortWords);
   //     let s = 'International Journal of Geographical Information Science';

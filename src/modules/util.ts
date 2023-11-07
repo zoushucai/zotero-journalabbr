@@ -709,6 +709,45 @@ class Selected {
       }
     }
   }
+
+  // 导出 citationkey
+  static async exportCitationkey() {
+    const selectedItems = Basefun.filterSelectedItems();
+    if (!selectedItems) return;
+    const ruleItemCount = selectedItems.length;
+    const successfulCount = [];
+    const noActionCount = [];
+    const missingInfoItemCount = [];
+
+    let strinfo = "";
+    for (let i = 0; i < ruleItemCount; i++) {
+      try {
+        const mitem = selectedItems[i];
+        const ckey = String(mitem.getField("citationKey")); // 强行转为字符串
+        // 可以设置不同的样式
+        if (i + 1 == ruleItemCount) {
+          strinfo = strinfo + ckey;
+        } else {
+          strinfo = strinfo + ckey + ", ";
+        }
+        strinfo = strinfo.trim();
+        if (ckey) {
+          ztoolkit.ExtraField.setExtraField(mitem, "itemBoxCitationkey", ckey);
+          successfulCount.push(i);
+        }
+      } catch (error) {
+        ztoolkit.log("error", error);
+        missingInfoItemCount.push(i);
+      }
+    }
+
+    const resultInfo = new ResultInfo();
+    resultInfo.selectCount = ruleItemCount;
+    resultInfo.successCount = successfulCount.length;
+    resultInfo.error_arr = missingInfoItemCount;
+    resultInfo.strinfo = strinfo;
+    return resultInfo;
+  }
 }
 
 // 以下为辅助类

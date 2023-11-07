@@ -6,7 +6,11 @@
 
 - 该插件基于[windingwind/zotero-plugin-template](https://github.com/windingwind/zotero-plugin-template) V1.0.0开发, [![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)
 
--  Release 0.7.0 以后的只支持 zotero7, 需要 zotero6 的可以手动下载 Release 0.6.*
+- Release 0.7.0 以后的只支持 zotero7, 需要 zotero6 的可以手动下载 Release 0.6.\*
+
+## 2023-11-07更新
+- 增加一个 Citation , 来自 [retorquere/zotero-better-bibtex](https://github.com/retorquere/zotero-better-bibtex). 主要是该作者好像插件还没有完善, 希望能够早日完善, 感谢. 
+
 ## 2023-08-21更新
 
 - 增加一个首字母缩写的功能
