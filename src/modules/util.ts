@@ -181,7 +181,20 @@ class Basefun {
     );
     return user_abbr_data;
   }
-
+  // 选择存贮路径
+  static async getDir(suggestion: string) {
+    const path = await new ztoolkit.FilePicker(
+      "Save File",
+      "save",
+      [
+        ["CSV Files", "*.csv"],
+        ["JSON Files", "*.json"],
+        ["All Files", "*.*"],
+      ],
+      suggestion,
+    ).open();
+    return path;
+  }
   // 获取参考文献的格式
   static getQuickCopyFormat() {
     const format = Zotero.Prefs.get("export.quickCopy.setting") as string;
@@ -667,42 +680,11 @@ class Selected {
     const ruleItemCount = selectedItems.length;
     for (let i = 0; i < ruleItemCount; i++) {
       try {
-        const mitem = selectedItems[i];
-        const itype = mitem.itemType.toLocaleLowerCase();
-
-        let fieldValue;
-        if (itype === "thesis") {
-          fieldValue = mitem.getField("university");
-        } else if (itype === "book") {
-          fieldValue = mitem.getField("publisher");
-        } else if (itype === "journalArticle".toLocaleLowerCase()) {
-          fieldValue = mitem.getField("journalAbbreviation");
-          if (fieldValue === undefined || /^\s*$/.test(String(fieldValue))) {
-            fieldValue = mitem.getField("publicationTitle");
-          }
-        } else if (itype === "conferencePaper".toLocaleLowerCase()) {
-          fieldValue = mitem.getField("conferenceName");
-        } else if (itype === "preprint") {
-          fieldValue = mitem.getField("repository");
-        } else if (itype === "bookSection".toLocaleLowerCase()) {
-          fieldValue = mitem.getField("publisher");
-        } else {
-          fieldValue =
-            ztoolkit.ExtraField.getExtraField(mitem, "itemBoxRowabbr") || "";
-        }
-
-        if (fieldValue === undefined || /^\s*$/.test(String(fieldValue))) {
-          fieldValue = mitem.getField("journalAbbreviation");
-        }
-        fieldValue = fieldValue !== undefined ? String(fieldValue) : "";
+        const item = selectedItems[i];
+        let fieldValue = FeildExport.getPublicationTitleForItemType(item);
         fieldValue = fieldValue.trim();
-
         if (fieldValue) {
-          ztoolkit.ExtraField.setExtraField(
-            mitem,
-            "itemBoxRowabbr",
-            fieldValue,
-          );
+          ztoolkit.ExtraField.setExtraField(item, "itemBoxRowabbr", fieldValue);
         }
       } catch (error) {
         continue;
@@ -883,9 +865,209 @@ class SelectedWithHandler {
   }
 }
 
+class FeildExport {
+  // 根据 所选中的 item 导出 csv or json 文件
+  // 1. 把对象转换为 csv, key 为 header, value 为数据
+  static convertJsonToCsv(jsonData: any) {
+    if (!jsonData || !jsonData.length) {
+      return "";
+    }
+    const csvRows = [];
+    // 利用 key 作为header
+    const header = Object.keys(jsonData[0]);
+    // 构建 CSV 标题行
+    csvRows.push(header.join(","));
+
+    // 构建 CSV 数据行
+    for (const row of jsonData) {
+      const values = header.map((key) => {
+        let value = row[key];
+        // 处理可能包含逗号的数据
+        if (value != null && typeof value === "string") {
+          value = `"${value.replace(/"/g, '""')}"`;
+        }
+        return value;
+      });
+      csvRows.push(values.join(","));
+    }
+
+    // 将数组连接为一个 CSV 字符串
+    return csvRows.join("\n");
+  }
+  // 2 把 数组authors按照一定的格式进行处理,转为字符串
+  static formatAuthors(authors: any) {
+    if (Array.isArray(authors) && authors.length > 0) {
+      const formattedAuthors = authors.map((author) =>
+        `${author.firstName} ${author.lastName}`.trim(),
+      );
+      return formattedAuthors.join(", ").trim();
+    } else {
+      return "";
+    }
+  }
+  // 3. 处理 PublicationTitle, 从不同类型的 item 中获取
+  static getPublicationTitleForItemType(item: any) {
+    const itype = item.itemType.toLowerCase();
+
+    let publicationTitle;
+    switch (itype) {
+      case "thesis":
+        publicationTitle = item.getField("university");
+        break;
+      case "book":
+        publicationTitle = item.getField("publisher");
+        break;
+      case "journalarticle":
+        publicationTitle = item.getField("publicationTitle");
+        break;
+      case "conferencepaper":
+        publicationTitle = item.getField("conferenceName");
+        break;
+      case "preprint":
+        publicationTitle = item.getField("repository");
+        break;
+      case "booksection":
+        publicationTitle = item.getField("publisher");
+        break;
+      default:
+        try {
+          publicationTitle = item.getField("publicationTitle");
+        } catch (e) {
+          publicationTitle = "";
+        }
+        break;
+    }
+    return publicationTitle;
+  }
+  // 4. 获取整个库的所有带颜色的标签, 返回一个 Set
+  static getLibTagColors(items: any) {
+    // 创建一个 Set 来存储所有的标签颜色
+    const libColorTagSet = new Set();
+
+    // 方式 1: 遍历每个项目并获取标签颜色
+    // for (const item of items) {
+    //   const tagColors = Zotero.Tags.getColors(item.libraryID);
+    //   tagColors.forEach((value, key) => {
+    //     //const color = value.color;
+    //     //s0 = `Key: ${key}, Color: ${color}\n`;
+    //     tagSet.add(key);
+    //   });
+    // }
+
+    // 方式 2: 直接获取库的标签颜色
+    const id = Zotero.Libraries.userLibraryID;
+    const tagColors = Zotero.Tags.getColors(id);
+    tagColors.forEach((value, key) => {
+      libColorTagSet.add(key);
+    });
+    return libColorTagSet;
+  }
+  // 5. 获取选择条目的所有带颜色的标签, 返回一个 Set
+  static getSelectTagColors(items: any, tagSet: any) {
+    // 创建一个 Set 来存储选择的标签颜色
+    const selectTagSet = new Set();
+
+    // 遍历每个项目并获取标签颜色
+    for (const item of items) {
+      const tags = item.getTags();
+      tags.forEach((tag: any) => {
+        if (tagSet.has(tag.tag)) {
+          selectTagSet.add(tag.tag);
+        }
+      });
+    }
+
+    return selectTagSet;
+  }
+
+  // 6. 根据 item 获取数据, 获取 item 所在的 collection 名称
+  static getItemCollectionNames(item: any) {
+    const ids = item.getCollections();
+    const data = Zotero.Collections.get(ids);
+    const newList = JSON.parse(JSON.stringify(data));
+    return newList.map((item: any) => item.name).join(", ");
+  }
+  // 6. 根据 item 获取数据
+
+  static getItemData(item: any, selectTagSets: any, cslEngine: any) {
+    const item_ckey = String(item.getField("citationKey")).trim();
+    const item_title = String(item.getField("title")).trim();
+    const item_date = item.getField("date");
+    const item_dateAdded = item.getField("dateAdded");
+    const item_dateModified = item.getField("dateModified");
+    const item_doi = item.getField("DOI");
+    // 合并作者
+    const authors = item.getCreators();
+    const item_authors = this.formatAuthors(authors).trim();
+    // 处理 publicationTitle
+    const item_publicationTitle =
+      this.getPublicationTitleForItemType(item).trim();
+    const item_journalAbbreviation = item.getField("journalAbbreviation");
+    // 处理参考文献引用(原封不动)
+    let item_ref = Zotero.Cite.makeFormattedBibliographyOrCitationList(
+      cslEngine,
+      [item],
+      "text",
+    );
+    item_ref = item_ref.trim();
+    // 处理参考文献引用2(去除[1])
+    const item_ref2 = item_ref.replace(/^\[\d+\]|\(\d+\)|\d+\./, "").trim();
+
+    // 处理标签
+    const item_tags = new Set(item.getTags().map((tag: any) => tag.tag));
+
+    // 处理Collections, 获得item 所在的 collection 名称
+    const item_collection_name = this.getItemCollectionNames(item);
+    /////////////// 构建 JSON 数据, 用于生成 CSV  //////////////
+    // 创建一个对象, 用于存储基本信息
+    const jsonData_part_1 = {
+      CitationKey: item_ckey,
+      Bibliography: item_ref,
+      Bibliography2: item_ref2,
+      Title: item_title,
+      Authors: item_authors,
+      Collections: item_collection_name,
+      PublicationTitle: item_publicationTitle,
+      JournalAbbreviation: item_journalAbbreviation,
+      Date: item_date,
+      DateAdded: item_dateAdded,
+      DateModified: item_dateModified,
+      DOI: item_doi,
+    };
+    // 创建一个对象, 检查每个标签是否存在
+    const jsonData_part_2: Record<string, number> = {};
+    selectTagSets.forEach((keyA: string) => {
+      jsonData_part_2[keyA] = item_tags.has(keyA) ? 1 : 0;
+    });
+    // 合并两个对象
+    const jsonData = Object.assign({}, jsonData_part_1, jsonData_part_2);
+    return jsonData;
+  }
+
+  // 7. 循环每个 item, 获取数据, 得到一个数组对象, 然后转为 csv
+  static generateFile(items: any, filetype: string) {
+    const cslEngine = Basefun.getQuickCopyFormat2();
+    const libColorTagSet = this.getLibTagColors(items);
+    const selectTagSets = this.getSelectTagColors(items, libColorTagSet);
+    const ItemsData = [];
+    // 循环每个 item, 获取数据
+    for (const item of items) {
+      const itemdata = this.getItemData(item, selectTagSets, cslEngine);
+      ItemsData.push(itemdata);
+    }
+    if (filetype == "json") {
+      return JSON.stringify(ItemsData, null, 2);
+    } else {
+      const csv = this.convertJsonToCsv(ItemsData);
+      return csv;
+    }
+  }
+}
+
 export {
   ResultInfo, // 返回结果信息类
   Basefun, // 基础的选择函数
   Selected, // for 循环来处理
   SelectedWithHandler, //  异步处理
+  FeildExport, // 导出字段整理
 };

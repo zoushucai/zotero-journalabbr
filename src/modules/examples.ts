@@ -5,6 +5,7 @@ import {
   Basefun, // 基础的选择函数
   Selected, // for 循环来处理
   SelectedWithHandler, //  异步处理
+  FeildExport, // 字段导出
 } from "./util";
 
 import { ClipboardHelper } from "zotero-plugin-toolkit/dist/helpers/clipboard";
@@ -487,6 +488,15 @@ export class UIExampleFactory {
           commandListener: (ev) =>
             HelperAbbrFactory.JA_transferAllItemsToCustomField(),
         },
+        {
+          tag: "menuseparator",
+        },
+        {
+          tag: "menuitem",
+          id: "zotero-itemmenu-abbr-journal-exportcsv",
+          label: "export csv",
+          commandListener: (ev) => HelperAbbrFactory.JA_selectItemsExportCsv(),
+        },
         // {
         //   tag: "menuitem",
         //   label: "test", // 子菜单: 测试
@@ -835,6 +845,26 @@ export class HelperAbbrFactory {
       getString("prompt-success-exportkey"),
       getString("prompt-error-exportkey"),
     );
+  }
+
+  static async JA_selectItemsExportCsv() {
+    const selectedItems = Basefun.filterSelectedItems();
+    if (!selectedItems) return;
+    const path = await Basefun.getDir("example.csv");
+    if (!path) return;
+    BasicExampleFactory.ShowInfo(`Selected: ${path}`);
+    let infostr = "";
+    if (path.endsWith(".json")) {
+      infostr = FeildExport.generateFile(selectedItems, "json");
+      await Zotero.File.putContentsAsync(path, infostr);
+    } else if (path.endsWith(".csv")) {
+      infostr = FeildExport.generateFile(selectedItems, "csv");
+      await Zotero.File.putContentsAsync(path, "\uFEFF" + infostr);
+    } else {
+      infostr = FeildExport.generateFile(selectedItems, "csv");
+      await Zotero.File.putContentsAsync(path, infostr);
+    }
+    //await BasicExampleFactory.copyToClipboard(infostr);
   }
 
   // static async JA_test() {
