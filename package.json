@@ -22,7 +22,7 @@
     "stop": "node scripts/stop.mjs",
     "restart-dev": "npm run stop && npm run build-dev && npm run stop && npm run start ",
     "restart-prod": "npm run build-prod && npm run stop && npm run start",
-    "restart": "python init.py && npm run restart-dev",
+    "restart": "npm run restart-dev",
     "reload": "npm run build-dev && node scripts/reload.mjs",
     "watch": "chokidar \"src/**\" \"addon/**\" -c \"npm run reload\"",
     "release": "release-it",
@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/zoushucai/zotero-journalabbr#readme",
   "dependencies": {
-    "zotero-plugin-toolkit": "^2.2.2"
+    "zotero-plugin-toolkit": "^2.3.9"
   },
   "devDependencies": {
     "@types/node": "^20.4.2",

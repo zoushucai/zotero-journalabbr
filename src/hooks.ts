@@ -39,6 +39,7 @@ async function onStartup() {
   ZoteroPane.itemsView.onSelect.addListener(UIExampleFactory.displayMenuitem); //监听右键显示菜单
   UIExampleFactory.registerWindowMenuWithSeparator(); // 分割线
   UIExampleFactory.registerRightClickMenuPopup(); // 二级菜单
+  // UIExampleFactory.registerWindowMenuWithSeparator2(); // 分割线
   await UIExampleFactory.registerCustomItemBoxRow(); // 右边的`信息`下注册额外字段 abbr
   await UIExampleFactory.registerCustomItemBoxCitationkey(); // 右边的`信息`下注册额外字段 abbrCkey
   await UIExampleFactory.registerExtraColumn(); // 菜单的额外列

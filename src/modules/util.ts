@@ -465,7 +465,8 @@ class Selected {
           nkey[i] = "";
         }
         ntitle[i] = item.getField("title") as string;
-        nauthor[i] = item.getCreator(0).lastName as string;
+        const creator = item.getCreators()[0];
+        nauthor[i] = creator && creator.lastName ? creator.lastName : "";
 
         if (!ntitle[i] || !nauthor[i] || !nkey[i]) {
           missingInfoItemCount.push(i);
@@ -589,7 +590,8 @@ class Selected {
         }
 
         ntitle[i] = item.getField("title") as string;
-        nauthor[i] = item.getCreator(0).lastName as string;
+        const author0 = JSON.parse(JSON.stringify(item.getCreator(0)));
+        nauthor[i] = author0.lastName.trim() || "";
         nTitle[i] = StringUtil.getFirstNWordsOrCharacters(ntitle[i], 3); // 获得 title 的前三个单词
 
         if (!ntitle[i] || !nauthor[i] || !nkey[i]) {
@@ -681,8 +683,7 @@ class Selected {
     for (let i = 0; i < ruleItemCount; i++) {
       try {
         const item = selectedItems[i];
-        let fieldValue = FeildExport.getPublicationTitleForItemType(item);
-        fieldValue = fieldValue.trim();
+        const fieldValue = FeildExport.getPublicationTitleForItemType(item);
         if (fieldValue) {
           ztoolkit.ExtraField.setExtraField(item, "itemBoxRowabbr", fieldValue);
         }
@@ -866,9 +867,13 @@ class SelectedWithHandler {
 }
 
 class FeildExport {
-  // 根据 所选中的 item 导出 csv or json 文件
-  // 1. 把对象转换为 csv, key 为 header, value 为数据
+  /** 根据 所选中的 item 导出 csv or json 文件
+   */
   static convertJsonToCsv(jsonData: any) {
+    /**
+     * 参数: jsonData 是一个数组对象, 把数组对象转换为 csv
+     * 作用:  根据对象转换为 csv, key 为 header, value 为数据
+     */
     if (!jsonData || !jsonData.length) {
       return "";
     }
@@ -894,8 +899,15 @@ class FeildExport {
     // 将数组连接为一个 CSV 字符串
     return csvRows.join("\n");
   }
-  // 2 把 数组authors按照一定的格式进行处理,转为字符串
-  static formatAuthors(authors: any) {
+  // 2 处理 作者
+  static formatAuthors2Str(authors: any) {
+    /**
+     * 描述: 把 数组authors按照一定的格式进行处理,转为字符串
+     * 参数: authors 是一个数组对象, 每个对象一般有两个属性: firstName, lastName,
+     * 作用: 通过遍历数组, 把数组中的每个对象的 firstName 和 lastName 进行拼接,空格隔开,
+     * 然后再把数组中的每个对象拼接起来, 用逗号隔开, 最终返回一个字符串
+     */
+
     if (Array.isArray(authors) && authors.length > 0) {
       const formattedAuthors = authors.map((author) =>
         `${author.firstName} ${author.lastName}`.trim(),
@@ -905,10 +917,32 @@ class FeildExport {
       return "";
     }
   }
-  // 3. 处理 PublicationTitle, 从不同类型的 item 中获取
-  static getPublicationTitleForItemType(item: any) {
-    const itype = item.itemType.toLowerCase();
+  static formatAuthors2Obj(maxAuthorNum: number, authors: any) {
+    /**
+     * 描述: 把 数组authors按照一定的格式进行处理,转为对象
+     * 参数: maxAuthorNum 是一个数字, 表示当前选择的 item 种 最大的作者数量
+     *     authors 是一个数组对象, 每个对象一般有两个属性: firstName, lastName,
+     * 作用: 通过遍历数组, 把数组中的每个对象的 firstName 和 lastName 进行拼接,空格隔开,
+     * 然后把拼接后的字符串 作为jsonData_author 的属性, 最终返回一个对象
+     */
+    const jsonData_author: { [key: string]: string } = {};
+    for (let i = 0; i < maxAuthorNum; i++) {
+      jsonData_author[`Author${i + 1}`] = "";
+    }
 
+    authors.forEach((item: any, index: any) => {
+      const fullName = item.firstName.trim() + " " + item.lastName.trim();
+      jsonData_author[`Author${index + 1}`] = fullName.trim() || "";
+    });
+    return jsonData_author;
+  }
+
+  static getPublicationTitleForItemType(item: any) {
+    /**
+     * item : 传递的 item
+     * 通过 item 的类型, 处理 PublicationTitle, 从不同类型的 item 中获取
+     */
+    const itype = item.itemType.toLowerCase();
     let publicationTitle;
     switch (itype) {
       case "thesis":
@@ -922,6 +956,9 @@ class FeildExport {
         break;
       case "conferencepaper":
         publicationTitle = item.getField("conferenceName");
+        if (!publicationTitle) {
+          publicationTitle = item.getField("publisher");
+        }
         break;
       case "preprint":
         publicationTitle = item.getField("repository");
@@ -937,10 +974,14 @@ class FeildExport {
         }
         break;
     }
-    return publicationTitle;
+    return String(publicationTitle).trim();
   }
-  // 4. 获取整个库的所有带颜色的标签, 返回一个 Set
+
   static getLibTagColors(items: any) {
+    /**
+     * 参数: items 表示当前选择的 items, 本质items没有用到, 只是为了获取当前库的标签颜色
+     * 作用: 获取整个库的所有带颜色的标签, 返回一个 Set
+     */
     // 创建一个 Set 来存储所有的标签颜色
     const libColorTagSet = new Set();
 
@@ -962,8 +1003,13 @@ class FeildExport {
     });
     return libColorTagSet;
   }
-  // 5. 获取选择条目的所有带颜色的标签, 返回一个 Set
+
   static getSelectTagColors(items: any, tagSet: any) {
+    /**
+     * 参数: items 表示当前选择的 items, tagSet 表示当前库的所有标签颜色
+     * 作用: 获取选择条目的所有带颜色的标签, 返回一个 Set, 因此选择条目的标签颜色 是 当前库的标签颜色的子集
+     */
+
     // 创建一个 Set 来存储选择的标签颜色
     const selectTagSet = new Set();
 
@@ -980,28 +1026,60 @@ class FeildExport {
     return selectTagSet;
   }
 
-  // 6. 根据 item 获取数据, 获取 item 所在的 collection 名称
   static getItemCollectionNames(item: any) {
+    /**
+     * 参数: item 表示当前选择的 item
+     * 作用: 获取当前 item 所在的 collection 名称, 返回一个字符串
+     */
     const ids = item.getCollections();
     const data = Zotero.Collections.get(ids);
     const newList = JSON.parse(JSON.stringify(data));
     return newList.map((item: any) => item.name).join(", ");
   }
-  // 6. 根据 item 获取数据
 
-  static getItemData(item: any, selectTagSets: any, cslEngine: any) {
+  static getMaxAuthorNum(items: any) {
+    /**
+     * 参数: items 表示当前选择的 items
+     * 作用: 根据所选的条目, 统计最大作者数
+     */
+    let maxAuthorNum = 0;
+    for (const item of items) {
+      const authors = JSON.parse(JSON.stringify(item.getCreators()));
+      const authorsNum = authors.length;
+      if (authorsNum > maxAuthorNum) {
+        maxAuthorNum = authorsNum;
+      }
+    }
+    return maxAuthorNum;
+  }
+
+  static getItemData(
+    item: any,
+    selectTagSets: any,
+    maxAuthorNum: number,
+    cslEngine: any,
+  ) {
+    /**
+     * 参数: item:  传递的 item
+     *      selectTagSets: 选择的标签集合
+     *      maxAuthorNum: 最大作者数量
+     *      cslEngine: cslEngine, 生成参考文献格式的引擎
+     * 作用: 根据 item, 生成一个对象, 用于存储 item 的基本信息
+     * */
     const item_ckey = String(item.getField("citationKey")).trim();
     const item_title = String(item.getField("title")).trim();
     const item_date = item.getField("date");
     const item_dateAdded = item.getField("dateAdded");
     const item_dateModified = item.getField("dateModified");
     const item_doi = item.getField("DOI");
-    // 合并作者
-    const authors = item.getCreators();
-    const item_authors = this.formatAuthors(authors).trim();
-    // 处理 publicationTitle
-    const item_publicationTitle =
-      this.getPublicationTitleForItemType(item).trim();
+    const item_type = item.itemType;
+    // 1. 合并作者
+    const authors = JSON.parse(JSON.stringify(item.getCreators()));
+    const item_authors2str = this.formatAuthors2Str(authors).trim(); // 把多个作者合并为一个字符串
+
+    const item_authors2obj = this.formatAuthors2Obj(maxAuthorNum, authors); // 作者的对象
+    // 2.处理 publicationTitle
+    const item_publicationTitle = this.getPublicationTitleForItemType(item);
     const item_journalAbbreviation = item.getField("journalAbbreviation");
     // 处理参考文献引用(原封不动)
     let item_ref = Zotero.Cite.makeFormattedBibliographyOrCitationList(
@@ -1021,11 +1099,12 @@ class FeildExport {
     /////////////// 构建 JSON 数据, 用于生成 CSV  //////////////
     // 创建一个对象, 用于存储基本信息
     const jsonData_part_1 = {
+      Type: item_type,
       CitationKey: item_ckey,
       Bibliography: item_ref,
       Bibliography2: item_ref2,
       Title: item_title,
-      Authors: item_authors,
+      Authors: item_authors2str,
       Collections: item_collection_name,
       PublicationTitle: item_publicationTitle,
       JournalAbbreviation: item_journalAbbreviation,
@@ -1039,20 +1118,35 @@ class FeildExport {
     selectTagSets.forEach((keyA: string) => {
       jsonData_part_2[keyA] = item_tags.has(keyA) ? 1 : 0;
     });
-    // 合并两个对象
-    const jsonData = Object.assign({}, jsonData_part_1, jsonData_part_2);
+    // 合并多个对象
+    const jsonData = Object.assign(
+      {},
+      jsonData_part_1,
+      item_authors2obj,
+      jsonData_part_2,
+    );
     return jsonData;
   }
 
   // 7. 循环每个 item, 获取数据, 得到一个数组对象, 然后转为 csv
   static generateFile(items: any, filetype: string) {
+    /*
+      参数: items: 选择的条目, filetype: 导出的文件类型
+    */
     const cslEngine = Basefun.getQuickCopyFormat2();
     const libColorTagSet = this.getLibTagColors(items);
     const selectTagSets = this.getSelectTagColors(items, libColorTagSet);
     const ItemsData = [];
+    const maxAuthorNum = this.getMaxAuthorNum(items); // 获取最大作者数
+
     // 循环每个 item, 获取数据
     for (const item of items) {
-      const itemdata = this.getItemData(item, selectTagSets, cslEngine);
+      const itemdata = this.getItemData(
+        item,
+        selectTagSets,
+        maxAuthorNum,
+        cslEngine,
+      );
       ItemsData.push(itemdata);
     }
     if (filetype == "json") {

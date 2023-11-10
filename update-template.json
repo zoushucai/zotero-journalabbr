@@ -4,7 +4,9 @@
       "updates": [
         {
           "version": "__buildVersion__",
-          "update_link": "__releasepage__",
+          //"update_link": "__releasepage__",
+          //"update_link": "https://github.com/zoushucai/zotero-journalabbr/releases/latest/download/zotero-journalabbr.xpi",
+          "update_link": "https://github.com/zoushucai/zotero-journalabbr/releases/download/__buildVersion__/zotero-journalabbr.xpi",
           "applications": {
             "zotero": {
               "strict_min_version": "6.999"

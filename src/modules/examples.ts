@@ -367,16 +367,18 @@ export class UIExampleFactory {
   // 右键菜单: 期刊缩写
   @example
   static registerRightClickMenuPopup() {
-    const menuIcon = `chrome://${config.addonRef}/content/icons/favicon@0.5x.png`;
+    const menuIcon = `chrome://${config.addonRef}/content/icons/`;
     ztoolkit.Menu.register("item", {
       tag: "menu",
-      label: getString("menupopup-label"), //期刊缩写
       id: "zotero-itemmenu-abbr-journal",
+      label: getString("menupopup-label"), //期刊缩写
+      icon: menuIcon + "faviconsmall.png", //mac 上不显示, windows 上显示, why?
       children: [
         {
           tag: "menuitem",
           label: getString("menuitem-updateUserAbbr"), // 子菜单: 用户指定期刊缩写路径
           id: "zotero-itemmenu-abbr-journal-updateUserAbbr",
+          //icon: menuIcon + "faviconsmall.png",
           commandListener: (ev) => HelperAbbrFactory.JA_update_UseUserData(), // JA  表示journalAbbreviation
         },
         {
@@ -476,10 +478,19 @@ export class UIExampleFactory {
           commandListener: (ev) => HelperAbbrFactory.JA_getbibliography2(),
         },
         {
+          tag: "menuseparator",
+        },
+        {
           tag: "menuitem",
           id: "zotero-itemmenu-abbr-journal-abbrkey",
-          label: "Ckey", // 该key 直接从 biblatex 中获取, 用于生成 citationKey
+          label: "show Ckey", // 该key 直接从 biblatex 中获取, 用于生成 citationKey
           commandListener: (ev) => HelperAbbrFactory.JA_exportAbbrKey(),
+        },
+        {
+          tag: "menuitem",
+          id: "zotero-itemmenu-abbr-journal-exportcsv",
+          label: "export csv",
+          commandListener: (ev) => HelperAbbrFactory.JA_selectItemsExportCsv(),
         },
         {
           tag: "menuitem",
@@ -487,15 +498,6 @@ export class UIExampleFactory {
           label: "abbrall",
           commandListener: (ev) =>
             HelperAbbrFactory.JA_transferAllItemsToCustomField(),
-        },
-        {
-          tag: "menuseparator",
-        },
-        {
-          tag: "menuitem",
-          id: "zotero-itemmenu-abbr-journal-exportcsv",
-          label: "export csv",
-          commandListener: (ev) => HelperAbbrFactory.JA_selectItemsExportCsv(),
         },
         // {
         //   tag: "menuitem",
@@ -506,12 +508,19 @@ export class UIExampleFactory {
       ],
     });
   }
-
+  // 分割条
+  // @example
+  // static registerWindowMenuWithSeparator2() {
+  //   ztoolkit.Menu.register("item", {
+  //     tag: "menuseparator",
+  //     id: "zotero-itemmenu-abbr-separator2",
+  //   });
+  // }
   // // 右键菜单: 用来测试新功能用,  用完后可以删除
   // // 右键菜单: 一键更新期刊缩写
   // @example
   // static registerRightClickMenuItem() {
-  //     //const menuIcon = `chrome://${config.addonRef}/content/icons/favicon@0.5x.png`;
+  //     //const menuIcon = `chrome://${config.addonRef}/content/icons/faviconsmall.png`;
   //     // item menuitem with icon
   //     ztoolkit.Menu.register("item", {
   //         tag: "menuitem",
