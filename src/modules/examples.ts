@@ -1,6 +1,7 @@
 import { config } from "../../package.json";
 import { getString } from "../utils/locale";
 import { journal_abbr } from "./data";
+import { replaceHandle , filterValidEntries} from "./replacehandle";
 import {
   Basefun, // 基础的选择函数
   Selected, // for 循环来处理
@@ -12,11 +13,7 @@ import { ClipboardHelper } from "zotero-plugin-toolkit/dist/helpers/clipboard";
 
 Components.utils.import("resource://gre/modules/osfile.jsm");
 
-function example(
-  target: any,
-  propertyKey: string | symbol,
-  descriptor: PropertyDescriptor,
-) {
+function example(target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
   const original = descriptor.value;
   descriptor.value = function (...args: any) {
     try {
@@ -62,11 +59,7 @@ export class BasicExampleFactory {
 
   // 通知 1
   @example
-  static ShowPopUP(
-    descInfo: string,
-    headerInfo: string = getString(`${config.addonRef}`),
-    n = 3000,
-  ) {
+  static ShowPopUP(descInfo: string, headerInfo: string = getString(`${config.addonRef}`), n = 3000) {
     const progressWindow = new Zotero.ProgressWindow({ closeOnClick: true });
     progressWindow.changeHeadline(headerInfo);
     progressWindow.addDescription(descInfo);
@@ -93,13 +86,7 @@ export class BasicExampleFactory {
       ["Any(*.*)", "*"],
     ]).open();
     // 判断选择的地址是否为空,以及是否为字符串 false
-    if (
-      typeof path === "string" &&
-      path !== "" &&
-      path !== "false" &&
-      path !== "undefined" &&
-      path !== "null"
-    ) {
+    if (typeof path === "string" && path !== "" && path !== "false" && path !== "undefined" && path !== "null") {
       return path;
     } else {
       return null;
@@ -137,12 +124,7 @@ export class BasicExampleFactory {
   }
 
   // 显示参考文献转换信息
-  static async showBibConversionStatus(
-    ruleItemCount: number,
-    successfulCount: number,
-    noActionCount: number,
-    missingInfoItemCount: number,
-  ) {
+  static async showBibConversionStatus(ruleItemCount: number, successfulCount: number, noActionCount: number, missingInfoItemCount: number) {
     if (successfulCount > 0) {
       this.ShowStatus(ruleItemCount, successfulCount, "items are converted.");
     }
@@ -150,11 +132,7 @@ export class BasicExampleFactory {
       this.ShowStatus(ruleItemCount, noActionCount, "items are not converted.");
     }
     if (missingInfoItemCount > 0) {
-      this.ShowStatus(
-        ruleItemCount,
-        missingInfoItemCount,
-        "items are missing information.",
-      );
+      this.ShowStatus(ruleItemCount, missingInfoItemCount, "items are missing information.");
     }
   }
 
@@ -168,10 +146,15 @@ export class BasicExampleFactory {
       [config.addonRef + ".keyornum"]: "num", //
       [config.addonRef + ".discardDOI"]: true,
       [config.addonRef + ".bibemptyline"]: true,
+      [config.addonRef + ".addAutotags"]: true,
+      //[config.addonRef + ".isreplaceJsoncFile"]: true,
+      [config.addonRef + ".addRegexAutotags"]: true,
+      [config.addonRef + ".replaceJsonFile"]: "",
     };
-
+    // BasicExampleFactory.ShowPopUP(`${Zotero.Prefs.get(config.addonRef + ".addAutotags")}`);
     // Check if preference is already set and set it if not
     for (const p in initpref_data) {
+      //BasicExampleFactory.ShowPopUP(`initPrefs: ${p}`, getString(`${config.addonRef}`),9000);
       if (typeof Zotero.Prefs.get(p) === "undefined") {
         Zotero.Prefs.set(p, initpref_data[p] as string);
       }
@@ -184,12 +167,7 @@ export class BasicExampleFactory {
   @example
   static registerNotifier() {
     const callback = {
-      notify: async (
-        event: string,
-        type: string,
-        ids: number[] | string[],
-        extraData: { [key: string]: any },
-      ) => {
+      notify: async (event: string, type: string, ids: number[] | string[], extraData: { [key: string]: any }) => {
         if (!addon?.data.alive) {
           this.unregisterNotifier(notifierID);
           return;
@@ -199,11 +177,7 @@ export class BasicExampleFactory {
     };
 
     // Register the callback in Zotero as an item observer
-    const notifierID = Zotero.Notifier.registerObserver(callback, [
-      "tab",
-      "item",
-      "file",
-    ]);
+    const notifierID = Zotero.Notifier.registerObserver(callback, ["tab", "item", "file"]);
 
     // Unregister callback when the window closes (important to avoid a memory leak)
     window.addEventListener(
@@ -248,23 +222,11 @@ export class UIExampleFactory {
   // 在标题上添加自定义列名,通过该列可以进行排序
   @example
   static async registerExtraColumn() {
-    await ztoolkit.ItemTree.register(
-      "extraColumnabbr",
-      "abbr",
-      (
-        field: string,
-        unformatted: boolean,
-        includeBaseMapped: boolean,
-        item: Zotero.Item,
-      ) => {
-        //ztoolkit.log(`field3: ${field}`) // field === 'extraColumnabbr'
-        const fieldValue = ztoolkit.ExtraField.getExtraField(
-          item,
-          "itemBoxRowabbr",
-        );
-        return fieldValue !== undefined ? String(fieldValue) : "";
-      },
-    );
+    await ztoolkit.ItemTree.register("extraColumnabbr", "abbr", (field: string, unformatted: boolean, includeBaseMapped: boolean, item: Zotero.Item) => {
+      //ztoolkit.log(`field3: ${field}`) // field === 'extraColumnabbr'
+      const fieldValue = ztoolkit.ExtraField.getExtraField(item, "itemBoxRowabbr");
+      return fieldValue !== undefined ? String(fieldValue) : "";
+    });
   }
 
   // 注册额外的字段
@@ -332,27 +294,19 @@ export class UIExampleFactory {
     ];
 
     // 获取所有以 'zotero-itemmenu-abbr-journal-' 开头的元素
-    const elements = document.querySelectorAll(
-      '[id^="zotero-itemmenu-abbr-journal-"]',
-    );
+    const elements = document.querySelectorAll('[id^="zotero-itemmenu-abbr-journal-"]');
 
     // 使用 Array.prototype.filter() 函数过滤特殊 ID 的元素
-    const filteredElements = Array.from(elements).filter(
-      (element) => !excludeIds.includes(element.id),
-    );
+    const filteredElements = Array.from(elements).filter((element) => !excludeIds.includes(element.id));
 
     const hasExchangeTag = items.some((item) => {
       return item.hasTag("exchange");
     });
 
     if (hasExchangeTag) {
-      filteredElements.forEach((element) =>
-        element.setAttribute("disabled", "true"),
-      );
+      filteredElements.forEach((element) => element.setAttribute("disabled", "true"));
     } else {
-      filteredElements.forEach((element) =>
-        element.setAttribute("disabled", "false"),
-      );
+      filteredElements.forEach((element) => element.setAttribute("disabled", "false"));
     }
   }
 
@@ -453,8 +407,7 @@ export class UIExampleFactory {
           tag: "menuitem",
           label: getString("menuitem-deleteUserTag"), // 子菜单: 删除 abbr_user 标签
           id: "zotero-itemmenu-abbr-journal-deleteUserTag",
-          commandListener: (ev) =>
-            HelperAbbrFactory.JA_removeTagname(["abbr_user"]),
+          commandListener: (ev) => HelperAbbrFactory.JA_removeTagname(["abbr_user"]),
         },
         {
           tag: "menuseparator",
@@ -494,11 +447,16 @@ export class UIExampleFactory {
         },
         {
           tag: "menuitem",
+          id: "zotero-itemmenu-abbr-journal-replacejsonFile",
+          label: "replace",
+          commandListener: (ev) => HelperAbbrFactory.JA_ReplaceByJson(),
+        },
+        {
+          tag: "menuitem",
           id: "zotero-itemmenu-abbr-journal-itemBoxRowabbr",
           label: "abbrall",
-          commandListener: (ev) =>
-            HelperAbbrFactory.JA_transferAllItemsToCustomField(),
-        },
+          commandListener: (ev) => HelperAbbrFactory.JA_transferAllItemsToCustomField(),
+        }
         // {
         //   tag: "menuitem",
         //   label: "test", // 子菜单: 测试
@@ -540,11 +498,7 @@ export class HelperAbbrFactory {
     const successinfo = getString("prompt-success-abbrToupper-info");
     const failinfo = getString("prompt-fail-abbrToupper-info");
     //Basefun.executeFunctionWithTryCatch(Selected.processSelectItems, successinfo, failinfo )
-    Basefun.executeFunctionWithTryCatch(
-      async () => await Selected.processSelectItems(transformFn),
-      successinfo,
-      failinfo,
-    );
+    Basefun.executeFunctionWithTryCatch(async () => await Selected.processSelectItems(transformFn), successinfo, failinfo);
     //await processSelectItems(transformFn, successinfo, failinfo);
   }
 
@@ -553,11 +507,7 @@ export class HelperAbbrFactory {
     const transformFn = (value: any) => value.toLowerCase();
     const successinfo = getString("prompt-success-abbrTolower-info");
     const failinfo = getString("prompt-fail-abbrTolower-info");
-    Basefun.executeFunctionWithTryCatch(
-      async () => await Selected.processSelectItems(transformFn),
-      successinfo,
-      failinfo,
-    );
+    Basefun.executeFunctionWithTryCatch(async () => await Selected.processSelectItems(transformFn), successinfo, failinfo);
     //await processSelectItems(transformFn, successinfo, failinfo);
   }
 
@@ -569,16 +519,11 @@ export class HelperAbbrFactory {
       });
     const successinfo = getString("prompt-success-abbrTocapitalize-info");
     const failinfo = getString("prompt-fail-abbrTocapitalize-info");
-    Basefun.executeFunctionWithTryCatch(
-      async () => await Selected.processSelectItems(transformFn),
-      successinfo,
-      failinfo,
-    );
+    Basefun.executeFunctionWithTryCatch(async () => await Selected.processSelectItems(transformFn), successinfo, failinfo);
     //await processSelectItems(transformFn, successinfo, failinfo);
   }
   static async JA_InitialismAbbr() {
-    const isEnglishWithAllCharacters = (str: string) =>
-      /^[\w\s\t\n\r\-'",.;:!?(){}[\]<>#+=*_~%^&|/$\\]+$/.test(str);
+    const isEnglishWithAllCharacters = (str: string) => /^[\w\s\t\n\r\-'",.;:!?(){}[\]<>#+=*_~%^&|/$\\]+$/.test(str);
     const ignoredWords = new Set([
       "and",
       "but",
@@ -636,9 +581,7 @@ export class HelperAbbrFactory {
           return words[0].toUpperCase();
         }
 
-        const transformedWords = words
-          .filter((word: any) => !ignoredWords.has(word.toLowerCase()))
-          .map((word: any) => word.charAt(0).toUpperCase());
+        const transformedWords = words.filter((word: any) => !ignoredWords.has(word.toLowerCase())).map((word: any) => word.charAt(0).toUpperCase());
 
         return transformedWords.join("");
       } catch (error) {
@@ -649,11 +592,7 @@ export class HelperAbbrFactory {
 
     const successinfo = getString("prompt-success-InitialismAbbr-info");
     const failinfo = getString("prompt-fail-InitialismAbbr-info");
-    Basefun.executeFunctionWithTryCatch(
-      async () => await Selected.processSelectItems(transformFn),
-      successinfo,
-      failinfo,
-    );
+    Basefun.executeFunctionWithTryCatch(async () => await Selected.processSelectItems(transformFn), successinfo, failinfo);
     //await processSelectItems(transformFn, successinfo, failinfo);
   }
 
@@ -662,11 +601,7 @@ export class HelperAbbrFactory {
     const transformFn = (value: any) => value.replace(/\./g, "");
     const successinfo = getString("prompt-success-removeAbbrdot-info");
     const failinfo = getString("prompt-fail-removeAbbrdot-info");
-    Basefun.executeFunctionWithTryCatch(
-      async () => await Selected.processSelectItems(transformFn),
-      successinfo,
-      failinfo,
-    );
+    Basefun.executeFunctionWithTryCatch(async () => await Selected.processSelectItems(transformFn), successinfo, failinfo);
     //await processSelectItems(transformFn, successinfo, failinfo);
   }
 
@@ -680,18 +615,10 @@ export class HelperAbbrFactory {
   }
 
   // 交换期刊名 --- 即简写期刊与期刊名互换 --- 还是循环的方式-- 感觉循环比较快
-  static async JA_exchangeName(
-    key1: any = "journalAbbreviation",
-    key2: any = "publicationTitle",
-    exchangetagname = "exchange",
-  ) {
+  static async JA_exchangeName(key1: any = "journalAbbreviation", key2: any = "publicationTitle", exchangetagname = "exchange") {
     const successinfo = getString("prompt-success-exchange-info");
     const failinfo = getString("prompt-error-exchange-info");
-    Basefun.executeFunctionWithTryCatch(
-      async () => await Selected.exchangeJournalName(),
-      successinfo,
-      failinfo,
-    );
+    Basefun.executeFunctionWithTryCatch(async () => await Selected.exchangeJournalName(), successinfo, failinfo);
   }
 
   // 绑定按钮事件
@@ -701,15 +628,23 @@ export class HelperAbbrFactory {
 
     // 判断选择的地址是否为空
     if (!mypath) {
-      BasicExampleFactory.ShowPopUP(
-        getString("prompt-show-cancel-selectpath-info"),
-      );
+      BasicExampleFactory.ShowPopUP(getString("prompt-show-cancel-selectpath-info"));
     } else {
       await Zotero.Prefs.set(`${config.addonRef}.input`, mypath);
-      BasicExampleFactory.ShowPopUP(
-        getString("prompt-show-success-selectpath-info") +
-          getString(`${mypath}`),
-      );
+      BasicExampleFactory.ShowPopUP(getString("prompt-show-success-selectpath-info") + getString(`${mypath}`));
+    }
+  }
+
+  @example
+  static async buttonJsonSelectFilePath() {
+    const mypath = await BasicExampleFactory.filePickerExample();
+    
+    // 判断选择的地址是否为空
+    if (!mypath) {
+      BasicExampleFactory.ShowPopUP(getString("prompt-show-cancel-selectpath-info"));
+    } else {
+      await Zotero.Prefs.set(`${config.addonRef}.replaceJsonFile`, mypath);
+      BasicExampleFactory.ShowPopUP(getString("prompt-show-success-selectpath-info") + getString(`${mypath}`));
     }
   }
 
@@ -718,12 +653,18 @@ export class HelperAbbrFactory {
   ////////////////////////////////
   // 1. 使用内部数据集进行更新
   static async JA_update_UseInnerData() {
+    const isselect_addAutotags = Zotero.Prefs.get(config.addonRef + ".addAutotags");
+
+    const addtagsname: string[] = isselect_addAutotags ? ["abbr"] : ["abbr_user", "abbr_iso4"];
+    const removetagsname: string[] = isselect_addAutotags ? [] : ["abbr"];
+
+
     await Selected.updateJournalAbbr(
       journal_abbr,
       "publicationTitle",
       "journalAbbreviation",
-      ["abbr"],
-      ["abbr_user", "abbr_iso4"],
+      addtagsname,
+      removetagsname,
       getString("prompt-success-updatejournal-inner-info"),
       getString("prompt-error-updatejournal-inner-info"),
       true,
@@ -734,13 +675,20 @@ export class HelperAbbrFactory {
   static async JA_update_UseUserData() {
     const user_abbr_data = await Basefun.get_user_data();
     if (!user_abbr_data) return;
+
+    const isselect_addAutotags = Zotero.Prefs.get(config.addonRef + ".addAutotags");
+
+    const addtagsname: string[] = isselect_addAutotags ? ["abbr_user"] : ["abbr", "abbr_iso4"];
+    const removetagsname: string[] = isselect_addAutotags ? [] : ["abbr_user"];
+
+
     // 更新期刊缩写 -- 返回的信息为 已有 2/2 条目缩写更新
     await Selected.updateJournalAbbr(
       user_abbr_data,
       "publicationTitle",
       "journalAbbreviation",
-      ["abbr_user"],
-      ["abbr", "abbr_iso4"], // "amytest2","amytest"
+      addtagsname,
+      removetagsname, // "amytest2","amytest"
       getString("prompt-success-updatejournal-user-info"),
       getString("prompt-error-updatejournal-user-info"),
       true,
@@ -748,12 +696,19 @@ export class HelperAbbrFactory {
   }
   // 3. 采用 ISO4 规则进行更新
   static async JA_update_UseISO4() {
+
+    // BasicExampleFactory.ShowPopUP(`${Zotero.Prefs.get(config.addonRef + ".addAutotags")}`);
+    const isselect_addAutotags = Zotero.Prefs.get(config.addonRef + ".addAutotags");
+
+    const addtagsname: string[] = isselect_addAutotags ? ["abbr_iso4"] : ["abbr_user", "abbr"];
+    const removetagsname: string[] = isselect_addAutotags ? [] : ["abbr_iso4"];
+
     await Selected.updateUseISO4(
       {}, // 为了和上面的函数保持一致, 这里传入一个空对象
       "publicationTitle",
       "journalAbbreviation",
-      ["abbr_iso4"],
-      ["abbr_user", "abbr"],
+      addtagsname,
+      removetagsname,
       getString("prompt-success-updatejournal-iso4-info"),
       getString("prompt-error-updatejournal-iso4-info"),
       true,
@@ -876,10 +831,34 @@ export class HelperAbbrFactory {
     //await BasicExampleFactory.copyToClipboard(infostr);
   }
 
-  // static async JA_test() {
-  //     let abbrevIso = new AbbrevIso(ltwa, shortWords);
-  //     let s = 'International Journal of Geographical Information Science';
-  //     Zotero.debug("============")
-  //     Zotero.debug(abbrevIso.makeAbbreviation(s));
-  // }
+  static async JA_ReplaceByJson() {
+    //1 ,读取 json 文件
+    const jsonpath = String(Zotero.Prefs.get(config.addonRef + ".replaceJsonFile"));
+    if (!jsonpath) {
+      BasicExampleFactory.ShowPopUP(getString("prompt-show-cancel-selectpath-info"));
+      return;
+    }
+    const isselect_addRegexAutotags = Zotero.Prefs.get(config.addonRef + ".addRegexAutotags");
+    const addtagsname: string[] = isselect_addRegexAutotags ? ["regex"] : [];
+    const removetagsname: string[] = isselect_addRegexAutotags ? [] : ["regex"];
+
+    const jsonstr = await Zotero.File.getContentsAsync(jsonpath, "utf-8");
+    let jsondata: any;
+    try {
+      jsondata = JSON.parse(String(jsonstr));
+    } catch (error) {
+      BasicExampleFactory.ShowPopUP("Invalid json file");
+      return;
+    }
+
+    const data = filterValidEntries(jsondata);
+    Zotero.debug(`valid data number: ${data.length}`);
+    BasicExampleFactory.ShowStatus(jsondata.length, data.length,  getString("prompt-show-regular-valid"));
+    if (!data || data.length === 0) {
+      return;
+    }
+
+    await replaceHandle.replacejson(data, addtagsname, removetagsname);
+  
+  }
 }

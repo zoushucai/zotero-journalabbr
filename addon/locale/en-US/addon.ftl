@@ -46,6 +46,7 @@ prompt-show-bib-title=The reference styles used are as follows:
 prompt-show-readfile-less-info=Number of non-compliant rows(ignored):
 prompt-show-readfile-more-info=Total number of non-compliant rows(ignored)
 prompt-show-disabled-info='Exchange' tag items, limited functions.
+prompt-show-regular-valid=regular valid
 
 prompt-fail-abbrTolower-info=Lowercase Abbr J failed
 prompt-fail-abbrToupper-info=Uppercase Abbr J failed

@@ -68,3 +68,60 @@
       对获取的字段会自动按照上述缩写规则进行缩写, 且不会添加任何 标签
 
       ```
+
+- 添加了一个 `replace` 选项, 按照指定的 json 文件, 进行条目缩写, 本质上就是调用 `str.replace()` 函数
+
+#### replace 选项的输入
+
+输入对应的 json 内容格式如下, (记住是标准的 json,而非 jsonc, 下面用注释进行解释说明)
+
+- 本质是调用js 中的替换函数: `str.replace(regexp|substr, newSubStr|function[, flags])`, 根据不同的输入,执行不同的操作
+
+```json
+[
+  {
+    "itemType": "conferencePaper", // 条目类型,需要符合 zotero 的规则
+    "searchField": "conferenceName", // 条目字段类型,需要符合 zotero 的规则
+    "replaceField": "conferenceName", // 条目字段类型,需要符合 zotero 的规则
+    "searchType": "regex", // 支持两种类型, "string", "regex", 如果是 regex,则需要 "/(\w+)\s* \s*(\w+)/g"的形式
+    "searchString": "/(\\w+)\\s(\\w+)/g", // 匹配的值
+    "replaceType": "regex", // 支持三种类型,"string", "regex", "function",  这里的 "string", "regex" 等价 ,
+    "replaceString": "$2, $1" // 替换的值
+  },
+  {
+    "itemType": "journalArticle",
+    "searchField": "publicationTitle",
+    "replaceField": "publicationTitle",
+    "searchType": "regex",
+    "searchString": "/.*/g",
+    "replaceType": "function",
+    "replaceString": "(match) => match.toLowerCase()"
+  },
+  {
+    "itemType": "journalArticle",
+    "searchField": "publicationTitle",
+    "replaceField": "abbr",
+    "searchType": "regex",
+    "searchString": "/.*/g",
+    "replaceType": "function",
+    "replaceString": "(match) => match.toUpperCase()"
+  }
+]
+```
+
+下面列举一些在 zotero 中常见条目的类型(注意大小写), 其中
+
+- 如果 `searchField` 和 `replaceField` 值相同, 一旦替换了,原来的值就消失了,谨慎操作.
+
+- `abbr` 为该插件的自定义字段, 即可把所有字段的处理后的结果归到`abbr`字段上, 避免误操作
+
+```
+itemType         ---   searchField     ---->     replaceField
+--------------------------------------------------------------
+thesis           ---  university       ---->  university (abbr)
+book             ---  publisher        ---->  university (abbr)
+journalArticle   ---  publicationTitle ---->  journalAbbreviation (abbr)
+conferencePaper  ---  conferenceName   ---->  conferenceName (abbr)
+preprint         ---  repository       ---->  conferenceName (abbr)
+bookSection      ---  publisher        ---->  conferenceName (abbr)
+```

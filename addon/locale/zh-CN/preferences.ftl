@@ -20,6 +20,14 @@ keyornum-label = bib format:
 discardDOI-label = discard DOI
 bibemptyline-label = Separator is an empty line
 
+pref-title-three = Tags
+addAutotags-label = 添加/删除 abbr 自动标记
+
+pref-title-four = Custom replacement rules
+isreplaceJsoncFile-label = jsonc file (实验性)
+addRegexAutotags-label = 添加/删除 regex 自动标记
+pref-replaceJsonFile = 输入json地址: 
+
 help-version-label = __addonName__ 版本 __buildVersion__
 help-releasetime-label = Build __buildTime__
 

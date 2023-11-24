@@ -21,9 +21,7 @@ class Basefun {
   static filterSelectedItems() {
     //const items = Zotero.getActiveZoteroPane().getSelectedItems();
     const items = ZoteroPane.getSelectedItems(); // 等价于 Zotero.getActiveZoteroPane().getSelectedItems();
-    const selectedItems = items.filter(
-      (item) => !item.isNote() && item.isRegularItem(),
-    ); // 过滤笔记 且 是规则的 item
+    const selectedItems = items.filter((item) => !item.isNote() && item.isRegularItem()); // 过滤笔记 且 是规则的 item
     const selectedItemsLength = selectedItems.length;
     if (selectedItemsLength == 0) {
       BasicExampleFactory.ShowStatus(0, 0, "没有选中任何条目");
@@ -33,12 +31,7 @@ class Basefun {
   }
 
   /////// 2. map 处理 ................................................
-  static async processSelectedItemsWithPromise(
-    handler: (item: any) => Promise<boolean>,
-    successMessage: string,
-    errorMessage: string,
-    showInfo = true,
-  ) {
+  static async processSelectedItemsWithPromise(handler: (item: any) => Promise<boolean>, successMessage: string, errorMessage: string, showInfo = true) {
     try {
       const selectedItems = this.filterSelectedItems();
       if (!selectedItems) return;
@@ -47,11 +40,7 @@ class Basefun {
       const results = await Promise.all(tasks);
       const successCount = results.filter((result) => result).length;
       if (showInfo) {
-        BasicExampleFactory.ShowStatus(
-          selectedItems.length,
-          successCount,
-          successMessage,
-        );
+        BasicExampleFactory.ShowStatus(selectedItems.length, successCount, successMessage);
       }
     } catch (error) {
       if (showInfo) {
@@ -62,42 +51,25 @@ class Basefun {
 
   /////// 3. 普通的处理方法(感觉执行更快) ................................................
   // 把 try ... catch .. 模板提取出来
-  static async executeFunctionWithTryCatch(
-    func: any,
-    successMessage = "",
-    errorMessage = "",
-    errorInfo = "",
-  ) {
+  static async executeFunctionWithTryCatch(func: any, successMessage = "", errorMessage = "", errorInfo = "") {
     try {
       const result = await func();
       //ztoolkit.getGlobal('alert')(`${result}`)
-      const {
-        selectCount = 0,
-        successCount = 0,
-        error_arr = [],
-      } = result ?? {};
+      const { selectCount = 0, successCount = 0, error_arr = [] } = result ?? {};
       const errorCount = error_arr.length;
 
       let errorMsg = "";
       if (errorCount > 5) {
-        errorMsg =
-          getString("prompt-show-readfile-more-info") +
-          `${errorInfo} ${errorCount}`;
+        errorMsg = getString("prompt-show-readfile-more-info") + `${errorInfo} ${errorCount}`;
       } else if (errorCount > 0) {
-        errorMsg =
-          getString("prompt-show-readfile-less-info") +
-          `${errorInfo} ${error_arr.join(", ")}`;
+        errorMsg = getString("prompt-show-readfile-less-info") + `${errorInfo} ${error_arr.join(", ")}`;
       }
 
       if (errorMsg) {
         BasicExampleFactory.ShowInfo(errorMsg);
       }
       if (successMessage) {
-        BasicExampleFactory.ShowStatus(
-          selectCount,
-          successCount,
-          successMessage,
-        );
+        BasicExampleFactory.ShowStatus(selectCount, successCount, successMessage);
       }
       const resultInfo = new ResultInfo();
       resultInfo.selectCount = selectCount;
@@ -134,9 +106,7 @@ class Basefun {
     }
     // 3.判断返回的 user_abbr_data 的类型
     if (typeof user_abbr_data !== "object" || !user_abbr_data) {
-      BasicExampleFactory.ShowError(
-        "读取 csv或 json 文件失败, 可能不存在该文件或文件未按指定格式书写!",
-      );
+      BasicExampleFactory.ShowError("读取 csv或 json 文件失败, 可能不存在该文件或文件未按指定格式书写!");
       return;
     }
     return user_abbr_data;
@@ -146,11 +116,7 @@ class Basefun {
   static async read_json(filePath: string) {
     const data_str = (await Zotero.File.getContentsAsync(filePath)) as string;
     const data_obj = JSON.parse(data_str);
-    if (
-      typeof data_obj !== "object" ||
-      data_obj === null ||
-      Array.isArray(data_obj)
-    ) {
+    if (typeof data_obj !== "object" || data_obj === null || Array.isArray(data_obj)) {
       return;
     }
 
@@ -170,15 +136,10 @@ class Basefun {
   // 0. 从 csv 获取数据
   static async read_csv(filePath: string) {
     // 1. 读取用户设置的分割符号
-    const pref_separator = Zotero.Prefs.get(
-      `${config.addonRef}.separator`,
-    ) as string; // 获得持久化的变量
+    const pref_separator = Zotero.Prefs.get(`${config.addonRef}.separator`) as string; // 获得持久化的变量
 
     // 2. 读取 csv 文件, 并解析为字典对象
-    const user_abbr_data = await Selected.readAndParseCSV(
-      filePath,
-      pref_separator,
-    );
+    const user_abbr_data = await Selected.readAndParseCSV(filePath, pref_separator);
     return user_abbr_data;
   }
   // 选择存贮路径
@@ -199,9 +160,7 @@ class Basefun {
   static getQuickCopyFormat() {
     const format = Zotero.Prefs.get("export.quickCopy.setting") as string;
     if (!format || format.split("=")[0] !== "bibliography") {
-      BasicExampleFactory.ShowError(
-        "No bibliography style is chosen in the settings for QuickCopy.",
-      );
+      BasicExampleFactory.ShowError("No bibliography style is chosen in the settings for QuickCopy.");
       return null;
     }
     return format;
@@ -210,9 +169,7 @@ class Basefun {
   static getQuickCopyFormat2() {
     const format_str = Zotero.Prefs.get("export.quickCopy.setting") as string;
     if (!format_str || format_str.split("=")[0] !== "bibliography") {
-      BasicExampleFactory.ShowError(
-        "No bibliography style is chosen in the settings for QuickCopy.",
-      );
+      BasicExampleFactory.ShowError("No bibliography style is chosen in the settings for QuickCopy.");
       return null;
     }
 
@@ -224,9 +181,7 @@ class Basefun {
     //     "locale": ""
     // }
 
-    const locale = format.locale
-      ? format.locale
-      : Zotero.Prefs.get("export.quickCopy.locale");
+    const locale = format.locale ? format.locale : Zotero.Prefs.get("export.quickCopy.locale");
     const style = Zotero.Styles.get(format.id);
     const cslEngine = style.getCiteProc(locale, "text");
     return cslEngine;
@@ -236,10 +191,7 @@ class Basefun {
 // 以下为辅助类
 class Selected {
   // 对某个字段进行函数处理
-  static async processSelectItems(
-    transformFn: (originalValue: string) => string,
-    key: any = "journalAbbreviation",
-  ) {
+  static async processSelectItems(transformFn: (originalValue: string) => string, key: any = "journalAbbreviation") {
     const selectedItems = Basefun.filterSelectedItems();
     if (!selectedItems) return;
     const selectedItemsLength = selectedItems.length;
@@ -271,11 +223,7 @@ class Selected {
   }
 
   // 交换期刊名 --- 即简写期刊与期刊名互换 --- 还是循环的方式-- 感觉循环比较快
-  static async exchangeJournalName(
-    key1: any = "journalAbbreviation",
-    key2: any = "publicationTitle",
-    exchangetagname = "exchange",
-  ) {
+  static async exchangeJournalName(key1: any = "journalAbbreviation", key2: any = "publicationTitle", exchangetagname = "exchange") {
     const selectedItems = Basefun.filterSelectedItems();
     if (!selectedItems) return;
     const selectedItemsLength = selectedItems.length;
@@ -305,9 +253,7 @@ class Selected {
   // 读取 csv 文件并解析
   static async readAndParseCSV(filePath: string, delimiter = ",") {
     try {
-      const csvContent = (await Zotero.File.getContentsAsync(
-        filePath,
-      )) as string;
+      const csvContent = (await Zotero.File.getContentsAsync(filePath)) as string;
       const lines = csvContent.trim().split("\n");
       const data: { [key: string]: any } = {};
       const errors: any[] = [];
@@ -319,20 +265,14 @@ class Selected {
             errors.push(i + 1);
             return;
           }
-          const key = StringUtil.trimAndRemoveQuotes(
-            currentLine[0],
-          ).toLowerCase();
+          const key = StringUtil.trimAndRemoveQuotes(currentLine[0]).toLowerCase();
           const value = StringUtil.trimAndRemoveQuotes(currentLine[1]);
 
           if (!key || !value) {
             errors.push(i + 1);
           }
 
-          if (
-            !Object.prototype.hasOwnProperty.call(data, key) &&
-            key != "" &&
-            value != ""
-          ) {
+          if (!Object.prototype.hasOwnProperty.call(data, key) && key != "" && value != "") {
             data[key] = value; // 重复以先前的为准
           }
         }),
@@ -340,15 +280,9 @@ class Selected {
       if (errors.length > 0) {
         //console.log(errors)
         if (errors.length > 5) {
-          BasicExampleFactory.ShowError(
-            getString("prompt-show-readfile-more-info") + " " + errors.length,
-          );
+          BasicExampleFactory.ShowError(getString("prompt-show-readfile-more-info") + " " + errors.length);
         } else {
-          BasicExampleFactory.ShowError(
-            getString("prompt-show-readfile-less-info") +
-              " " +
-              errors.join(", "),
-          );
+          BasicExampleFactory.ShowError(getString("prompt-show-readfile-less-info") + " " + errors.join(", "));
         }
       }
       return data;
@@ -372,13 +306,7 @@ class Selected {
     showInfo: boolean,
   ) {
     await Basefun.processSelectedItemsWithPromise(
-      SelectedWithHandler.updateJournalAbbrHandler(
-        data,
-        oldField,
-        newField,
-        addtagsname,
-        removetagsname,
-      ),
+      SelectedWithHandler.updateJournalAbbrHandler(data, oldField, newField, addtagsname, removetagsname),
       successinfo,
       errorinfo,
       showInfo,
@@ -397,13 +325,7 @@ class Selected {
     showInfo: boolean,
   ) {
     await Basefun.processSelectedItemsWithPromise(
-      SelectedWithHandler.updateJournalAbbrHandlerISO4(
-        data,
-        oldField,
-        newField,
-        addtagsname,
-        removetagsname,
-      ),
+      SelectedWithHandler.updateJournalAbbrHandlerISO4(data, oldField, newField, addtagsname, removetagsname),
       successinfo,
       errorinfo,
       showInfo,
@@ -435,9 +357,7 @@ class Selected {
     const cslEngine = Basefun.getQuickCopyFormat2();
 
     // 3. 获取排序的方式
-    const sortoptions = Zotero.Prefs.get(
-      `${config.addonRef}.sortoptions`,
-    ) as string; // 获得持久化的变量
+    const sortoptions = Zotero.Prefs.get(`${config.addonRef}.sortoptions`) as string; // 获得持久化的变量
     // 与 [ fianl_bib, nkey, ntitle, nauthor, id_arr] 对应的索引, 其中 id_arr 为原始的 id, 用于排序
     const optionarr = ["originid", "nkey", "ntitle", "nauthor", "id"];
     let sortindex = optionarr.indexOf(sortoptions);
@@ -445,12 +365,8 @@ class Selected {
 
     // 获取bib format
     const keyornum = Zotero.Prefs.get(`${config.addonRef}.keyornum`) as string; // 获得持久化的变量
-    const isdiscardDOI = Zotero.Prefs.get(
-      `${config.addonRef}.discardDOI`,
-    ) as boolean; // 获得持久化的变量
-    const bibemptyline = Zotero.Prefs.get(
-      `${config.addonRef}.bibemptyline`,
-    ) as boolean; // 获得持久化的变量
+    const isdiscardDOI = Zotero.Prefs.get(`${config.addonRef}.discardDOI`) as boolean; // 获得持久化的变量
+    const bibemptyline = Zotero.Prefs.get(`${config.addonRef}.bibemptyline`) as boolean; // 获得持久化的变量
     let bibprenum = 1;
 
     for (let i = 0; i < ruleItemCount; i++) {
@@ -474,21 +390,11 @@ class Selected {
         }
 
         // 方式一: 直接调用
-        citestr_arr[i] = Zotero.Cite.makeFormattedBibliographyOrCitationList(
-          cslEngine,
-          [item],
-          "text",
-        );
+        citestr_arr[i] = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, [item], "text");
         // 根据正则表达式, 替换参考文献开头的多余信息
         // 1. 处理 [1] 或者 1. 或者 (1) 这种情况, 改成 \bibitem{key}
         // 2. 处理 等. --> et al. 或者 et al.--> 等.
-        const [f, s, n] = StringUtil.handleBibtoFormat1(
-          citestr_arr[i],
-          nkey[i],
-          keyornum,
-          bibprenum,
-          isdiscardDOI,
-        );
+        const [f, s, n] = StringUtil.handleBibtoFormat1(citestr_arr[i], nkey[i], keyornum, bibprenum, isdiscardDOI);
         bibprenum += 1;
         fianl_bib[i] = f;
         if (s) successfulCount.push(i);
@@ -508,23 +414,15 @@ class Selected {
     let finalBib_str = ""; // 生成最终的参考文献字符串
     // 生成最终的参考文献字符串//
     if (sortindex === 0 || fianl_biblength !== ruleItemCount) {
-      finalBib_str = fianl_bib
-        .filter((item) => Boolean(item))
-        .join(newseparator); // 过滤掉空值
+      finalBib_str = fianl_bib.filter((item) => Boolean(item)).join(newseparator); // 过滤掉空值
     } else {
       const id_arr = []; // 记录条目的原始顺序
       for (let i = 0; i < fianl_biblength; i++) {
         id_arr.push(i);
       }
       // 这里可以根据 ['originid','nkey','ntitle','nauthor','id']; 排序, 这里 origin_id === id_arr
-      const sortarr = StringUtil.sortColumns(
-        [fianl_bib, nkey, ntitle, nauthor, id_arr],
-        sortindex,
-        true,
-      ); // 始终把 fianl_bib 放在第一列,然后执行更改数字即可排序
-      finalBib_str = sortarr[0]
-        .filter((item: any) => Boolean(item))
-        .join(newseparator); // 选择适当的列排序, 过滤掉空值
+      const sortarr = StringUtil.sortColumns([fianl_bib, nkey, ntitle, nauthor, id_arr], sortindex, true); // 始终把 fianl_bib 放在第一列,然后执行更改数字即可排序
+      finalBib_str = sortarr[0].filter((item: any) => Boolean(item)).join(newseparator); // 选择适当的列排序, 过滤掉空值
     }
 
     const resultInfo = new ResultInfo();
@@ -561,20 +459,14 @@ class Selected {
     const cslEngine = Basefun.getQuickCopyFormat2();
 
     // 3. 获取排序的方式
-    const sortoptions = Zotero.Prefs.get(
-      `${config.addonRef}.sortoptions`,
-    ) as string; // 获得持久化的变量
+    const sortoptions = Zotero.Prefs.get(`${config.addonRef}.sortoptions`) as string; // 获得持久化的变量
     const optionarr = ["originid", "nkey", "ntitle", "nauthor", "id"];
     let sortindex = optionarr.indexOf(sortoptions);
     sortindex = sortindex === -1 ? 0 : sortindex;
     // 获取bib format
     const keyornum = Zotero.Prefs.get(`${config.addonRef}.keyornum`) as string; // 获得持久化的变量
-    const isdiscardDOI = Zotero.Prefs.get(
-      `${config.addonRef}.discardDOI`,
-    ) as boolean; // 获得持久化的变量
-    const bibemptyline = Zotero.Prefs.get(
-      `${config.addonRef}.bibemptyline`,
-    ) as boolean; // 获得持久化的变量
+    const isdiscardDOI = Zotero.Prefs.get(`${config.addonRef}.discardDOI`) as boolean; // 获得持久化的变量
+    const bibemptyline = Zotero.Prefs.get(`${config.addonRef}.bibemptyline`) as boolean; // 获得持久化的变量
     let bibprenum = 1;
 
     for (let i = 0; i < ruleItemCount; i++) {
@@ -602,33 +494,19 @@ class Selected {
         // 方式一: 直接调用
         //citestr_arr[i] = await Zotero.QuickCopy.getContentFromItems([item],format).text; // 返回当前条目的参考文献
         // 方式二: 忽略某些 html,直接返回 text
-        citestr_arr[i] = Zotero.Cite.makeFormattedBibliographyOrCitationList(
-          cslEngine,
-          [item],
-          "text",
-        );
+        citestr_arr[i] = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, [item], "text");
         // 根据正则表达式, 替换参考文献开头的多余信息, 先进行关键词分割成三段, 然后对第一段进行处理, 最后再合并
         // 1. 处理 [1] 或者 1. 或者 (1) 这种情况, 改成 \bibitem{key}
         // 2. 处理 等. --> et al. 或者 et al. --> 等
         // 3. 处理 多个作者中的& 以及\& --> and
-        const bib_arr = StringUtil.splitStringByKeywords(
-          citestr_arr[i],
-          nauthor[i],
-          nTitle[i],
-        );
+        const bib_arr = StringUtil.splitStringByKeywords(citestr_arr[i], nauthor[i], nTitle[i]);
         // 根据关键词分割字符串
 
         if (!bib_arr || bib_arr.length !== 3) {
           fianl_bib[i] = citestr_arr[i];
           noActionCount.push(i);
         } else {
-          fianl_bib[i] = StringUtil.handleBibtoFormat2(
-            bib_arr,
-            nkey[i],
-            keyornum,
-            bibprenum,
-            isdiscardDOI,
-          );
+          fianl_bib[i] = StringUtil.handleBibtoFormat2(bib_arr, nkey[i], keyornum, bibprenum, isdiscardDOI);
           bibprenum += 1;
           successfulCount.push(i);
         }
@@ -647,23 +525,15 @@ class Selected {
     let finalBib_str = ""; // 生成最终的参考文献字符串
     // 生成最终的参考文献字符串//
     if (sortindex === 0 || fianl_biblength !== ruleItemCount) {
-      finalBib_str = fianl_bib
-        .filter((item) => Boolean(item))
-        .join(newseparator); // 过滤掉空值
+      finalBib_str = fianl_bib.filter((item) => Boolean(item)).join(newseparator); // 过滤掉空值
     } else {
       const id_arr = []; // 记录条目的原始顺序
       for (let i = 0; i < fianl_biblength; i++) {
         id_arr.push(i);
       }
       // 这里可以根据 ['originid','nkey','ntitle','nauthor','id']; 排序
-      const sortarr = StringUtil.sortColumns(
-        [fianl_bib, nkey, ntitle, nauthor, id_arr],
-        sortindex,
-        true,
-      ); // 始终把 fianl_bib 放在第一列,然后执行更改数字即可排序
-      finalBib_str = sortarr[0]
-        .filter((item: any) => Boolean(item))
-        .join(newseparator); // 选择适当的列排序, 过滤掉空值
+      const sortarr = StringUtil.sortColumns([fianl_bib, nkey, ntitle, nauthor, id_arr], sortindex, true); // 始终把 fianl_bib 放在第一列,然后执行更改数字即可排序
+      finalBib_str = sortarr[0].filter((item: any) => Boolean(item)).join(newseparator); // 选择适当的列排序, 过滤掉空值
     }
 
     const resultInfo = new ResultInfo();
@@ -745,13 +615,7 @@ class SelectedWithHandler {
     };
   }
 
-  static updateJournalAbbrHandler(
-    data: { [key: string]: any },
-    oldField: string,
-    newField: string,
-    addtagsname: string[],
-    removetagsname: string[],
-  ) {
+  static updateJournalAbbrHandler(data: { [key: string]: any }, oldField: string, newField: string, addtagsname: string[], removetagsname: string[]) {
     return async (item: any) => {
       const currentjournal = await item.getField(oldField);
       const currentabbr = await item.getField(newField);
@@ -759,11 +623,7 @@ class SelectedWithHandler {
         return false;
       }
 
-      const journalKey = currentjournal
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, " ")
-        .trim();
+      const journalKey = currentjournal.trim().toLowerCase().replace(/\s+/g, " ").trim();
       const data_in_journal = data[journalKey];
       if (!journalKey || !data_in_journal) {
         return false;
@@ -775,10 +635,7 @@ class SelectedWithHandler {
         // not identical, update
         item.setField(newField, data_in_journal);
       }
-      if (
-        (addtagsname.length == 1 && addtagsname[0] == "") ||
-        (removetagsname.length == 1 && removetagsname[0] == "")
-      ) {
+      if ((addtagsname.length == 1 && addtagsname[0] == "") || (removetagsname.length == 1 && removetagsname[0] == "")) {
         if (!isIdentical) {
           await item.saveTx();
         }
@@ -790,12 +647,8 @@ class SelectedWithHandler {
       addtagsname = addtagsname.map((tag) => tag.trim());
       removetagsname = removetagsname.map((tag) => tag.trim());
 
-      const removeTags = removetagsname.filter((tag) =>
-        tags.some((t: any) => t.tag === tag),
-      );
-      const addTags = addtagsname.filter(
-        (tag) => !tags.some((t: any) => t.tag === tag),
-      );
+      const removeTags = removetagsname.filter((tag) => tags.some((t: any) => t.tag === tag));
+      const addTags = addtagsname.filter((tag) => !tags.some((t: any) => t.tag === tag));
 
       removeTags.forEach((tag) => item.removeTag(tag));
       addTags.forEach((tag) => item.addTag(tag));
@@ -807,13 +660,7 @@ class SelectedWithHandler {
     };
   }
 
-  static updateJournalAbbrHandlerISO4(
-    data: { [key: string]: any },
-    oldField: string,
-    newField: string,
-    addtagsname: string[],
-    removetagsname: string[],
-  ) {
+  static updateJournalAbbrHandlerISO4(data: { [key: string]: any }, oldField: string, newField: string, addtagsname: string[], removetagsname: string[]) {
     return async (item: any) => {
       let currentjournal = await item.getField(oldField);
       const currentabbr = await item.getField(newField);
@@ -834,10 +681,7 @@ class SelectedWithHandler {
         item.setField(newField, abbred_iso4_journal);
       }
 
-      if (
-        (addtagsname.length == 1 && addtagsname[0] == "") ||
-        (removetagsname.length == 1 && removetagsname[0] == "")
-      ) {
+      if ((addtagsname.length == 1 && addtagsname[0] == "") || (removetagsname.length == 1 && removetagsname[0] == "")) {
         if (!isIdentical) {
           await item.saveTx();
         }
@@ -848,12 +692,8 @@ class SelectedWithHandler {
       addtagsname = addtagsname.map((tag) => tag.trim());
       removetagsname = removetagsname.map((tag) => tag.trim());
 
-      const removeTags = removetagsname.filter((tag) =>
-        tags.some((t: any) => t.tag === tag),
-      );
-      const addTags = addtagsname.filter(
-        (tag) => !tags.some((t: any) => t.tag === tag),
-      );
+      const removeTags = removetagsname.filter((tag) => tags.some((t: any) => t.tag === tag));
+      const addTags = addtagsname.filter((tag) => !tags.some((t: any) => t.tag === tag));
 
       removeTags.forEach((tag) => item.removeTag(tag));
       addTags.forEach((tag) => item.addTag(tag));
@@ -909,9 +749,7 @@ class FeildExport {
      */
 
     if (Array.isArray(authors) && authors.length > 0) {
-      const formattedAuthors = authors.map((author) =>
-        `${author.firstName} ${author.lastName}`.trim(),
-      );
+      const formattedAuthors = authors.map((author) => `${author.firstName} ${author.lastName}`.trim());
       return formattedAuthors.join(", ").trim();
     } else {
       return "";
@@ -1053,12 +891,7 @@ class FeildExport {
     return maxAuthorNum;
   }
 
-  static getItemData(
-    item: any,
-    selectTagSets: any,
-    maxAuthorNum: number,
-    cslEngine: any,
-  ) {
+  static getItemData(item: any, selectTagSets: any, maxAuthorNum: number, cslEngine: any) {
     /**
      * 参数: item:  传递的 item
      *      selectTagSets: 选择的标签集合
@@ -1082,11 +915,7 @@ class FeildExport {
     const item_publicationTitle = this.getPublicationTitleForItemType(item);
     const item_journalAbbreviation = item.getField("journalAbbreviation");
     // 处理参考文献引用(原封不动)
-    let item_ref = Zotero.Cite.makeFormattedBibliographyOrCitationList(
-      cslEngine,
-      [item],
-      "text",
-    );
+    let item_ref = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, [item], "text");
     item_ref = item_ref.trim();
     // 处理参考文献引用2(去除[1])
     const item_ref2 = item_ref.replace(/^\[\d+\]|\(\d+\)|\d+\./, "").trim();
@@ -1119,12 +948,7 @@ class FeildExport {
       jsonData_part_2[keyA] = item_tags.has(keyA) ? 1 : 0;
     });
     // 合并多个对象
-    const jsonData = Object.assign(
-      {},
-      jsonData_part_1,
-      item_authors2obj,
-      jsonData_part_2,
-    );
+    const jsonData = Object.assign({}, jsonData_part_1, item_authors2obj, jsonData_part_2);
     return jsonData;
   }
 
@@ -1141,12 +965,7 @@ class FeildExport {
 
     // 循环每个 item, 获取数据
     for (const item of items) {
-      const itemdata = this.getItemData(
-        item,
-        selectTagSets,
-        maxAuthorNum,
-        cslEngine,
-      );
+      const itemdata = this.getItemData(item, selectTagSets, maxAuthorNum, cslEngine);
       ItemsData.push(itemdata);
     }
     if (filetype == "json") {

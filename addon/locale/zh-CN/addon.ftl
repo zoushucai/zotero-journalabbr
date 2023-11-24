@@ -46,6 +46,7 @@ prompt-show-bib-title=采用的参考文献样式如下:
 prompt-show-readfile-less-info=不符合要求行有(已忽略):
 prompt-show-readfile-more-info=不符合要求的总行数为(已忽略):
 prompt-show-disabled-info=选'exchange'标签条目；功能受限。
+prompt-show-regular-valid=正则有效
 
 prompt-fail-abbrTolower-info=小写简写期刊失败
 prompt-fail-abbrToupper-info=大写简写期刊失败

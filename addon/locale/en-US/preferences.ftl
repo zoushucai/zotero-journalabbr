@@ -20,5 +20,13 @@ keyornum-label = bib format:
 discardDOI-label = discard DOI
 bibemptyline-label = Separator is an empty line
 
+pref-title-three = Tags
+addAutotags-label = Add/Remove abbr auto tags
+
+pref-title-four = Custom replacement rules
+isreplaceJsoncFile-label = jsonc file (experimental)
+addRegexAutotags-label = Add/Remove regex auto tags
+pref-replaceJsonFile= Input the json address:  
+
 help-version-label = __addonName__ VERSION __buildVersion__
 help-releasetime-label = Build __buildTime__

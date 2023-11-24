@@ -102,6 +102,9 @@ async function onDialogEvents(type: string, event: Event) {
     case "buttonExample":
       await HelperAbbrFactory.buttonSelectFilePath();
       break;
+    case "buttonExampleJson":
+        await HelperAbbrFactory.buttonJsonSelectFilePath();
+        break;
     case "showChangeEventInfo":
       BasicExampleFactory.showChangeEventInfo(event);
       break;
