@@ -15,6 +15,14 @@ const buildDir = "build";
 
 const isPreRelease = version.includes("-");
 
+// If it is a pre-release, use update-beta.json
+config.updateURL = isPreRelease ? config.updateBetaJSON : config.updateJSON;
+
+const updateJSONFile = isPreRelease ? "update-beta.json" : "update.json";
+const updateLink = isPreRelease
+  ? `${config.releasePage}/download/v${version}/${name}.xpi`
+  : `${config.releasePage}/latest/download/${name}.xpi`;
+
 function copyFileSync(source, target) {
   var targetFile = target;
 
@@ -101,8 +109,22 @@ function renameLocaleFiles() {
 }
 
 function replaceString() {
-  const replaceFrom = [/__author__/g, /__description__/g, /__homepage__/g, /__buildVersion__/g, /__buildTime__/g];
-  const replaceTo = [author, description, homepage, version, buildTime];
+  const replaceFrom = [
+    /__author__/g,
+    /__description__/g,
+    /__homepage__/g,
+    /__buildVersion__/g,
+    /__buildTime__/g,
+    /__updateLink__/g,
+  ];
+  const replaceTo = [
+    author,
+    description,
+    homepage,
+    version,
+    buildTime,
+    updateLink,
+  ];
 
   replaceFrom.push(...Object.keys(config).map((k) => new RegExp(`__${k}__`, "g")));
   replaceTo.push(...Object.values(config));
@@ -121,9 +143,7 @@ function replaceString() {
     countMatches: true,
   };
 
-  if (!isPreRelease) {
-    optionsAddon.files.push("update.json");
-  }
+  optionsAddon.files.push(updateJSONFile);
 
   const replaceResult = replaceInFileSync(optionsAddon);
 
@@ -196,11 +216,7 @@ async function main() {
 
   copyFolderRecursiveSync("addon", buildDir);
 
-  if (isPreRelease) {
-    console.log("[Build] [Warn] Running in pre-release mode. update.json will not be replaced.");
-  } else {
-    copyFileSync("update-template.json", "update.json");
-  }
+  copyFileSync("update-template.json", updateJSONFile);
 
   await esbuild();
 
