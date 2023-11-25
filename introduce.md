@@ -119,9 +119,9 @@
 itemType         ---   searchField     ---->     replaceField
 --------------------------------------------------------------
 thesis           ---  university       ---->  university (abbr)
-book             ---  publisher        ---->  university (abbr)
+book             ---  publisher        ---->  publisher (abbr)
 journalArticle   ---  publicationTitle ---->  journalAbbreviation (abbr)
 conferencePaper  ---  conferenceName   ---->  conferenceName (abbr)
-preprint         ---  repository       ---->  conferenceName (abbr)
-bookSection      ---  publisher        ---->  conferenceName (abbr)
+preprint         ---  repository       ---->  repository (abbr)
+bookSection      ---  publisher        ---->  publisher (abbr)
 ```
