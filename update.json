@@ -3,7 +3,7 @@
     "journalabbr@zsc.com": {
       "updates": [
         {
-          "version": "1.0.2",
+          "version": "0.7.8",
           "update_link": "https://github.com/zoushucai/zotero-journalabbr/releases/latest/download/zotero-journalabbr.xpi",
           "applications": {
             "zotero": {
