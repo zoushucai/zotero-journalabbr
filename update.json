@@ -3,10 +3,10 @@
     "journalabbr@zsc.com": {
       "updates": [
         {
-          "version": "0.7.7",
+          "version": "0.7.8",
           //"update_link": "https://github.com/zoushucai/zotero-journalabbr/releases/latest/download/zotero-journalabbr.xpi",
           //"update_link": "https://github.com/zoushucai/zotero-journalabbr/releases/latest/download/zotero-journalabbr.xpi",
-          "update_link": "https://github.com/zoushucai/zotero-journalabbr/releases/download/0.7.7/zotero-journalabbr.xpi",
+          "update_link": "https://github.com/zoushucai/zotero-journalabbr/releases/download/0.7.8/zotero-journalabbr.xpi",
           "applications": {
             "zotero": {
               "strict_min_version": "6.999"
