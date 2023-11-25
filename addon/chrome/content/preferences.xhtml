@@ -8,8 +8,13 @@
     </label>
     <div style="display: inline-flex; align-items: center">
       <html:label data-l10n-id="pref-separator"></html:label>
-      <radiogroup id="__addonRef__-separator" preference="__prefsPrefix__.separator" orient="horizontal" native="true"
-        oncommand="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);">
+      <radiogroup
+        id="__addonRef__-separator"
+        preference="__prefsPrefix__.separator"
+        orient="horizontal"
+        native="true"
+        oncommand="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
+      >
         <radio data-l10n-id="pref-separator-semicolon" value=";" />
         <radio data-l10n-id="pref-separator-comma" value="," />
         <radio data-l10n-id="pref-separator-auto" value="," />
@@ -18,10 +23,14 @@
 
     <div style="display: inline-flex; align-items: center">
       <html:label data-l10n-id="pref-input"></html:label>
-      <html:input type="text" id="__addonRef__-input" preference="__prefsPrefix__.input" style="width: 360px">
-      </html:input>
-      <button id="__addonRef__-button" data-l10n-id="pref-button" disabled="false" hidden="false"
-        oncommand="Zotero.__addonInstance__.hooks.onDialogEvents('buttonExample')"></button>
+      <html:input type="text" id="__addonRef__-input" preference="__prefsPrefix__.input" style="width: 360px"> </html:input>
+      <button
+        id="__addonRef__-button"
+        data-l10n-id="pref-button"
+        disabled="false"
+        hidden="false"
+        oncommand="Zotero.__addonInstance__.hooks.onDialogEvents('buttonExample')"
+      ></button>
     </div>
   </groupbox>
 
@@ -37,12 +46,20 @@
       <box id="__addonRef__-keyornum"></box>
     </hox>
     <div style="display: flex; align-items: center">
-      <html:input type="checkbox" id="__addonRef__-discardDOI" preference="__prefsPrefix__.discardDOI"
-        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"></html:input>
+      <html:input
+        type="checkbox"
+        id="__addonRef__-discardDOI"
+        preference="__prefsPrefix__.discardDOI"
+        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
+      ></html:input>
       <html:label data-l10n-id="discardDOI-label" style="margin-right: 13%"></html:label>
 
-      <html:input type="checkbox" id="__addonRef__-bibemptyline" preference="__prefsPrefix__.bibemptyline"
-        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"></html:input>
+      <html:input
+        type="checkbox"
+        id="__addonRef__-bibemptyline"
+        preference="__prefsPrefix__.bibemptyline"
+        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
+      ></html:input>
       <html:label data-l10n-id="bibemptyline-label"></html:label>
     </div>
   </groupbox>
@@ -52,8 +69,12 @@
       <html:h2 data-l10n-id="pref-title-three"></html:h2>
     </label>
     <hbox style="display: flex; align-items: center">
-      <html:input type="checkbox" id="__addonRef__-addAutotags" preference="__prefsPrefix__.addAutotags"
-        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"></html:input>
+      <html:input
+        type="checkbox"
+        id="__addonRef__-addAutotags"
+        preference="__prefsPrefix__.addAutotags"
+        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
+      ></html:input>
       <html:label data-l10n-id="addAutotags-label" style="margin-right: 13%"></html:label>
     </hbox>
   </groupbox>
@@ -67,18 +88,26 @@
       <html:label data-l10n-id="isreplaceJsoncFile-label" style="margin-right: 13%"></html:label>
     </hbox> -->
     <hbox style="display: flex; align-items: center">
-      <html:input type="checkbox" id="__addonRef__-addRegexAutotags" preference="__prefsPrefix__.addRegexAutotags"
-        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"></html:input>
+      <html:input
+        type="checkbox"
+        id="__addonRef__-addRegexAutotags"
+        preference="__prefsPrefix__.addRegexAutotags"
+        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
+      ></html:input>
       <html:label data-l10n-id="addRegexAutotags-label" style="margin-right: 13%"></html:label>
     </hbox>
     <!-- html:label 中的 id 是显示标签的 -->
     <!-- html:input 中的 id 和 preference 适合 prefs 文件中的配置信息相关, 根据配置信息显示所需内容 -->
     <div style="display: inline-flex; align-items: center">
-      <html:label data-l10n-id="pref-replaceJsonFile"></html:label>  
-      <html:input type="text" id="__addonRef__-replaceJsonFile" preference="__prefsPrefix__.replaceJsonFile" style="width: 360px">
-      </html:input>
-      <button id="__addonRef__-button" data-l10n-id="pref-button" disabled="false" hidden="false"
-        oncommand="Zotero.__addonInstance__.hooks.onDialogEvents('buttonExampleJson')"></button>
+      <html:label data-l10n-id="pref-replaceJsonFile"></html:label>
+      <html:input type="text" id="__addonRef__-replaceJsonFile" preference="__prefsPrefix__.replaceJsonFile" style="width: 360px"> </html:input>
+      <button
+        id="__addonRef__-button"
+        data-l10n-id="pref-button"
+        disabled="false"
+        hidden="false"
+        oncommand="Zotero.__addonInstance__.hooks.onDialogEvents('buttonExampleJson')"
+      ></button>
     </div>
   </groupbox>
 </vbox>

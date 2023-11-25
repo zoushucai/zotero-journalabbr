@@ -1,7 +1,7 @@
 import { config } from "../../package.json";
 import { getString } from "../utils/locale";
 import { journal_abbr } from "./data";
-import { replaceHandle , filterValidEntries} from "./replacehandle";
+import { replaceHandle, filterValidEntries } from "./replacehandle";
 import {
   Basefun, // 基础的选择函数
   Selected, // for 循环来处理
@@ -456,7 +456,7 @@ export class UIExampleFactory {
           id: "zotero-itemmenu-abbr-journal-itemBoxRowabbr",
           label: "abbrall",
           commandListener: (ev) => HelperAbbrFactory.JA_transferAllItemsToCustomField(),
-        }
+        },
         // {
         //   tag: "menuitem",
         //   label: "test", // 子菜单: 测试
@@ -638,7 +638,7 @@ export class HelperAbbrFactory {
   @example
   static async buttonJsonSelectFilePath() {
     const mypath = await BasicExampleFactory.filePickerExample();
-    
+
     // 判断选择的地址是否为空
     if (!mypath) {
       BasicExampleFactory.ShowPopUP(getString("prompt-show-cancel-selectpath-info"));
@@ -657,7 +657,6 @@ export class HelperAbbrFactory {
 
     const addtagsname: string[] = isselect_addAutotags ? ["abbr"] : ["abbr_user", "abbr_iso4"];
     const removetagsname: string[] = isselect_addAutotags ? [] : ["abbr"];
-
 
     await Selected.updateJournalAbbr(
       journal_abbr,
@@ -681,7 +680,6 @@ export class HelperAbbrFactory {
     const addtagsname: string[] = isselect_addAutotags ? ["abbr_user"] : ["abbr", "abbr_iso4"];
     const removetagsname: string[] = isselect_addAutotags ? [] : ["abbr_user"];
 
-
     // 更新期刊缩写 -- 返回的信息为 已有 2/2 条目缩写更新
     await Selected.updateJournalAbbr(
       user_abbr_data,
@@ -696,7 +694,6 @@ export class HelperAbbrFactory {
   }
   // 3. 采用 ISO4 规则进行更新
   static async JA_update_UseISO4() {
-
     // BasicExampleFactory.ShowPopUP(`${Zotero.Prefs.get(config.addonRef + ".addAutotags")}`);
     const isselect_addAutotags = Zotero.Prefs.get(config.addonRef + ".addAutotags");
 
@@ -853,12 +850,11 @@ export class HelperAbbrFactory {
 
     const data = filterValidEntries(jsondata);
     Zotero.debug(`valid data number: ${data.length}`);
-    BasicExampleFactory.ShowStatus(jsondata.length, data.length,  getString("prompt-show-regular-valid"));
+    BasicExampleFactory.ShowStatus(jsondata.length, data.length, getString("prompt-show-regular-valid"));
     if (!data || data.length === 0) {
       return;
     }
 
     await replaceHandle.replacejson(data, addtagsname, removetagsname);
-  
   }
 }

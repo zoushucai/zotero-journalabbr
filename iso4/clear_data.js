@@ -60,11 +60,7 @@ for (let key of toDelete) {
 console.log(`已删除${toDelete.length}个条目。`);
 // 4. 保存数据
 
-let jsContent = `const journal_abbr = ${JSON.stringify(
-  journal_abbr,
-  null,
-  2,
-)}; \n 
+let jsContent = `const journal_abbr = ${JSON.stringify(journal_abbr, null, 2)}; \n 
 export { journal_abbr };
 `;
 fs.writeFileSync("datanew.js", jsContent, "utf8");

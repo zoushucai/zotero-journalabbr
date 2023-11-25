@@ -1,16 +1,7 @@
 import { build } from "esbuild";
 import { zip } from "compressing";
 import path from "path";
-import {
-  existsSync,
-  lstatSync,
-  writeFileSync,
-  readFileSync,
-  mkdirSync,
-  readdirSync,
-  rmSync,
-  renameSync,
-} from "fs";
+import { existsSync, lstatSync, writeFileSync, readFileSync, mkdirSync, readdirSync, rmSync, renameSync } from "fs";
 import { env, exit } from "process";
 import replaceInFile from "replace-in-file";
 const { replaceInFileSync } = replaceInFile;
@@ -81,10 +72,7 @@ function dateFormat(fmt, date) {
   for (let k in opt) {
     ret = new RegExp("(" + k + ")").exec(fmt);
     if (ret) {
-      fmt = fmt.replace(
-        ret[1],
-        ret[1].length == 1 ? opt[k] : opt[k].padStart(ret[1].length, "0"),
-      );
+      fmt = fmt.replace(ret[1], ret[1].length == 1 ? opt[k] : opt[k].padStart(ret[1].length, "0"));
     }
   }
   return fmt;
@@ -106,28 +94,17 @@ function renameLocaleFiles() {
 
     for (const localeSubFile of localeSubFiles) {
       if (localeSubFile.endsWith(".ftl")) {
-        renameSync(
-          path.join(localeSubDir, localeSubFile),
-          path.join(localeSubDir, `${config.addonRef}-${localeSubFile}`),
-        );
+        renameSync(path.join(localeSubDir, localeSubFile), path.join(localeSubDir, `${config.addonRef}-${localeSubFile}`));
       }
     }
   }
 }
 
 function replaceString() {
-  const replaceFrom = [
-    /__author__/g,
-    /__description__/g,
-    /__homepage__/g,
-    /__buildVersion__/g,
-    /__buildTime__/g,
-  ];
+  const replaceFrom = [/__author__/g, /__description__/g, /__homepage__/g, /__buildVersion__/g, /__buildTime__/g];
   const replaceTo = [author, description, homepage, version, buildTime];
 
-  replaceFrom.push(
-    ...Object.keys(config).map((k) => new RegExp(`__${k}__`, "g")),
-  );
+  replaceFrom.push(...Object.keys(config).map((k) => new RegExp(`__${k}__`, "g")));
   replaceTo.push(...Object.values(config));
 
   const optionsAddon = {
@@ -159,9 +136,7 @@ function replaceString() {
       const lines = fltContent.split("\n");
       const prefixedLines = lines.map((line) => {
         // https://regex101.com/r/lQ9x5p/1
-        const match = line.match(
-          /^(?<message>[a-zA-Z]\S*)([ ]*=[ ]*)(?<pattern>.*)$/m,
-        );
+        const match = line.match(/^(?<message>[a-zA-Z]\S*)([ ]*=[ ]*)(?<pattern>.*)$/m);
         if (match) {
           localeMessage.add(match.groups.message);
           return `${config.addonRef}-${line}`;
@@ -179,10 +154,7 @@ function replaceString() {
       const matchs = [...input.matchAll(/(data-l10n-id)="(\S*)"/g)];
       matchs.map((match) => {
         if (localeMessage.has(match[2])) {
-          input = input.replace(
-            match[0],
-            `${match[1]}="${config.addonRef}-${match[2]}"`,
-          );
+          input = input.replace(match[0], `${match[1]}="${config.addonRef}-${match[2]}"`);
         } else {
           localeMessageMiss.add(match[2]);
         }
@@ -193,19 +165,13 @@ function replaceString() {
 
   console.log(
     "[Build] Run replace in ",
-    replaceResult
-      .filter((f) => f.hasChanged)
-      .map((f) => `${f.file} : ${f.numReplacements} / ${f.numMatches}`),
+    replaceResult.filter((f) => f.hasChanged).map((f) => `${f.file} : ${f.numReplacements} / ${f.numMatches}`),
     replaceResultFlt.filter((f) => f.hasChanged).map((f) => `${f.file} : OK`),
     replaceResultXhtml.filter((f) => f.hasChanged).map((f) => `${f.file} : OK`),
   );
 
   if (localeMessageMiss.size !== 0) {
-    console.warn(
-      `[Build] [Warn] Fluent message [${new Array(
-        ...localeMessageMiss,
-      )}] do not exsit in addon's locale files.`,
-    );
+    console.warn(`[Build] [Warn] Fluent message [${new Array(...localeMessageMiss)}] do not exsit in addon's locale files.`);
   }
 }
 
@@ -217,30 +183,21 @@ async function esbuild() {
     },
     bundle: true,
     target: "firefox102",
-    outfile: path.join(
-      buildDir,
-      `addon/chrome/content/scripts/${config.addonRef}.js`,
-    ),
+    outfile: path.join(buildDir, `addon/chrome/content/scripts/${config.addonRef}.js`),
     // Don't turn minify on
     // minify: true,
   }).catch(() => exit(1));
 }
 
 async function main() {
-  console.log(
-    `[Build] BUILD_DIR=${buildDir}, VERSION=${version}, BUILD_TIME=${buildTime}, ENV=${[
-      env.NODE_ENV,
-    ]}`,
-  );
+  console.log(`[Build] BUILD_DIR=${buildDir}, VERSION=${version}, BUILD_TIME=${buildTime}, ENV=${[env.NODE_ENV]}`);
 
   clearFolder(buildDir);
 
   copyFolderRecursiveSync("addon", buildDir);
 
   if (isPreRelease) {
-    console.log(
-      "[Build] [Warn] Running in pre-release mode. update.json will not be replaced.",
-    );
+    console.log("[Build] [Warn] Running in pre-release mode. update.json will not be replaced.");
   } else {
     copyFileSync("update-template.json", "update.json");
   }
@@ -258,18 +215,12 @@ async function main() {
 
   console.log("[Build] Addon prepare OK");
 
-  await zip.compressDir(
-    path.join(buildDir, "addon"),
-    path.join(buildDir, `${name}.xpi`),
-    {
-      ignoreBase: true,
-    },
-  );
+  await zip.compressDir(path.join(buildDir, "addon"), path.join(buildDir, `${name}.xpi`), {
+    ignoreBase: true,
+  });
 
   console.log("[Build] Addon pack OK");
-  console.log(
-    `[Build] Finished in ${(new Date().getTime() - t.getTime()) / 1000} s.`,
-  );
+  console.log(`[Build] Finished in ${(new Date().getTime() - t.getTime()) / 1000} s.`);
 }
 
 main().catch((err) => {
