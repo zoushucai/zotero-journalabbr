@@ -19,9 +19,7 @@ const isPreRelease = version.includes("-");
 config.updateURL = isPreRelease ? config.updateBetaJSON : config.updateJSON;
 
 const updateJSONFile = isPreRelease ? "update-beta.json" : "update.json";
-const updateLink = isPreRelease
-  ? `${config.releasePage}/download/v${version}/${name}.xpi`
-  : `${config.releasePage}/latest/download/${name}.xpi`;
+const updateLink = isPreRelease ? `${config.releasePage}/download/v${version}/${name}.xpi` : `${config.releasePage}/latest/download/${name}.xpi`;
 
 function copyFileSync(source, target) {
   var targetFile = target;
@@ -109,22 +107,8 @@ function renameLocaleFiles() {
 }
 
 function replaceString() {
-  const replaceFrom = [
-    /__author__/g,
-    /__description__/g,
-    /__homepage__/g,
-    /__buildVersion__/g,
-    /__buildTime__/g,
-    /__updateLink__/g,
-  ];
-  const replaceTo = [
-    author,
-    description,
-    homepage,
-    version,
-    buildTime,
-    updateLink,
-  ];
+  const replaceFrom = [/__author__/g, /__description__/g, /__homepage__/g, /__buildVersion__/g, /__buildTime__/g, /__updateLink__/g];
+  const replaceTo = [author, description, homepage, version, buildTime, updateLink];
 
   replaceFrom.push(...Object.keys(config).map((k) => new RegExp(`__${k}__`, "g")));
   replaceTo.push(...Object.values(config));
