@@ -164,23 +164,25 @@ const ItemField = [
 
 const SearchType = ["string", "regex"];
 const ReplaceType = ["string", "regex", "function"];
-
+const StrMethodName = ["replace", "match"];
 function isValidType(value: any, type: any) {
   return typeof value === type;
 }
 
 function filterValidEntries(objectsArray: any[]) {
   const filteredObjects = objectsArray.filter((obj: any) => {
-    const { itemType, searchField, replaceField, searchType, searchString, replaceType, replaceString } = obj;
+    const { itemType, searchField, replaceField, methodName, searchType, searchString, replaceType, replaceString } = obj;
     return (
       ItemType.includes(itemType) &&
       ItemField.includes(searchField) &&
       ItemField.includes(replaceField) &&
+      StrMethodName.includes(methodName) &&
       SearchType.includes(searchType) &&
       ReplaceType.includes(replaceType) &&
       isValidType(itemType, "string") &&
       isValidType(searchField, "string") &&
       isValidType(replaceField, "string") &&
+      isValidType(methodName, "string") &&
       isValidType(searchType, "string") &&
       isValidType(searchString, "string") &&
       isValidType(replaceType, "string") &&
@@ -191,12 +193,13 @@ function filterValidEntries(objectsArray: any[]) {
 }
 
 class replaceHandle {
-  static async sreplace(text: string, searchType: string, searchString: string, replaceType: string, replaceString: string) {
-    // 简单验证一下输入的参数是否合法
-    if (!text || !searchType || !searchString || !replaceType || !replaceString) {
+  static async sreplace(text: string, methodName: string, searchType: string, searchString: string, replaceType: string, replaceString: string) {
+    // 简单验证一下输入的参数是否合法, 注意:  replaceString 可以为空, 即 replaceString === ""
+    if (!text || !searchType || !searchString || !replaceType ) {
       return -654321;
     }
-
+  
+    
     // 定义替换方式的对象映射
     const replaceMethods = {
       regex: (str: string) => {
@@ -217,21 +220,28 @@ class replaceHandle {
       },
     };
 
-    // 根据 searchType 创建相应的正则表达式或者字符串
     const searchvar = searchType === "regex" ? replaceMethods.regex(searchString) : searchString;
-
-    // 根据 replaceType 决定如何替换
-    const replaceFunction = replaceMethods[replaceType as keyof typeof replaceMethods];
-    const replacevar = replaceFunction ? replaceFunction(replaceString) : null;
-    // const replacevar = replaceMethods[replaceType] ? replaceMethods[replaceType](replaceString) : null;
-
-    if (!searchvar || !replacevar || (replaceType === "function" && typeof replacevar !== "function")) {
+    if (!searchvar) return -654321;
+    if(methodName === "match"){
+      const matchcontent = text[methodName](searchvar) || "";
+      if (Array.isArray(matchcontent) && matchcontent.length > 1) return matchcontent.join(" ");
+      return matchcontent.toString();
+    }else if(methodName === "replace"){
+      let replacevar;
+      if ( replaceType === "regex" || replaceType === "string"){
+        replacevar = replaceString;
+      }else if (replaceType === "function"){
+        const replaceFunction = replaceMethods[replaceType as keyof typeof replaceMethods];
+        replacevar = replaceFunction ? replaceFunction(replaceString) : null;
+        if (typeof replacevar !== "function") return -654321;
+      }else{
+        return -654321;
+      }
+      return text[methodName](searchvar, replacevar);
+    }else{
       return -654321;
     }
-
-    return text.replace(searchvar, replacevar);
   }
-
   static async replacejson(data: any, addtagsname: string[], removetagsname: string[]) {
     const selectedItems = Basefun.filterSelectedItems();
     if (!selectedItems) return;
@@ -249,8 +259,15 @@ class replaceHandle {
         if (m_entry.itemType !== itemType) continue;
 
         try {
-          const searchFieldContent = String(item.getField(m_entry.searchField));
-          const replaceContent = await this.sreplace(searchFieldContent, m_entry.searchType, m_entry.searchString, m_entry.replaceType, m_entry.replaceString);
+          let searchFieldContent = "";
+          if (m_entry.searchField === "abbr"){
+            // Zotero.debug("-----------------------------------------------")
+            searchFieldContent = String(ztoolkit.ExtraField.getExtraField(item, "itemBoxRowabbr")) || "";
+          }else{
+            searchFieldContent = String(item.getField(m_entry.searchField));
+          }
+          const replaceContent = await this.sreplace(searchFieldContent, m_entry.methodName , m_entry.searchType, m_entry.searchString, m_entry.replaceType, m_entry.replaceString);
+          
           if (replaceContent === -654321) {
             break;
           }
