@@ -282,7 +282,10 @@ class replaceHandle {
             // const fieldValue = FeildExport.getPublicationTitleForItemType(item);
             ztoolkit.ExtraField.setExtraField(item, "itemBoxRowabbr", replaceContent);
           } else {
-            item.setField(m_entry.replaceField, replaceContent);
+            // 保护一下, 防止替换后的内容为空
+            if (replaceContent && replaceContent !== "undefined"){
+              item.setField(m_entry.replaceField, replaceContent);
+            }
           }
 
           const removeTags = Array.from(removeTagsSet).filter((tag) => itemTags.some((t: any) => t.tag === tag));
