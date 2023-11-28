@@ -1,8 +1,8 @@
 pref-title-one = 自定义缩写文件设置
 pref-groupbox-first = 路径设置:
 
-pref-input = 输入csv地址: 
-pref-separator = 选择csv分隔符:
+pref-input = csv/json地址: 
+pref-separator = 文件分隔符(仅csv生效):
 pref-separator-semicolon =
     .label = 分号
 pref-separator-comma =

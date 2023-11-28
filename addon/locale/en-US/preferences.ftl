@@ -1,8 +1,8 @@
 pref-title-one = Path Settings
 pref-groupbox-first = Path Settings:
 
-pref-input = Input the csv address:  
-pref-separator = File separator(csv):
+pref-input = csv/json address:  
+pref-separator = File separator(only valid for csv):
 pref-separator-semicolon =
     .label = semicolon
 pref-separator-comma =

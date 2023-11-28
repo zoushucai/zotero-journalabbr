@@ -195,11 +195,10 @@ function filterValidEntries(objectsArray: any[]) {
 class replaceHandle {
   static async sreplace(text: string, methodName: string, searchType: string, searchString: string, replaceType: string, replaceString: string) {
     // 简单验证一下输入的参数是否合法, 注意:  replaceString 可以为空, 即 replaceString === ""
-    if (!text || !searchType || !searchString || !replaceType ) {
+    if (!text || !searchType || !searchString || !replaceType) {
       return -654321;
     }
-  
-    
+
     // 定义替换方式的对象映射
     const replaceMethods = {
       regex: (str: string) => {
@@ -222,23 +221,23 @@ class replaceHandle {
 
     const searchvar = searchType === "regex" ? replaceMethods.regex(searchString) : searchString;
     if (!searchvar) return -654321;
-    if(methodName === "match"){
+    if (methodName === "match") {
       const matchcontent = text[methodName](searchvar) || "";
       if (Array.isArray(matchcontent) && matchcontent.length > 1) return matchcontent.join(" ");
       return matchcontent.toString();
-    }else if(methodName === "replace"){
+    } else if (methodName === "replace") {
       let replacevar;
-      if ( replaceType === "regex" || replaceType === "string"){
+      if (replaceType === "regex" || replaceType === "string") {
         replacevar = replaceString;
-      }else if (replaceType === "function"){
+      } else if (replaceType === "function") {
         const replaceFunction = replaceMethods[replaceType as keyof typeof replaceMethods];
         replacevar = replaceFunction ? replaceFunction(replaceString) : null;
         if (typeof replacevar !== "function") return -654321;
-      }else{
+      } else {
         return -654321;
       }
       return text[methodName](searchvar, replacevar);
-    }else{
+    } else {
       return -654321;
     }
   }
@@ -260,14 +259,21 @@ class replaceHandle {
 
         try {
           let searchFieldContent = "";
-          if (m_entry.searchField === "abbr"){
+          if (m_entry.searchField === "abbr") {
             // Zotero.debug("-----------------------------------------------")
             searchFieldContent = String(ztoolkit.ExtraField.getExtraField(item, "itemBoxRowabbr")) || "";
-          }else{
+          } else {
             searchFieldContent = String(item.getField(m_entry.searchField));
           }
-          const replaceContent = await this.sreplace(searchFieldContent, m_entry.methodName , m_entry.searchType, m_entry.searchString, m_entry.replaceType, m_entry.replaceString);
-          
+          const replaceContent = await this.sreplace(
+            searchFieldContent,
+            m_entry.methodName,
+            m_entry.searchType,
+            m_entry.searchString,
+            m_entry.replaceType,
+            m_entry.replaceString,
+          );
+
           if (replaceContent === -654321) {
             break;
           }
