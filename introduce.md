@@ -69,13 +69,15 @@
 
       ```
 
-- 添加了一个 `replace` 选项, 按照指定的 json 文件, 进行条目缩写, 本质上就是调用 `str.replace()` 函数
+- 添加了一个 `replace` 选项, 按照指定的 json 文件, 进行条目缩写, 本质上就是调用 `str.replace()` 函数 或`str.match()`
 
 #### replace 选项的输入
 
 输入对应的 json 内容格式如下, (记住是标准的 json,而非 jsonc, 下面用注释进行解释说明)
 
-- 本质是调用js 中的替换函数: `str.replace(regexp|substr, newSubStr|function[, flags])`, 根据不同的输入,执行不同的操作
+- 本质是调用js 中的替换函数或匹配函数: `str.replace(regexp|substr, newSubStr|function[, flags])`或 `str.match(regexp|substr_` 根据不同的输入,执行不同的操作
+
+- 支持对同一个字段进行多次操作
 
 ```json
 [
@@ -83,15 +85,17 @@
     "itemType": "conferencePaper", // 条目类型,需要符合 zotero 的规则
     "searchField": "conferenceName", // 条目字段类型,需要符合 zotero 的规则
     "replaceField": "conferenceName", // 条目字段类型,需要符合 zotero 的规则
+    "methodName": "replace", // 采用的方法名, 暂时支持 "replace" 和  "match", 如果是 mact 则只有searchType和 searchString生效
     "searchType": "regex", // 支持两种类型, "string", "regex", 如果是 regex,则需要 "/(\w+)\s* \s*(\w+)/g"的形式
     "searchString": "/(\\w+)\\s(\\w+)/g", // 匹配的值
-    "replaceType": "regex", // 支持三种类型,"string", "regex", "function",  这里的 "string", "regex" 等价 ,
+    "replaceType": "regex", // 支持三种类型,"string", "regex", "function",  这里的 "string", "regex" 等价 , 仅"methodName": "replace" 生效
     "replaceString": "$2, $1" // 替换的值
   },
   {
     "itemType": "journalArticle",
     "searchField": "publicationTitle",
     "replaceField": "publicationTitle",
+    "methodName": "replace",
     "searchType": "regex",
     "searchString": "/.*/g",
     "replaceType": "function",
@@ -101,10 +105,31 @@
     "itemType": "journalArticle",
     "searchField": "publicationTitle",
     "replaceField": "abbr",
+    "methodName": "replace",
     "searchType": "regex",
     "searchString": "/.*/g",
     "replaceType": "function",
     "replaceString": "(match) => match.toUpperCase()"
+  },
+  {
+    "itemType": "journalArticle",
+    "searchField": "abbr",
+    "replaceField": "abbr",
+    "methodName": "match",
+    "searchType": "regex",
+    "searchString": "/\\b\\w/g",
+    "replaceType": "regex",
+    "replaceString": ""
+  },
+  {
+    "itemType": "journalArticle",
+    "searchField": "abbr",
+    "replaceField": "abbr",
+    "methodName": "replace",
+    "searchType": "regex",
+    "searchString": "/ /g",
+    "replaceType": "string",
+    "replaceString": ""
   }
 ]
 ```
