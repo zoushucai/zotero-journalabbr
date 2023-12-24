@@ -629,31 +629,27 @@ class SelectedWithHandler {
         return false;
       }
 
-      // const isIdentical = currentabbr.trim() === data_in_journal.trim();
       const isIdentical = currentabbr?.trim() === data_in_journal.trim();
       if (!isIdentical) {
         // not identical, update
         item.setField(newField, data_in_journal);
       }
-      if ((addtagsname.length == 1 && addtagsname[0] == "") || (removetagsname.length == 1 && removetagsname[0] == "")) {
-        if (!isIdentical) {
-          await item.saveTx();
-        }
-        return true;
-      }
+      
+
+      // 1. 先获取当前条目的标签 ,
+      // 2. 判断当前条目是否有标签, 如果有, 则删除, 如果没有, 则添加
+      // 3. 保存 (上述算法有点浪费内容, 因为每次都要获取标签, 但是这样可以保证标签的正确性)
 
       const tags = item.getTags(); // tags 是一个数组对象, 每个对象一般有两个属性: type, tag.
+      const existingTags = new Set(tags.map((tagObj: any) => tagObj.tag));
+      const tagsToAdd = addtagsname.filter((tag) => !existingTags.has(tag));
+      const tagsToRemove = removetagsname.filter((tag) => existingTags.has(tag));
 
-      addtagsname = addtagsname.map((tag) => tag.trim());
-      removetagsname = removetagsname.map((tag) => tag.trim());
+      tagsToRemove.forEach((tag) => item.removeTag(tag));
+      tagsToAdd.forEach((tag) => item.addTag(tag));
 
-      const removeTags = removetagsname.filter((tag) => tags.some((t: any) => t.tag === tag));
-      const addTags = addtagsname.filter((tag) => !tags.some((t: any) => t.tag === tag));
-
-      removeTags.forEach((tag) => item.removeTag(tag));
-      addTags.forEach((tag) => item.addTag(tag));
-
-      if (removeTags.length > 0 || addTags.length > 0 || !isIdentical) {
+      if (tagsToRemove.length > 0 || tagsToAdd.length > 0 || !isIdentical) {
+        // 当前条目的标签发生了变化, 或者当前条目的期刊缩写发生了变化, 则保存
         await item.saveTx();
       }
       return true;
