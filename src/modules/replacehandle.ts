@@ -283,7 +283,7 @@ class replaceHandle {
             ztoolkit.ExtraField.setExtraField(item, "itemBoxRowabbr", replaceContent);
           } else {
             // 保护一下, 防止替换后的内容为空
-            if (replaceContent && replaceContent !== "undefined"){
+            if (replaceContent && replaceContent !== "undefined") {
               item.setField(m_entry.replaceField, replaceContent);
             }
           }

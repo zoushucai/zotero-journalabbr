@@ -634,7 +634,6 @@ class SelectedWithHandler {
         // not identical, update
         item.setField(newField, data_in_journal);
       }
-      
 
       // 1. 先获取当前条目的标签 ,
       // 2. 判断当前条目是否有标签, 如果有, 则删除, 如果没有, 则添加

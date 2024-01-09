@@ -648,33 +648,30 @@ export class HelperAbbrFactory {
     }
   }
 
-
   /////////////////////////////////
   // 更新期刊缩写 ///////////////////
   ////////////////////////////////
   // 1. 使用内部数据集进行更新
-  static JA_processTags(isselect_addAutotags: boolean, addtagsname: string[]) { 
-      const tagsall= ['abbr', 'abbr_user', 'abbr_iso4', 'regex']; // 定义包含多个固定值的数组
-      let removetagsname = [];
+  static JA_processTags(isselect_addAutotags: boolean, addtagsname: string[]) {
+    const tagsall = ["abbr", "abbr_user", "abbr_iso4", "regex"]; // 定义包含多个固定值的数组
+    let removetagsname = [];
 
-      if (isselect_addAutotags) {
-          addtagsname = addtagsname.slice();
-          removetagsname = tagsall.filter((item) => !addtagsname.includes(item));
-      } else {
-          addtagsname = [];
-          removetagsname = tagsall.slice();
-      }
-      return { addtagsname, removetagsname };
+    if (isselect_addAutotags) {
+      addtagsname = addtagsname.slice();
+      removetagsname = tagsall.filter((item) => !addtagsname.includes(item));
+    } else {
+      addtagsname = [];
+      removetagsname = tagsall.slice();
+    }
+    return { addtagsname, removetagsname };
   }
 
   static async JA_update_UseInnerData() {
     const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addAutotags");
 
-  // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
-  const isselect_addAutotags =
-    typeof isselect_addAutotagsRaw === 'boolean'
-      ? isselect_addAutotagsRaw
-      : isselect_addAutotagsRaw === 'true' || isselect_addAutotagsRaw === 1;
+    // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
+    const isselect_addAutotags =
+      typeof isselect_addAutotagsRaw === "boolean" ? isselect_addAutotagsRaw : isselect_addAutotagsRaw === "true" || isselect_addAutotagsRaw === 1;
 
     const { addtagsname, removetagsname } = this.JA_processTags(isselect_addAutotags, ["abbr"]);
 
@@ -698,11 +695,8 @@ export class HelperAbbrFactory {
     const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addAutotags");
     // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
     const isselect_addAutotags =
-      typeof isselect_addAutotagsRaw === 'boolean'
-        ? isselect_addAutotagsRaw
-        : isselect_addAutotagsRaw === 'true' || isselect_addAutotagsRaw === 1;
-      const { addtagsname, removetagsname } = this.JA_processTags(isselect_addAutotags, ["abbr_user"]);
-
+      typeof isselect_addAutotagsRaw === "boolean" ? isselect_addAutotagsRaw : isselect_addAutotagsRaw === "true" || isselect_addAutotagsRaw === 1;
+    const { addtagsname, removetagsname } = this.JA_processTags(isselect_addAutotags, ["abbr_user"]);
 
     // 更新期刊缩写 -- 返回的信息为 已有 2/2 条目缩写更新
     await Selected.updateJournalAbbr(
@@ -723,9 +717,7 @@ export class HelperAbbrFactory {
     const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addAutotags");
     // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
     const isselect_addAutotags =
-      typeof isselect_addAutotagsRaw === 'boolean'
-        ? isselect_addAutotagsRaw
-        : isselect_addAutotagsRaw === 'true' || isselect_addAutotagsRaw === 1;
+      typeof isselect_addAutotagsRaw === "boolean" ? isselect_addAutotagsRaw : isselect_addAutotagsRaw === "true" || isselect_addAutotagsRaw === 1;
     const { addtagsname, removetagsname } = this.JA_processTags(isselect_addAutotags, ["abbr_iso4"]);
 
     await Selected.updateUseISO4(
@@ -867,11 +859,8 @@ export class HelperAbbrFactory {
     const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addRegexAutotags");
     // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
     const isselect_addAutotags =
-      typeof isselect_addAutotagsRaw === 'boolean'
-        ? isselect_addAutotagsRaw
-        : isselect_addAutotagsRaw === 'true' || isselect_addAutotagsRaw === 1;
+      typeof isselect_addAutotagsRaw === "boolean" ? isselect_addAutotagsRaw : isselect_addAutotagsRaw === "true" || isselect_addAutotagsRaw === 1;
     const { addtagsname, removetagsname } = this.JA_processTags(isselect_addAutotags, ["regex"]);
-
 
     const jsonstr = await Zotero.File.getContentsAsync(jsonpath, "utf-8");
     let jsondata: any;
