@@ -28,3 +28,4 @@
   },
   "ignorePatterns": ["**/build/**", "**/dist/**", "**/node_modules/**", "**/scripts/**", "**/*.js", "**/*.bak"]
 }
+
