@@ -8,6 +8,12 @@
 
 - Release 0.7.0 以后的只支持 zotero7, 需要 zotero6 的可以手动下载 Release 0.6.\*
 
+## 2024-2-22更新
+
+- zotero的启动时,自动运行 `abbrall`, 可以手动关闭 并修复`abbrall`对于期刊类, 优先选择`journalAbbreviation` ,当`journalAbbreviation` 为空,则会选择 `publicationTitle`
+
+- 等待 [#705](https://github.com/windingwind/zotero-pdf-translate/issues/705) 该问题的修复
+
 ## 2023-11-25更新
 
 - 可以自动选择是否增加标签

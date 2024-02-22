@@ -563,21 +563,16 @@ class Selected {
         selectedItems = Basefun.filterSelectedItems();
         if (!selectedItems) return;
       }
-      Zotero.debug("+++++++++++++++++++++++++++++++++++++++++++");
-
-      Zotero.debug(`"selectedItems: ${selectedItems.length}`);
-
       const ruleItemCount = selectedItems.length;
 
       for (let i = 0; i < ruleItemCount; i++) {
         try {
           const item = selectedItems[i];
           const fieldValue = FeildExport.getPublicationTitleForItemType(item);
-          Zotero.debug("+++++++++++++++++++++++++++++++++++++++++++2222");
+          Zotero.debug("+++++++++++++++++++++++++++++++++++++++++++");
           Zotero.debug(`"fieldValue: ${fieldValue}`);
           if (fieldValue) {
             await ztoolkit.ExtraField.setExtraField(item, "itemBoxRowabbr", fieldValue);
-            Zotero.debug("+++++++++++++++++++++++++++++++++++++++++++3333");
           }
         } catch (error) {
           continue;
@@ -803,6 +798,7 @@ class FeildExport {
      */
     const itype = item.itemType.toLowerCase();
     let publicationTitle;
+    let journalAbbreviation;
     switch (itype) {
       case "thesis":
         publicationTitle = item.getField("university");
@@ -811,7 +807,12 @@ class FeildExport {
         publicationTitle = item.getField("publisher");
         break;
       case "journalarticle":
-        publicationTitle = item.getField("publicationTitle");
+        journalAbbreviation = item.getField("journalAbbreviation");
+        if (!journalAbbreviation) {
+          publicationTitle = item.getField("publicationTitle");
+        } else {
+          publicationTitle = journalAbbreviation;
+        }
         break;
       case "conferencepaper":
         publicationTitle = item.getField("conferenceName");
@@ -827,7 +828,12 @@ class FeildExport {
         break;
       default:
         try {
-          publicationTitle = item.getField("publicationTitle");
+          journalAbbreviation = item.getField("journalAbbreviation");
+          if (!journalAbbreviation) {
+            publicationTitle = item.getField("publicationTitle");
+          } else {
+            publicationTitle = journalAbbreviation;
+          }
         } catch (e) {
           publicationTitle = "";
         }

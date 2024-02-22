@@ -36,8 +36,7 @@ async function onStartup() {
   await UIExampleFactory.registerCustomItemBoxRow(); // 右边的`信息`下注册额外字段 abbr
   await UIExampleFactory.registerCustomItemBoxCitationkey(); // 右边的`信息`下注册额外字段 abbrCkey
   await UIExampleFactory.registerExtraColumn(); // 菜单的额外列
-
-  // await HelperAbbrFactory.JA_transferAllItemsToCustomFieldStart(); // 将所有条目的`abbr`字段的值转移到`abbrCkey`字段
+  await HelperAbbrFactory.JA_transferAllItemsToCustomFieldStart(); // 根据item的类型, 把所有类似 publicationTitle 的字段转移到 自定义字段 itemBoxRowabbr 上
   // await UIExampleFactory.registerFel();
 }
 

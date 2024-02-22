@@ -238,6 +238,8 @@ export class UIExampleFactory {
       (field, unformatted, includeBaseMapped, item, original) => {
         //ztoolkit.log(`field1: ${field}`)
         const fieldValue = ztoolkit.ExtraField.getExtraField(item, field);
+        ztoolkit.log(`+++++++++++++++++++++++++++`);
+        ztoolkit.log(`fieldValue: ${fieldValue}`);
         return fieldValue !== undefined ? String(fieldValue) : "";
       },
       {
@@ -456,12 +458,6 @@ export class UIExampleFactory {
           id: "zotero-itemmenu-abbr-journal-itemBoxRowabbr",
           label: "abbrall",
           commandListener: (ev) => HelperAbbrFactory.JA_transferAllItemsToCustomField(),
-        },
-        {
-          tag: "menuitem",
-          id: "zotero-itemmenu-abbr-journal-itemBoxRowabbr2",
-          label: "abbrall2",
-          commandListener: (ev) => HelperAbbrFactory.JA_transferAllItemsToCustomFieldStart(),
         },
         // {
         //   tag: "menuitem",
