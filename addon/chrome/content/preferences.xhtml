@@ -110,4 +110,18 @@
       ></button>
     </div>
   </groupbox>
+  <groupbox>
+    <label>
+      <html:h2 data-l10n-id="pref-title-five"></html:h2>
+    </label>
+    <hbox style="display: flex; align-items: center">
+      <html:input
+        type="checkbox"
+        id="__addonRef__-autorunabbrall"
+        preference="__prefsPrefix__.autorunabbrall"
+        onchange="Zotero.__addonInstance__.hooks.onDialogEvents('showChangeEventInfo',event);"
+      ></html:input>
+      <html:label data-l10n-id="autorunabbrall-label" style="margin-right: 13%"></html:label>
+    </hbox>
+  </groupbox>
 </vbox>

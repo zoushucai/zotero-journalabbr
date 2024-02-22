@@ -26,9 +26,9 @@ prompt-success-removetag-info=已移除标签
 prompt-success-exchange-info=已交换期刊
 prompt-success-bib-info=已转换为bibliography
 prompt-success-exportkey=Citationkey
-prompt-success-updatejournal-user-info=已缩写
-prompt-success-updatejournal-inner-info=已缩写
-prompt-success-updatejournal-iso4-info=已缩写
+prompt-success-updatejournal-user-info=User 已缩写
+prompt-success-updatejournal-inner-info=Inner 已缩写
+prompt-success-updatejournal-iso4-info=Iso4 已缩写
 
 prompt-error-execution-info=执行失败
 prompt-error-exchange-info=交换期刊失败

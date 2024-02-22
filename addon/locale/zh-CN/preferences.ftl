@@ -31,6 +31,9 @@ pref-replaceJsonFile = 输入json地址:
 help-version-label = __addonName__ 版本 __buildVersion__
 help-releasetime-label = Build __buildTime__
 
+pref-title-five = 当Zotero启动时
+autorunabbrall-label = 运行 abbrall
+
 # 以下不用
 pref-enable =
     .label = 开启

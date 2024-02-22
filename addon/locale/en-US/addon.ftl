@@ -26,9 +26,9 @@ prompt-success-exchange-info=Exchange
 prompt-success-removetag-info=Removed Tag
 prompt-success-bib-info=Converted to bib
 prompt-success-exportkey=Citationkey
-prompt-success-updatejournal-user-info=Abbreviated
-prompt-success-updatejournal-inner-info=Abbreviated
-prompt-success-updatejournal-iso4-info=Abbreviated
+prompt-success-updatejournal-user-info=User abbr.
+prompt-success-updatejournal-inner-info=Inner abbr.
+prompt-success-updatejournal-iso4-info=Iso4 abbr.
 
 prompt-error-execution-info=execution failed
 prompt-error-exchange-info=exchange failed

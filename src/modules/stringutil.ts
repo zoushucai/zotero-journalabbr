@@ -374,7 +374,7 @@ class StringUtil {
     } else {
       fianl_text = bibpre + " " + text;
       noActionCount = true;
-      Zotero.debug("Bib noActionCount, the reason might be starting with the name of the author directly.");
+      // ztoolkit.log("Bib noActionCount, the reason might be starting with the name of the author directly.");
     }
 
     if (isdiscardDOI) {

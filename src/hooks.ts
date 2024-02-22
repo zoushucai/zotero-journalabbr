@@ -36,7 +36,15 @@ async function onStartup() {
   await UIExampleFactory.registerCustomItemBoxRow(); // 右边的`信息`下注册额外字段 abbr
   await UIExampleFactory.registerCustomItemBoxCitationkey(); // 右边的`信息`下注册额外字段 abbrCkey
   await UIExampleFactory.registerExtraColumn(); // 菜单的额外列
-  await HelperAbbrFactory.JA_transferAllItemsToCustomFieldStart(); // 根据item的类型, 把所有类似 publicationTitle 的字段转移到 自定义字段 itemBoxRowabbr 上
+  if (Zotero.Prefs.get(config.addonRef + ".autorunabbrall")) {
+    ztoolkit.log(`--------- auto run abbrall ---------`);
+    await HelperAbbrFactory.JA_transferAllItemsToCustomFieldStart(); // 根据item的类型, 把所有类似 publicationTitle 的字段转移到 自定义字段 itemBoxRowabbr 上
+  } else {
+    ztoolkit.log(`--------- not auto run abbrall ----------`);
+    // ztoolkit.log 可以输出多个参数, 如:  ztoolkit.log("ssssssss", "ssssssss") ,多个参数会自动用空格拼接,这样有时候很方便.
+    //, 而 Zotero.debug 只能输出一个参数
+  }
+
   // await UIExampleFactory.registerFel();
 }
 

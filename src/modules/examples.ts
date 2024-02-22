@@ -147,6 +147,7 @@ export class BasicExampleFactory {
       [config.addonRef + ".discardDOI"]: true,
       [config.addonRef + ".bibemptyline"]: true,
       [config.addonRef + ".addAutotags"]: true,
+      [config.addonRef + ".autorunabbrall"]: false,
       //[config.addonRef + ".isreplaceJsoncFile"]: true,
       [config.addonRef + ".addRegexAutotags"]: true,
       [config.addonRef + ".replaceJsonFile"]: "",
@@ -225,7 +226,7 @@ export class UIExampleFactory {
     await ztoolkit.ItemTree.register("extraColumnabbr", "abbr", (field: string, unformatted: boolean, includeBaseMapped: boolean, item: Zotero.Item) => {
       //ztoolkit.log(`field3: ${field}`) // field === 'extraColumnabbr'
       const fieldValue = ztoolkit.ExtraField.getExtraField(item, "itemBoxRowabbr");
-      return fieldValue !== undefined ? String(fieldValue) : "";
+      return String(fieldValue ?? "");
     });
   }
 
@@ -238,15 +239,15 @@ export class UIExampleFactory {
       (field, unformatted, includeBaseMapped, item, original) => {
         //ztoolkit.log(`field1: ${field}`)
         const fieldValue = ztoolkit.ExtraField.getExtraField(item, field);
-        ztoolkit.log(`+++++++++++++++++++++++++++`);
-        ztoolkit.log(`fieldValue: ${fieldValue}`);
-        return fieldValue !== undefined ? String(fieldValue) : "";
+        // ztoolkit.log(`+++++++++++++++++++++++++++`);
+        // ztoolkit.log(`+++ fieldValue: ${fieldValue} +++`);
+        return String(fieldValue ?? "");
       },
       {
         editable: true,
         setFieldHook: (field, value, loadIn, item, original) => {
           if (value) {
-            ztoolkit.ExtraField.setExtraField(item, field, value);
+            ztoolkit.ExtraField.setExtraField(item, field, value?.trim());
           }
           return true;
         },
@@ -270,7 +271,7 @@ export class UIExampleFactory {
         editable: true,
         setFieldHook: (field, value, loadIn, item, original) => {
           if (value) {
-            ztoolkit.ExtraField.setExtraField(item, field, value);
+            ztoolkit.ExtraField.setExtraField(item, field, value?.trim());
           }
           return true;
         },
@@ -494,37 +495,62 @@ export class UIExampleFactory {
 
 ///////////////////////////////
 export class HelperAbbrFactory {
-  // 简写期刊大写 ----  根据 journalAbbreviation 的字段进行特殊转换
-  static async JA_toUpperCase() {
+  /**
+   * 对选中的条目进行处理, 根据 journalAbbreviation 的字段进行特殊转换 -- 大写
+   * @param selectedItems 要处理的项目数组（可选）
+   */
+  static async JA_toUpperCase(selectedItems?: any[]) {
     const transformFn = (value: any) => value.toUpperCase();
     const successinfo = getString("prompt-success-abbrToupper-info");
     const failinfo = getString("prompt-fail-abbrToupper-info");
     //Basefun.executeFunctionWithTryCatch(Selected.processSelectItems, successinfo, failinfo )
-    Basefun.executeFunctionWithTryCatch(async () => await Selected.processSelectItems(transformFn), successinfo, failinfo);
+    Basefun.executeFunctionWithTryCatch(
+      async () => await Selected.processSelectItems(transformFn, "journalAbbreviation", selectedItems),
+      successinfo,
+      failinfo,
+    );
     //await processSelectItems(transformFn, successinfo, failinfo);
   }
 
-  // 简写期刊小写  ----- 根据 journalAbbreviation 的字段进行特殊转换
-  static async JA_toLowerCase() {
+  /**
+   * 对选中的条目进行处理, 根据 journalAbbreviation 的字段进行特殊转换 -- 小写
+   */
+  static async JA_toLowerCase(selectedItems?: any[]) {
     const transformFn = (value: any) => value.toLowerCase();
     const successinfo = getString("prompt-success-abbrTolower-info");
     const failinfo = getString("prompt-fail-abbrTolower-info");
-    Basefun.executeFunctionWithTryCatch(async () => await Selected.processSelectItems(transformFn), successinfo, failinfo);
+    Basefun.executeFunctionWithTryCatch(
+      async () => await Selected.processSelectItems(transformFn, "journalAbbreviation", selectedItems),
+      successinfo,
+      failinfo,
+    );
     //await processSelectItems(transformFn, successinfo, failinfo);
   }
 
-  //简写期刊首字母化 ---- 根据 journalAbbreviation 的字段进行特殊转换
-  static async JA_toCapitalize() {
+  /**
+   * 对选中的条目进行处理, 根据 journalAbbreviation 的字段进行特殊转换 -- 首字母大写
+   * @param selectedItems 要处理的项目数组（可选）
+   */
+  static async JA_toCapitalize(selectedItems?: any[]) {
     const transformFn = (value: any) =>
       value.replace(/(?:^|\s)\S/g, function (firstChar: string) {
         return firstChar.toUpperCase();
       });
     const successinfo = getString("prompt-success-abbrTocapitalize-info");
     const failinfo = getString("prompt-fail-abbrTocapitalize-info");
-    Basefun.executeFunctionWithTryCatch(async () => await Selected.processSelectItems(transformFn), successinfo, failinfo);
+    Basefun.executeFunctionWithTryCatch(
+      async () => await Selected.processSelectItems(transformFn, "journalAbbreviation", selectedItems),
+      successinfo,
+      failinfo,
+    );
     //await processSelectItems(transformFn, successinfo, failinfo);
   }
-  static async JA_InitialismAbbr() {
+
+  /**
+   * 对选中的条目进行处理, 根据 journalAbbreviation 的字段进行特殊转换 -- 提取首字母并大写
+   * @param selectedItems 要处理的项目数组（可选）
+   */
+  static async JA_InitialismAbbr(selectedItems?: any[]) {
     const isEnglishWithAllCharacters = (str: string) => /^[\w\s\t\n\r\-'",.;:!?(){}[\]<>#+=*_~%^&|/$\\]+$/.test(str);
     const ignoredWords = new Set([
       "and",
@@ -594,36 +620,63 @@ export class HelperAbbrFactory {
 
     const successinfo = getString("prompt-success-InitialismAbbr-info");
     const failinfo = getString("prompt-fail-InitialismAbbr-info");
-    Basefun.executeFunctionWithTryCatch(async () => await Selected.processSelectItems(transformFn), successinfo, failinfo);
+    Basefun.executeFunctionWithTryCatch(
+      async () => await Selected.processSelectItems(transformFn, "journalAbbreviation", selectedItems),
+      successinfo,
+      failinfo,
+    );
     //await processSelectItems(transformFn, successinfo, failinfo);
   }
 
-  // 移除简写期刊中的点
-  static async JA_removeDot() {
+  /**
+   * 对选中的条目进行处理, 根据 journalAbbreviation 的字段进行特殊转换 -- 移除点
+   * @param selectedItems 要处理的项目数组（可选）
+   */
+  static async JA_removeDot(selectedItems?: any[]) {
     const transformFn = (value: any) => value.replace(/\./g, "");
     const successinfo = getString("prompt-success-removeAbbrdot-info");
     const failinfo = getString("prompt-fail-removeAbbrdot-info");
-    Basefun.executeFunctionWithTryCatch(async () => await Selected.processSelectItems(transformFn), successinfo, failinfo);
+    Basefun.executeFunctionWithTryCatch(
+      async () => await Selected.processSelectItems(transformFn, "journalAbbreviation", selectedItems),
+      successinfo,
+      failinfo,
+    );
     //await processSelectItems(transformFn, successinfo, failinfo);
   }
 
-  // 根据标签名称, 删除对应的标签
-  static async JA_removeTagname(usertags: string[]) {
+  /**
+   * 对选中的条目进行处理, 根据标签名称, 删除对应的标签
+   * @param usertags 要删除的标签名称数组
+   * @param selectedItems 要处理的项目数组（可选）
+   */
+  static async JA_removeTagname(usertags: string[], selectedItems?: any[]) {
     await Basefun.processSelectedItemsWithPromise(
       SelectedWithHandler.removeTagHandler(usertags),
       getString("prompt-success-removetag-info") + ": " + usertags[0],
       getString("prompt-error-removetag-info") + ": " + usertags[0],
+      true,
+      selectedItems,
     );
   }
 
   // 交换期刊名 --- 即简写期刊与期刊名互换 --- 还是循环的方式-- 感觉循环比较快
-  static async JA_exchangeName(key1: any = "journalAbbreviation", key2: any = "publicationTitle", exchangetagname = "exchange") {
+
+  /**
+   * 对选中的条目进行处理, 交换两个字段的值, 如果交换成功, 则添加给定的标签,
+   * @param key1 ,字符串, 默认值为 "journalAbbreviation"
+   * @param key2 , 字符串, 默认值为 "publicationTitle"
+   * @param exchangetagname , 字符串, 默认值为 "exchange", 当两个字段交换成功以后, 如果以前没有存在该标签, 则添加的标签, 如果以前存在该标签, 则删除
+   * @param selectedItems 要处理的项目数组（可选）
+   */
+  static async JA_exchangeName(key1: any = "journalAbbreviation", key2: any = "publicationTitle", exchangetagname = "exchange", selectedItems?: any[]) {
     const successinfo = getString("prompt-success-exchange-info");
     const failinfo = getString("prompt-error-exchange-info");
-    Basefun.executeFunctionWithTryCatch(async () => await Selected.exchangeJournalName(), successinfo, failinfo);
+    Basefun.executeFunctionWithTryCatch(async () => await Selected.exchangeJournalName(key1, key2, exchangetagname, selectedItems), successinfo, failinfo);
   }
 
-  // 绑定按钮事件
+  /**
+   * 绑定按钮事件 --- 选择文件, 然后显示选择的文件地址,UI 上显示, 选择json/csv文件路径,  ---- 该文件一般是根据用户手动制定的缩写期刊文件, 一般是csv或者json文件
+   */
   @example
   static async buttonSelectFilePath() {
     const mypath = await BasicExampleFactory.filePickerExample();
@@ -637,6 +690,9 @@ export class HelperAbbrFactory {
     }
   }
 
+  /**
+   * 绑定按钮事件 --- 选择文件, 然后显示选择的文件地址, UI 上显示, 选择json文件路径 ---- 该文件中含有正则表达式信息, 主要根据该json文件的内容, 采用正则表达式来替换item中的字段, 作为扩展功能
+   */
   @example
   static async buttonJsonSelectFilePath() {
     const mypath = await BasicExampleFactory.filePickerExample();
@@ -650,10 +706,11 @@ export class HelperAbbrFactory {
     }
   }
 
-  /////////////////////////////////
-  // 更新期刊缩写 ///////////////////
-  ////////////////////////////////
-  // 1. 使用内部数据集进行更新
+  /**
+   * 对选中的条目进行处理, 添加/删除指定的标签, 对一个固定的数组进行处理, 返回添加的标签名称数组和删除的标签名称数组
+   * @param isselect_addAutotags 是否添加自动标签
+   * @param addtagsname 要添加的标签名称数组
+   */
   static JA_processTags(isselect_addAutotags: boolean, addtagsname: string[]) {
     const tagsall = ["abbr", "abbr_user", "abbr_iso4", "regex"]; // 定义包含多个固定值的数组
     let removetagsname = [];
@@ -668,7 +725,11 @@ export class HelperAbbrFactory {
     return { addtagsname, removetagsname };
   }
 
-  static async JA_update_UseInnerData() {
+  /**
+   * 1.对选中的条目进行处理, 采用内部数据集对期刊缩写进行更新.
+   * @param selectedItems 要处理的项目数组（可选）
+   */
+  static async JA_update_UseInnerData(selectedItems?: any[]) {
     const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addAutotags");
 
     // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
@@ -686,11 +747,16 @@ export class HelperAbbrFactory {
       getString("prompt-success-updatejournal-inner-info"),
       getString("prompt-error-updatejournal-inner-info"),
       true,
+      selectedItems,
     );
   }
 
-  //2 . 使用用户数据集进行更新
-  static async JA_update_UseUserData() {
+  /**
+   * 2.对选中的条目进行处理, 采用用户数据集(通过用户根据文件路径进行指定) 对期刊缩写进行更新
+   * @param selectedItems 要处理的项目数组（可选）
+   * @returns
+   */
+  static async JA_update_UseUserData(selectedItems?: any[]) {
     const user_abbr_data = await Basefun.get_user_data();
     if (!user_abbr_data) return;
 
@@ -710,12 +776,16 @@ export class HelperAbbrFactory {
       getString("prompt-success-updatejournal-user-info"),
       getString("prompt-error-updatejournal-user-info"),
       true,
+      selectedItems,
     );
   }
-  // 3. 采用 ISO4 规则进行更新
-  static async JA_update_UseISO4() {
-    // BasicExampleFactory.ShowPopUP(`${Zotero.Prefs.get(config.addonRef + ".addAutotags")}`);
 
+  /**
+   *
+   * 3. 对选中的条目进行处理, 采用 ISO4 规则进行更新
+   * @param selectedItems 要处理的项目数组（可选）
+   */
+  static async JA_update_UseISO4(selectedItems?: any[]) {
     const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addAutotags");
     // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
     const isselect_addAutotags =
@@ -731,16 +801,24 @@ export class HelperAbbrFactory {
       getString("prompt-success-updatejournal-iso4-info"),
       getString("prompt-error-updatejournal-iso4-info"),
       true,
+      selectedItems,
     );
   }
-  static async JA_oneStepUpdate() {
-    // 1. 一键更新期刊, 首先使用 iso4 标准, 然后使用内部数据集, 最后使用自定义数据集,
-    await this.JA_update_UseISO4();
-    await this.JA_update_UseInnerData();
-    await this.JA_update_UseUserData();
+
+  /**
+   *
+   * 一键更新期刊缩写, 首先使用 iso4 标准, 然后使用内部数据集, 最后使用自定义数据集, 因此如果一个期刊存在多种标准,优先级: iso4 < 内部数据集 < 自定义数据集
+   * @param selectedItems  要处理的项目数组（可选）
+   */
+  static async JA_oneStepUpdate(selectedItems?: any[]) {
+    await this.JA_update_UseISO4(selectedItems); // 使用 iso4 标准
+    await this.JA_update_UseInnerData(selectedItems); // 使用内部数据集
+    await this.JA_update_UseUserData(selectedItems); // 使用自定义数据集, 会提示用户选择文件,如果出错,可以忽略
   }
 
-  // //定义一个获取参考文献的函数 -- 方法 1
+  /**
+   * 获取参考文献的函数 -- 方法 1, 是整体处理, 把生成的参考文献看做一个字符串整体, 然后再进行处理
+   */
   static async JA_getbibliography1() {
     Basefun.executeFunctionWithTryCatch(
       async () => {
@@ -755,7 +833,9 @@ export class HelperAbbrFactory {
     );
   }
 
-  // //定义一个获取参考文献的函数 -- 方法 2
+  /**
+   * 获取参考文献的函数 -- 方法 2,  把生成的参考文献看做一个字符串, 把这个字符串分割成三段, 然后再进行处理
+   */
   static async JA_getbibliography2() {
     Basefun.executeFunctionWithTryCatch(
       async () => {
@@ -770,19 +850,15 @@ export class HelperAbbrFactory {
     );
   }
 
+  /**
+   * 主要是zotero启动时运行该函数, 对所有文献, 采用一键更新期刊缩写, 然后对所有文献(不同类别的文献)期刊字段, 转移到自定义字段 `itemBoxRowabbr` 中(在面板中显示的是 abbr 值)
+   * @param selectedItems  要处理的项目数组（可选）
+   * @returns
+   */
   static async JA_transferAllItemsToCustomFieldStart() {
-    // 不显示任何信息
     try {
-      const s = new Zotero.Search();
-      // s.libraryID = Zotero.Libraries.userLibraryID; // Remove this line
-
-      const ids = await s.search();
-
-      const items = [];
-      for (const id of ids) {
-        const item = await Zotero.Items.getAsync(id);
-        items.push(item);
-      }
+      const libraryID = Zotero.Libraries.userLibraryID;
+      const items = await Zotero.Items.getAll(libraryID);
       const selectedItems = items.filter((item) => !item.isNote() && item.isRegularItem()); // 过滤笔记 且 是规则的 item
       await this.JA_transferAllItemsToCustomField(selectedItems);
     } catch (error) {
@@ -790,9 +866,19 @@ export class HelperAbbrFactory {
     }
   }
 
+  /**
+   *主要是在菜单栏中进行点击操作, 点击的标签是: abbrall,  对选中的文献, 采用一键更新期刊缩写, 然后对选中的文献(不同类别的文献)期刊字段, 转移到自定义字段 `itemBoxRowabbr` 中(在面板中显示的是 abbr 值)
+   * @param selectedItems 要转移的项目数组（可选）
+   */
   static async JA_transferAllItemsToCustomField(selectedItems?: any[]) {
-    // 不显示任何信息
-    const newField = "itemBoxRowabbr";
+    // // 方法一 : 一键更新期刊缩写, 然后对选中的文献(不同类别的文献)期刊字段, 转移到自定义字段 `itemBoxRowabbr` 中(在面板中显示的是 abbr 值)
+    await this.JA_update_UseISO4(selectedItems); // 使用 iso4 标准
+    await new Promise((resolve) => setTimeout(resolve, 3000)); // 休眠3秒钟
+
+    await this.JA_update_UseInnerData(selectedItems); // 使用内部数据集
+    await new Promise((resolve) => setTimeout(resolve, 3000)); // 休眠3秒钟
+
+    await this.JA_update_UseUserData(selectedItems); // 使用自定义数据集, 会提示用户选择文件,如果出错,可以忽略
 
     try {
       await Selected.transferAllItemsToCustomField(selectedItems);
@@ -800,36 +886,39 @@ export class HelperAbbrFactory {
       ztoolkit.log(`journalabbr error: ${error}`);
     }
 
-    try {
-      await Selected.updateUseISO4(
-        {},
-        newField,
-        newField,
-        [""],
-        [""],
-        getString("prompt-success-updatejournal-iso4-info"),
-        getString("prompt-error-updatejournal-iso4-info"),
-        false,
-        selectedItems,
-      );
-    } catch (error) {
-      ztoolkit.log(`journalabbr error: ${error}`);
-    }
-    try {
-      await Selected.updateJournalAbbr(
-        journal_abbr,
-        newField,
-        newField,
-        [""],
-        [""],
-        getString("prompt-success-updatejournal-inner-info"),
-        getString("prompt-error-updatejournal-inner-info"),
-        false,
-        selectedItems,
-      );
-    } catch (error) {
-      ztoolkit.log(`journalabbr error: ${error}`);
-    }
+    // // 方法二: 直接更新期刊缩写, 然后对选中的文献(不同类别的文献)期刊字段, 转移到自定义字段 `itemBoxRowabbr` 中(在面板中显示的是 abbr 值)
+    // const newField = "itemBoxRowabbr";
+    // try {
+    //   await Selected.updateUseISO4(
+    //     {},
+    //     newField,
+    //     newField,
+    //     [""],
+    //     [""],
+    //     getString("prompt-success-updatejournal-iso4-info"),
+    //     getString("prompt-error-updatejournal-iso4-info"),
+    //     false,
+    //     selectedItems,
+    //   );
+    // } catch (error) {
+    //   ztoolkit.log(`journalabbr error: ${error}`);
+    // }
+
+    // try {
+    //   await Selected.updateJournalAbbr(
+    //     journal_abbr,
+    //     newField,
+    //     newField,
+    //     [""],
+    //     [""],
+    //     getString("prompt-success-updatejournal-inner-info"),
+    //     getString("prompt-error-updatejournal-inner-info"),
+    //     false,
+    //     selectedItems,
+    //   );
+    // } catch (error) {
+    //   ztoolkit.log(`journalabbr error: ${error}`);
+    // }
 
     // try {
     //   const user_abbr_data = await Basefun.get_user_data();
@@ -850,6 +939,10 @@ export class HelperAbbrFactory {
     // }
   }
 
+  /**
+   *  用于显示获取到的 citationKey,  citationKey 的值的生成, 依靠其他插件. -----  better-bibtex
+   * @returns
+   */
   static async JA_exportAbbrKey() {
     Basefun.executeFunctionWithTryCatch(
       async () => {
@@ -864,6 +957,9 @@ export class HelperAbbrFactory {
     );
   }
 
+  /**
+   * 根据选择的item, 生成一个 csv 文件, 这个csv的每列是一个字段, 每行是一个item, 这些列包含了我们可能需要用到的字段, 主要是导出来填写表格,提交材料用的
+   */
   static async JA_selectItemsExportCsv() {
     const selectedItems = Basefun.filterSelectedItems();
     if (!selectedItems) return;
@@ -884,6 +980,9 @@ export class HelperAbbrFactory {
     //await BasicExampleFactory.copyToClipboard(infostr);
   }
 
+  /**
+   * 根据用户选择的json文件, 采用正则的方式, 替换选中的item的字段, 用于扩展功能, 例如, 批量替换期刊名等操作
+   */
   static async JA_ReplaceByJson() {
     //1 ,读取 json 文件
     const jsonpath = String(Zotero.Prefs.get(config.addonRef + ".replaceJsonFile"));
@@ -908,7 +1007,7 @@ export class HelperAbbrFactory {
     }
 
     const data = filterValidEntries(jsondata);
-    Zotero.debug(`valid data number: ${data.length}`);
+    // ztoolkit.log(`valid data number: ${data.length}`);
     BasicExampleFactory.ShowStatus(jsondata.length, data.length, getString("prompt-show-regular-valid"));
     if (!data || data.length === 0) {
       return;

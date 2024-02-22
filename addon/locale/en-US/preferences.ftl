@@ -28,5 +28,8 @@ isreplaceJsoncFile-label = jsonc file (experimental)
 addRegexAutotags-label = Add/Remove regex auto tags
 pref-replaceJsonFile= Input the json address:  
 
+pref-title-five = When Zotero starts
+autorunabbrall-label = Run abbrall
+
 help-version-label = __addonName__ VERSION __buildVersion__
 help-releasetime-label = Build __buildTime__

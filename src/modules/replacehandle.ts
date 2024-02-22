@@ -260,7 +260,7 @@ class replaceHandle {
         try {
           let searchFieldContent = "";
           if (m_entry.searchField === "abbr") {
-            // Zotero.debug("-----------------------------------------------")
+            // ztoolkit.log("-----------------------------------------------")
             searchFieldContent = String(ztoolkit.ExtraField.getExtraField(item, "itemBoxRowabbr")) || "";
           } else {
             searchFieldContent = String(item.getField(m_entry.searchField));
@@ -279,12 +279,17 @@ class replaceHandle {
           }
 
           if (m_entry.replaceField === "abbr") {
-            // const fieldValue = FeildExport.getPublicationTitleForItemType(item);
-            ztoolkit.ExtraField.setExtraField(item, "itemBoxRowabbr", replaceContent);
+            const selectExtraField = "itemBoxRowabbr";
+            const oldfieldValue = ztoolkit.ExtraField.getExtraField(item, selectExtraField)?.trim();
+
+            if (oldfieldValue !== replaceContent) {
+              // const fieldValue = FeildExport.getPublicationTitleForItemType(item);
+              ztoolkit.ExtraField.setExtraField(item, selectExtraField, replaceContent?.trim());
+            }
           } else {
             // 保护一下, 防止替换后的内容为空
             if (replaceContent && replaceContent !== "undefined") {
-              item.setField(m_entry.replaceField, replaceContent);
+              item.setField(m_entry.replaceField, replaceContent?.trim());
             }
           }
 
