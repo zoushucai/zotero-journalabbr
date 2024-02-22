@@ -458,7 +458,7 @@ export class UIExampleFactory {
           tag: "menuitem",
           id: "zotero-itemmenu-abbr-journal-itemBoxRowabbr",
           label: "abbrall",
-          commandListener: (ev) => HelperAbbrFactory.JA_transferAllItemsToCustomField(),
+          commandListener: (ev) => HelperAbbrFactory.JA_transferAllItemsToCustomField(true),
         },
         // {
         //   tag: "menuitem",
@@ -756,8 +756,8 @@ export class HelperAbbrFactory {
    * @param selectedItems 要处理的项目数组（可选）
    * @returns
    */
-  static async JA_update_UseUserData(selectedItems?: any[]) {
-    const user_abbr_data = await Basefun.get_user_data();
+  static async JA_update_UseUserData(isshowinfo: boolean = true, selectedItems?: any[]) {
+    const user_abbr_data = await Basefun.get_user_data(isshowinfo);
     if (!user_abbr_data) return;
 
     const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addAutotags");
@@ -813,7 +813,7 @@ export class HelperAbbrFactory {
   static async JA_oneStepUpdate(selectedItems?: any[]) {
     await this.JA_update_UseISO4(selectedItems); // 使用 iso4 标准
     await this.JA_update_UseInnerData(selectedItems); // 使用内部数据集
-    await this.JA_update_UseUserData(selectedItems); // 使用自定义数据集, 会提示用户选择文件,如果出错,可以忽略
+    await this.JA_update_UseUserData(true, selectedItems); // 使用自定义数据集, 会提示用户选择文件,如果出错,可以忽略
   }
 
   /**
@@ -860,7 +860,7 @@ export class HelperAbbrFactory {
       const libraryID = Zotero.Libraries.userLibraryID;
       const items = await Zotero.Items.getAll(libraryID);
       const selectedItems = items.filter((item) => !item.isNote() && item.isRegularItem()); // 过滤笔记 且 是规则的 item
-      await this.JA_transferAllItemsToCustomField(selectedItems);
+      await this.JA_transferAllItemsToCustomField(false, selectedItems);
     } catch (error) {
       ztoolkit.log(`journalabbr error: ${error}`);
     }
@@ -870,7 +870,7 @@ export class HelperAbbrFactory {
    *主要是在菜单栏中进行点击操作, 点击的标签是: abbrall,  对选中的文献, 采用一键更新期刊缩写, 然后对选中的文献(不同类别的文献)期刊字段, 转移到自定义字段 `itemBoxRowabbr` 中(在面板中显示的是 abbr 值)
    * @param selectedItems 要转移的项目数组（可选）
    */
-  static async JA_transferAllItemsToCustomField(selectedItems?: any[]) {
+  static async JA_transferAllItemsToCustomField(isshowinfo: boolean = true, selectedItems?: any[]) {
     // // 方法一 : 一键更新期刊缩写, 然后对选中的文献(不同类别的文献)期刊字段, 转移到自定义字段 `itemBoxRowabbr` 中(在面板中显示的是 abbr 值)
     await this.JA_update_UseISO4(selectedItems); // 使用 iso4 标准
     await new Promise((resolve) => setTimeout(resolve, 3000)); // 休眠3秒钟
@@ -878,65 +878,13 @@ export class HelperAbbrFactory {
     await this.JA_update_UseInnerData(selectedItems); // 使用内部数据集
     await new Promise((resolve) => setTimeout(resolve, 3000)); // 休眠3秒钟
 
-    await this.JA_update_UseUserData(selectedItems); // 使用自定义数据集, 会提示用户选择文件,如果出错,可以忽略
+    await this.JA_update_UseUserData(isshowinfo, selectedItems); // 使用自定义数据集, 会提示用户选择文件,如果出错,可以忽略
 
     try {
       await Selected.transferAllItemsToCustomField(selectedItems);
     } catch (error) {
       ztoolkit.log(`journalabbr error: ${error}`);
     }
-
-    // // 方法二: 直接更新期刊缩写, 然后对选中的文献(不同类别的文献)期刊字段, 转移到自定义字段 `itemBoxRowabbr` 中(在面板中显示的是 abbr 值)
-    // const newField = "itemBoxRowabbr";
-    // try {
-    //   await Selected.updateUseISO4(
-    //     {},
-    //     newField,
-    //     newField,
-    //     [""],
-    //     [""],
-    //     getString("prompt-success-updatejournal-iso4-info"),
-    //     getString("prompt-error-updatejournal-iso4-info"),
-    //     false,
-    //     selectedItems,
-    //   );
-    // } catch (error) {
-    //   ztoolkit.log(`journalabbr error: ${error}`);
-    // }
-
-    // try {
-    //   await Selected.updateJournalAbbr(
-    //     journal_abbr,
-    //     newField,
-    //     newField,
-    //     [""],
-    //     [""],
-    //     getString("prompt-success-updatejournal-inner-info"),
-    //     getString("prompt-error-updatejournal-inner-info"),
-    //     false,
-    //     selectedItems,
-    //   );
-    // } catch (error) {
-    //   ztoolkit.log(`journalabbr error: ${error}`);
-    // }
-
-    // try {
-    //   const user_abbr_data = await Basefun.get_user_data();
-    //   if (!user_abbr_data) return;
-    //   await Selected.updateJournalAbbr(
-    //     user_abbr_data,
-    //     newField,
-    //     newField,
-    //     [""],
-    //     [""],
-    //     getString("prompt-success-updatejournal-inner-info"),
-    //     getString("prompt-error-updatejournal-inner-info"),
-    //     false,
-    //     selectedItems,
-    //   );
-    // } catch (error) {
-    //   ztoolkit.log(`journalabbr error: ${error}`);
-    // }
   }
 
   /**

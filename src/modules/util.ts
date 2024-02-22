@@ -131,20 +131,24 @@ class Basefun {
 
   /**
    * 根据文件路径读取文件, 把文件的内容作为用户缩写数据集
-   * @param filePath  文件路径
+   * @param showinfo  布尔类型  是否显示提示信息--仅限于所选文件为空时以及 不是csv或者json文件时
    * @returns 返回用户缩写数据集, 是一个字典对象, key 为原始期刊名(全部是小写且删除多余的空格), value 为缩写
    */
-  static async get_user_data() {
+  static async get_user_data(isshowinfo: boolean = true) {
     //Zotero.Prefs.set("journalabbr.userpath", zoteroProfileDir); // 持久化设置
     const userfile = Zotero.Prefs.get(`${config.addonRef}.input`) as string; // 获得持久化的变量, 文件路径
     if (!userfile) {
-      BasicExampleFactory.ShowError("所选文件为空, 该操作取消");
+      if (isshowinfo) {
+        BasicExampleFactory.ShowError("所选文件为空, 该操作取消");
+      }
       return;
     }
 
     const fileExtension = userfile.split(".").pop()?.toLowerCase();
     if (!fileExtension || (fileExtension !== "csv" && fileExtension !== "json")) {
-      BasicExampleFactory.ShowError("请先选择 csv 或者 json 文件");
+      if (isshowinfo) {
+        BasicExampleFactory.ShowError("请先选择 csv 或者 json 文件");
+      }
       return;
     }
 
