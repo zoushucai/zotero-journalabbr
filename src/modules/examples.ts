@@ -457,6 +457,12 @@ export class UIExampleFactory {
           label: "abbrall",
           commandListener: (ev) => HelperAbbrFactory.JA_transferAllItemsToCustomField(),
         },
+        {
+          tag: "menuitem",
+          id: "zotero-itemmenu-abbr-journal-itemBoxRowabbr2",
+          label: "abbrall2",
+          commandListener: (ev) => HelperAbbrFactory.JA_transferAllItemsToCustomFieldStart(),
+        },
         // {
         //   tag: "menuitem",
         //   label: "test", // 子菜单: 测试
@@ -768,13 +774,37 @@ export class HelperAbbrFactory {
     );
   }
 
-  static async JA_transferAllItemsToCustomField() {
+  static async JA_transferAllItemsToCustomFieldStart() {
     // 不显示任何信息
     try {
-      const newField = "itemBoxRowabbr";
+      const s = new Zotero.Search();
+      // s.libraryID = Zotero.Libraries.userLibraryID; // Remove this line
 
-      await Selected.transferAllItemsToCustomField();
+      const ids = await s.search();
 
+      const items = [];
+      for (const id of ids) {
+        const item = await Zotero.Items.getAsync(id);
+        items.push(item);
+      }
+      const selectedItems = items.filter((item) => !item.isNote() && item.isRegularItem()); // 过滤笔记 且 是规则的 item
+      await this.JA_transferAllItemsToCustomField(selectedItems);
+    } catch (error) {
+      ztoolkit.log(`journalabbr error: ${error}`);
+    }
+  }
+
+  static async JA_transferAllItemsToCustomField(selectedItems?: any[]) {
+    // 不显示任何信息
+    const newField = "itemBoxRowabbr";
+
+    try {
+      await Selected.transferAllItemsToCustomField(selectedItems);
+    } catch (error) {
+      ztoolkit.log(`journalabbr error: ${error}`);
+    }
+
+    try {
       await Selected.updateUseISO4(
         {},
         newField,
@@ -784,8 +814,12 @@ export class HelperAbbrFactory {
         getString("prompt-success-updatejournal-iso4-info"),
         getString("prompt-error-updatejournal-iso4-info"),
         false,
+        selectedItems,
       );
-
+    } catch (error) {
+      ztoolkit.log(`journalabbr error: ${error}`);
+    }
+    try {
       await Selected.updateJournalAbbr(
         journal_abbr,
         newField,
@@ -795,23 +829,29 @@ export class HelperAbbrFactory {
         getString("prompt-success-updatejournal-inner-info"),
         getString("prompt-error-updatejournal-inner-info"),
         false,
-      );
-
-      const user_abbr_data = await Basefun.get_user_data();
-      if (!user_abbr_data) return;
-      await Selected.updateJournalAbbr(
-        user_abbr_data,
-        newField,
-        newField,
-        [""],
-        [""],
-        getString("prompt-success-updatejournal-inner-info"),
-        getString("prompt-error-updatejournal-inner-info"),
-        false,
+        selectedItems,
       );
     } catch (error) {
-      ztoolkit.log("error", error);
+      ztoolkit.log(`journalabbr error: ${error}`);
     }
+
+    // try {
+    //   const user_abbr_data = await Basefun.get_user_data();
+    //   if (!user_abbr_data) return;
+    //   await Selected.updateJournalAbbr(
+    //     user_abbr_data,
+    //     newField,
+    //     newField,
+    //     [""],
+    //     [""],
+    //     getString("prompt-success-updatejournal-inner-info"),
+    //     getString("prompt-error-updatejournal-inner-info"),
+    //     false,
+    //     selectedItems,
+    //   );
+    // } catch (error) {
+    //   ztoolkit.log(`journalabbr error: ${error}`);
+    // }
   }
 
   static async JA_exportAbbrKey() {

@@ -12,4 +12,5 @@ content.txt
 README.md.tmp
 m.js
 back.txt
-
+scripts/zotero-cmd-mac.json
+scripts/zotero-cmd-win.json

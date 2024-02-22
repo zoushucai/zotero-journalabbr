@@ -37,6 +37,7 @@ async function onStartup() {
   await UIExampleFactory.registerCustomItemBoxCitationkey(); // 右边的`信息`下注册额外字段 abbrCkey
   await UIExampleFactory.registerExtraColumn(); // 菜单的额外列
 
+  // await HelperAbbrFactory.JA_transferAllItemsToCustomFieldStart(); // 将所有条目的`abbr`字段的值转移到`abbrCkey`字段
   // await UIExampleFactory.registerFel();
 }
 

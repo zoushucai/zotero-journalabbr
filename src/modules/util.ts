@@ -31,11 +31,18 @@ class Basefun {
   }
 
   /////// 2. map 处理 ................................................
-  static async processSelectedItemsWithPromise(handler: (item: any) => Promise<boolean>, successMessage: string, errorMessage: string, showInfo = true) {
+  static async processSelectedItemsWithPromise(
+    handler: (item: any) => Promise<boolean>,
+    successMessage: string,
+    errorMessage: string,
+    showInfo = true,
+    selectedItems?: any[],
+  ) {
     try {
-      const selectedItems = this.filterSelectedItems();
-      if (!selectedItems) return;
-
+      if (!selectedItems) {
+        selectedItems = this.filterSelectedItems();
+        if (!selectedItems) return;
+      }
       const tasks = selectedItems.map(handler);
       const results = await Promise.all(tasks);
       const successCount = results.filter((result) => result).length;
@@ -304,12 +311,14 @@ class Selected {
     successinfo: string,
     errorinfo: string,
     showInfo: boolean,
+    selectedItems?: any[],
   ) {
     await Basefun.processSelectedItemsWithPromise(
       SelectedWithHandler.updateJournalAbbrHandler(data, oldField, newField, addtagsname, removetagsname),
       successinfo,
       errorinfo,
       showInfo,
+      selectedItems,
     );
   }
 
@@ -323,12 +332,14 @@ class Selected {
     successinfo: string,
     errorinfo: string,
     showInfo: boolean,
+    selectedItems?: any[],
   ) {
     await Basefun.processSelectedItemsWithPromise(
       SelectedWithHandler.updateJournalAbbrHandlerISO4(data, oldField, newField, addtagsname, removetagsname),
       successinfo,
       errorinfo,
       showInfo,
+      selectedItems,
     );
   }
 
@@ -546,20 +557,34 @@ class Selected {
   }
 
   // 把所有类型的条目按照一定规则转到自定义的字段上: 其中自定义字段为:
-  static async transferAllItemsToCustomField() {
-    const selectedItems = Basefun.filterSelectedItems();
-    if (!selectedItems) return;
-    const ruleItemCount = selectedItems.length;
-    for (let i = 0; i < ruleItemCount; i++) {
-      try {
-        const item = selectedItems[i];
-        const fieldValue = FeildExport.getPublicationTitleForItemType(item);
-        if (fieldValue) {
-          ztoolkit.ExtraField.setExtraField(item, "itemBoxRowabbr", fieldValue);
-        }
-      } catch (error) {
-        continue;
+  static async transferAllItemsToCustomField(selectedItems?: any[]) {
+    try {
+      if (!selectedItems) {
+        selectedItems = Basefun.filterSelectedItems();
+        if (!selectedItems) return;
       }
+      Zotero.debug("+++++++++++++++++++++++++++++++++++++++++++");
+
+      Zotero.debug(`"selectedItems: ${selectedItems.length}`);
+
+      const ruleItemCount = selectedItems.length;
+
+      for (let i = 0; i < ruleItemCount; i++) {
+        try {
+          const item = selectedItems[i];
+          const fieldValue = FeildExport.getPublicationTitleForItemType(item);
+          Zotero.debug("+++++++++++++++++++++++++++++++++++++++++++2222");
+          Zotero.debug(`"fieldValue: ${fieldValue}`);
+          if (fieldValue) {
+            await ztoolkit.ExtraField.setExtraField(item, "itemBoxRowabbr", fieldValue);
+            Zotero.debug("+++++++++++++++++++++++++++++++++++++++++++3333");
+          }
+        } catch (error) {
+          continue;
+        }
+      }
+    } catch (error) {
+      Zotero.debug(`"journalabbr error: ${error}`);
     }
   }
 
@@ -657,46 +682,47 @@ class SelectedWithHandler {
 
   static updateJournalAbbrHandlerISO4(data: { [key: string]: any }, oldField: string, newField: string, addtagsname: string[], removetagsname: string[]) {
     return async (item: any) => {
-      let currentjournal = await item.getField(oldField);
-      const currentabbr = await item.getField(newField);
-      if (!currentjournal) {
-        return false;
-      }
+      try {
+        let currentjournal = (await item.getField(oldField))?.trim();
+        const currentabbr = (await item.getField(newField))?.trim();
+        if (!currentjournal) return false;
 
-      currentjournal = currentjournal.replace(/\s+/g, " ").trim();
+        currentjournal = currentjournal.replace(/\s+/g, " ").trim();
 
-      const abbred_iso4_journal = abbrevIso.makeAbbreviation(currentjournal);
-      if (!abbred_iso4_journal) {
-        return false;
-      }
+        const abbred_iso4_journal = abbrevIso.makeAbbreviation(currentjournal);
+        if (!abbred_iso4_journal) return false;
 
-      const isIdentical = currentabbr?.trim() === abbred_iso4_journal.trim();
-      if (!isIdentical) {
-        // not identical, update
-        item.setField(newField, abbred_iso4_journal);
-      }
-
-      if ((addtagsname.length == 1 && addtagsname[0] == "") || (removetagsname.length == 1 && removetagsname[0] == "")) {
+        const isIdentical = currentabbr?.trim() === abbred_iso4_journal.trim();
         if (!isIdentical) {
+          // not identical, update
+          item.setField(newField, abbred_iso4_journal);
+        }
+
+        if ((addtagsname.length == 1 && addtagsname[0] == "") || (removetagsname.length == 1 && removetagsname[0] == "")) {
+          if (!isIdentical) {
+            await item.saveTx();
+          }
+          return true;
+        }
+
+        const tags = item.getTags(); // tags 是一个数组对象, 每个对象一般有两个属性: type, tag.
+        addtagsname = addtagsname.map((tag) => tag.trim());
+        removetagsname = removetagsname.map((tag) => tag.trim());
+
+        const removeTags = removetagsname.filter((tag) => tags.some((t: any) => t.tag === tag));
+        const addTags = addtagsname.filter((tag) => !tags.some((t: any) => t.tag === tag));
+
+        removeTags.forEach((tag) => item.removeTag(tag));
+        addTags.forEach((tag) => item.addTag(tag));
+
+        if (removeTags.length > 0 || addTags.length > 0 || !isIdentical) {
           await item.saveTx();
         }
         return true;
+      } catch (error) {
+        Zotero.debug(`Error in updateJournalAbbrHandlerISO4: ${error}`);
+        return false;
       }
-
-      const tags = item.getTags(); // tags 是一个数组对象, 每个对象一般有两个属性: type, tag.
-      addtagsname = addtagsname.map((tag) => tag.trim());
-      removetagsname = removetagsname.map((tag) => tag.trim());
-
-      const removeTags = removetagsname.filter((tag) => tags.some((t: any) => t.tag === tag));
-      const addTags = addtagsname.filter((tag) => !tags.some((t: any) => t.tag === tag));
-
-      removeTags.forEach((tag) => item.removeTag(tag));
-      addTags.forEach((tag) => item.addTag(tag));
-
-      if (removeTags.length > 0 || addTags.length > 0 || !isIdentical) {
-        await item.saveTx();
-      }
-      return true;
     };
   }
 }
