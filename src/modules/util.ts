@@ -40,7 +40,7 @@ class ResultInfo {
 class Basefun {
   /**
    * 用于筛选合格的条目, 所选的条目应该 过滤笔记 且 是规则的 item
-   * @returns 返回一个数组, 里面是选中的条目
+   * @returns {Array<Zotero.Item> | undefined} 返回一个数组, 里面包含选中的条目, 如果没有选中的条目, 则返回 undefined
    */
   static filterSelectedItems() {
     //const items = Zotero.getActiveZoteroPane().getSelectedItems();
@@ -56,18 +56,18 @@ class Basefun {
 
   /**
    * 功能: 对选中的条目进行处理, 传递的第一个参数为处理函数, 第二个参数为成功的提示信息, 第三个参数为失败的提示信息, 第四个参数为是否显示提示信息, 第五个参数为选中的条目
-   * @param handler , 传递的第一个参数为处理函数
-   * @param successMessage , 传递的第二个参数为成功的提示信息
-   * @param errorMessage , 传递的第三个参数为失败的提示信息
-   * @param showInfo , 传递的第四个参数为是否显示提示信息. 默认为 true
-   * @param selectedItems  , 传递的第五个参数为选中的条目, 如果没有传递, 则默认为当前选中的条目
+   * @param {function} handler , 传递的第一个参数为处理函数, 该函数返回一个 Promise<boolean>
+   * @param {string} successMessage , 传递的第二个参数为成功的提示信息
+   * @param {string} errorMessage , 传递的第三个参数为失败的提示信息
+   * @param {boolean} [showInfo=true] - showInfo , 传递的第四个参数为是否显示提示信息. 默认为 true
+   * @param {Array<Zotero.Item>} [selectedItems] - selectedItems  , 传递的第五个参数为选中的条目, 如果没有传递, 则默认为当前选中的条目
    */
   static async processSelectedItemsWithPromise(
     handler: (item: any) => Promise<boolean>,
     successMessage: string,
     errorMessage: string,
     showInfo: boolean = true,
-    selectedItems?: any[],
+    selectedItems?: Array<Zotero.Item>,
   ) {
     try {
       if (!selectedItems) {
@@ -145,6 +145,7 @@ class Basefun {
     }
 
     const fileExtension = userfile.split(".").pop()?.toLowerCase();
+    // const fileExtension = Zotero.File.getExtension(userfile);
     if (!fileExtension || (fileExtension !== "csv" && fileExtension !== "json")) {
       if (isshowinfo) {
         BasicExampleFactory.ShowError("请先选择 csv 或者 json 文件");
@@ -159,6 +160,9 @@ class Basefun {
         break;
       case "json":
         user_abbr_data = await this.read_json(userfile);
+        break;
+      default:
+        BasicExampleFactory.ShowError("文件格式错误");
         break;
     }
     if (!user_abbr_data || typeof user_abbr_data !== "object") {
@@ -210,10 +214,10 @@ class Basefun {
 
   /**
    * 根据csv文件路径读取文件, 把文件的内容作为用户缩写数据集
-   * @param filePath  字符串类型  代表文件路径
-   * @returns  返回用户缩写数据集, 是一个字典对象, key 为原始期刊名(全部是小写且删除多余的空格), value 为缩写
+   * @param {string} filePath  字符串类型  代表文件路径
+   * @returns {Promise<{ [key: string]: any } | null> | null} 返回用户缩写数据集, 是一个字典对象, key 为原始期刊名(全部是小写且删除多余的空格), value 为缩写
    */
-  static async read_csv(filePath: string) {
+  static async read_csv(filePath: string): Promise<{ [key: string]: any } | null> {
     const pref_separator = Zotero.Prefs.get(`${config.addonRef}.separator`) as string; // 获得持久化的变量, 读取用户设置的分割符号
     const user_abbr_data = await Selected.readAndParseCSV(filePath, pref_separator); // 读取 csv 文件并为字典对象
     return user_abbr_data;
@@ -221,10 +225,10 @@ class Basefun {
 
   /**
    * 选择打开文件窗口, 选择文件路径, 把选择的文件路径返回
-   * @param suggestion  字符串类型  为建议的文件名
-   * @returns  返回一个字符串类型  代表文件路径
+   * @param {string} suggestion  字符串类型  为建议的文件名
+   * @returns {Promise<string | false>} 返回一个字符串类型  代表文件路径, 如果没有选择文件, 则返回 false
    */
-  static async getDir(suggestion: string) {
+  static async getDir(suggestion: string) : Promise<string | false> {
     const path = await new ztoolkit.FilePicker(
       "Save File",
       "save",
@@ -240,7 +244,7 @@ class Basefun {
 
   /**
    * 获取当前的快速复制格式
-   * @returns 返回一个字符串类型  代表当前的快速复制格式
+   * @returns {string | null} 返回一个字符串类型  代表当前的快速复制格式
    */
   static getQuickCopyFormat() {
     const format = Zotero.Prefs.get("export.quickCopy.setting") as string;
@@ -293,11 +297,12 @@ class Basefun {
 class Selected {
   /**
    * 功能: 对选中的条目进行处理, 传递的第一个参数为处理函数, 第二个参数为成功的提示信息, 第三个参数为失败的提示信息, 第四个参数为是否显示提示信息, 第五个参数为选中的条目
-   * @param transformFn , 传递的第一个参数为处理函数
-   * @param key , 传递的第二个参数为处理的字段
-   * @param selectedItems  , 传递的第三个参数为选中的条目
+   * @param {function} transformFn , 传递的第一个参数为处理函数
+   * @param {Zotero.Item.ItemField} key , 传递的第二个参数为成功的提示信息
+   * @param {Array<Zotero.Item>} [selectedItems]  , 传递的第三个参数为选中的条目, 如果没有传递, 则默认为当前选中的条目
+   * @returns 返回一个 ResultInfo 类型的对象
    */
-  static async processSelectItems(transformFn: (originalValue: string) => string, key: any = "journalAbbreviation", selectedItems?: any[]) {
+  static async processSelectItems(transformFn: (originalValue: string) => string, key: Zotero.Item.ItemField = "journalAbbreviation", selectedItems?: Array<Zotero.Item>) {
     if (!selectedItems) {
       selectedItems = Basefun.filterSelectedItems();
       if (!selectedItems) return;
@@ -332,18 +337,17 @@ class Selected {
   // 交换期刊名 --- 即简写期刊与期刊名互换 --- 还是循环的方式-- 感觉循环比较快
   /**
    * 对选中的条目进行处理, 交换两个字段的值, 如果交换成功, 则添加给定的标签,
-   * @param key1  , 字符串类型  默认为 journalAbbreviation
-   * @param key2 , 字符串类型  默认为 publicationTitle
-   * @param exchangetagname , 字符串类型  默认为 exchange, 当两个字段交换成功以后, 如果以前没有存在该标签, 则添加的标签, 如果以前存在该标签, 则删除
-   * @param selectedItems , 要处理的项目数组（可选）
-   * @returns
+   * @param {Zotero.Item.ItemField} [key1="journalAbbreviation"]  , 字符串类型  默认为 journalAbbreviation
+   * @param {Zotero.Item.ItemField} [key2="publicationTitle"]  , 字符串类型  默认为 publicationTitle
+   * @param {string} [exchangetagname="exchange"]  , 字符串类型  默认为 exchange, 当两个字段交换成功以后, 如果以前没有存在该标签, 则添加的标签, 如果以前存在该标签, 则删除
+   * @param {Array<Zotero.Item>} [selectedItems]  , 传递的第四个参数为选中的条目, 如果没有传递, 则默认为当前选中的条目
    */
-  static async exchangeJournalName(key1: any = "journalAbbreviation", key2: any = "publicationTitle", exchangetagname = "exchange", selectedItems?: any[]) {
+  static async exchangeJournalName(key1: Zotero.Item.ItemField = "journalAbbreviation", key2: Zotero.Item.ItemField = "publicationTitle", exchangetagname:string = "exchange", selectedItems?: Array<Zotero.Item>) {
     if (!selectedItems) {
       selectedItems = Basefun.filterSelectedItems();
       if (!selectedItems) return;
     }
-
+    
     const selectedItemsLength = selectedItems.length;
 
     let successCount = 0;
@@ -373,11 +377,11 @@ class Selected {
 
   /**
    * 根据文件路径和分隔符,  读取 csv 文件并解析
-   * @param filePath  字符串类型  代表文件路径
-   * @param delimiter  字符串类型  代表分隔符
-   * @returns  返回用户缩写数据集, 是一个字典对象, key 为原始期刊名(全部是小写且删除多余的空格), value 为缩写
+   * @param {string} filePath  字符串类型  代表文件路径
+   * @param {string} [delimiter=","]  字符串类型  代表分隔符
+   * @returns {Promise<{ [key: string]: any } | null>} 返回用户缩写数据集, 是一个字典对象, key 为原始期刊名(全部是小写且删除多余的空格), value 为缩写
    */
-  static async readAndParseCSV(filePath: string, delimiter = ",") {
+  static async readAndParseCSV(filePath: string, delimiter:string = ","): Promise<{ [key: string]: any } | null> {
     try {
       const csvContent = (await Zotero.File.getContentsAsync(filePath)) as string;
       const lines = csvContent.trim().split("\n");
@@ -420,15 +424,16 @@ class Selected {
 
   /**
    * 定义一个共用的函数, 用于更新期刊缩写, 对选中的条目进行处理, 给定缩写数据集, 对item的期刊缩写进行更新, 如果更新成功, 则添加给定的标签, 如果更新失败, 则添加给定的标签
-   * @param data , 给定的缩写数据集, 是一个字典对象, 第一列key为原始期刊名(全部是小写且删除多余的空格), 第二列value为缩写
-   * @param oldField , 字符串类型  为item 的字段名称,即要对item的字段,根据data,找出对应的缩写
-   * @param newField , 字符串类型  为item 的字段名称, 把找到的缩写更新到这个字段中
-   * @param addtagsname , 字符串数组类型, 当更新成功以后, 添加的标签, 用于标记识别
-   * @param removetagsname , 字符串数组类型, 当更新成功以后, 删除的标签, 防止重复
-   * @param successinfo , 字符串类型  更新成功的提示信息
-   * @param errorinfo , 字符串类型  更新失败的提示信息
-   * @param showInfo , 布尔类型  是否显示提示信息
-   * @param selectedItems , 要处理的项目数组（可选）
+   * @param {Object} data , 给定的缩写数据集, 是一个字典对象, 第一列key为原始期刊名(全部是小写且删除多余的空格), 第二列value为缩写
+   * @param {string} oldField , 字符串类型  为item 的字段名称,即要对item的字段,根据data,找出对应的缩写
+   * @param {string} newField , 字符串类型  为item 的字段名称, 把找到的缩写更新到这个字段中
+   * @param {Array<string>} addtagsname , 字符串数组类型, 当更新成功以后, 添加的标签, 用于标记识别
+   * @param {Array<string>} removetagsname , 字符串数组类型, 当更新成功以后, 删除的标签, 防止重复
+   * @param {string} successinfo , 字符串类型  更新成功的提示信息
+   * @param {string} errorinfo , 字符串类型  更新失败的提示信息
+   * @param {boolean} showInfo , 布尔类型  是否显示提示信息
+   * @param {Array<Zotero.Item>} [selectedItems]  , 传递的第九个参数为要处理的项目数组（可选）, 如果没有传递, 则默认为当前选中的条目
+   * @returns {Promise<void>} 返回一个 Promise<void>
    */
   static async updateJournalAbbr(
     data: { [key: string]: any },
@@ -439,8 +444,8 @@ class Selected {
     successinfo: string,
     errorinfo: string,
     showInfo: boolean,
-    selectedItems?: any[],
-  ) {
+    selectedItems?: Array<Zotero.Item>,
+  ): Promise<void> {
     await Basefun.processSelectedItemsWithPromise(
       SelectedWithHandler.updateJournalAbbrHandler(data, oldField, newField, addtagsname, removetagsname),
       successinfo,
@@ -452,15 +457,15 @@ class Selected {
 
   /**
    * 采用 iso-4 标准进行期刊缩写
-   * @param data 为了保持一致, 这里这个data参数没有用到, 一般用{}即可
-   * @param oldField , 字符串类型  为item 的字段名称,即要对item的字段,根据 iso标准, 找出对应的缩写
-   * @param newField , 字符串类型  为item 的字段名称, 把找到的缩写更新到这个字段中
-   * @param addtagsname , 字符串数组类型, 当更新成功以后, 添加的标签, 用于标记识别
-   * @param removetagsname , 字符串数组类型, 当更新成功以后, 删除的标签, 防止重复
-   * @param successinfo , 字符串类型  更新成功的提示信息
-   * @param errorinfo , 字符串类型  更新失败的提示信息
-   * @param showInfo , 布尔类型  是否显示提示信息
-   * @param selectedItems , 要处理的项目数组（可选）
+   * @param {Object} data , 给定的缩写数据集, 是一个字典对象, 第一列key为原始期刊名(全部是小写且删除多余的空格), 第二列value为缩写, 这里主要是 data 为了保持一致, 一般用{}即可
+   * @param {string} oldField , 字符串类型  为item 的字段名称,即要对item的字段,根据 iso标准, 找出对应的缩写
+   * @param {string} newField , 字符串类型  为item 的字段名称, 把找到的缩写更新到这个字段中
+   * @param {Array<string>} addtagsname , 字符串数组类型, 当更新成功以后, 添加的标签, 用于标记识别
+   * @param {Array<string>} removetagsname , 字符串数组类型, 当更新成功以后, 删除的标签, 防止重复
+   * @param {string} successinfo , 字符串类型  更新成功的提示信息
+   * @param {string} errorinfo , 字符串类型  更新失败的提示信息
+   * @param {boolean} showInfo , 布尔类型  是否显示提示信息
+   * @param {Array<Zotero.Item>} [selectedItems]  - , 为要处理的项目数组（可选）
    */
   static async updateUseISO4(
     data: { [key: string]: any },
@@ -471,7 +476,7 @@ class Selected {
     successinfo: string,
     errorinfo: string,
     showInfo: boolean,
-    selectedItems?: any[],
+    selectedItems?: Array<Zotero.Item>,
   ) {
     await Basefun.processSelectedItemsWithPromise(
       SelectedWithHandler.updateJournalAbbrHandlerISO4(data, oldField, newField, addtagsname, removetagsname),
@@ -703,9 +708,9 @@ class Selected {
 
   /**
    * 对选中的条目进行处理, 把所有类型的条目按照一定规则转到自定义的字段上, 这个字段是 extraField下面的 itemBoxRowabbr字段, 理论上根据itemBoxRowabbr的值, 映射到面板信息为abbr字段上
-   * @param selectedItems  , 传递的第一个参数为处理函数
+   * @param {Array<Zotero.Item>} [selectedItems]  , 传递的第一个参数为要处理的项目数组（可选）, 如果没有传递, 则默认为当前选中的条目
    */
-  static async transferAllItemsToCustomField(selectedItems?: any[]) {
+  static async transferAllItemsToCustomField(selectedItems?: Array<Zotero.Item>) {
     try {
       if (!selectedItems) {
         selectedItems = Basefun.filterSelectedItems();
@@ -734,6 +739,7 @@ class Selected {
   /**
    * 对选中的条目进行处理, 把 citationkey 的值, 更新到 extraField 下面的 itemBoxCitationkey 字段上
    * @returns 返回一个 ResultInfo 类型的对象
+   *  
    */
   static async exportCitationkey() {
     const selectedItems = Basefun.filterSelectedItems();
@@ -788,10 +794,10 @@ class Selected {
 class SelectedWithHandler {
   /**
    * 移除标签的处理函数
-   * @param usertags  字符串数组类型, 要移除的标签
-   * @returns 返回一个处理函数
+   * @param {Array<string>} usertags  字符串数组类型, 要移除的标签
+   * @returns {function} 返回一个处理函数
    */
-  static removeTagHandler(usertags: string[]) {
+  static removeTagHandler(usertags: string[]): (item: any) => Promise<boolean>{
     return async (item: any) => {
       const success = item.removeTag(usertags[0]);
       if (success) {
@@ -803,11 +809,11 @@ class SelectedWithHandler {
 
   /**
    * 更新期刊缩写的处理函数
-   * @param data  期刊缩写的数据集
-   * @param oldField  旧的字段, 通过该字段,在data中找到对应的缩写
-   * @param newField  新的字段, 找到的缩写更新到这个字段
-   * @param addtagsname , 当更新成功以后, 添加的标签, 用于标记识别
-   * @param removetagsname , 当更新成功以后, 删除的标签, 防止重复
+   * @param { { [key: string]: any } } data  期刊缩写的数据集, 是一个字典对象, key 为原始期刊名(全部是小写且删除多余的空格), value 为缩写
+   * @param {string} oldField  字符串类型  为item 的字段名称,即要对item的字段,根据data,找出对应的缩写
+   * @param {string} newField  字符串类型  为item 的字段名称, 把找到的缩写更新到这个字段中
+   * @param {Array<string>} addtagsname  字符串数组类型, 当更新成功以后, 添加的标签, 用于标记识别
+   * @param {Array<string>} removetagsname  字符串数组类型, 当更新成功以后, 删除的标签, 防止重复
    * @returns  返回一个处理函数
    */
   static updateJournalAbbrHandler(data: { [key: string]: any }, oldField: string, newField: string, addtagsname: string[], removetagsname: string[]) {
@@ -864,11 +870,11 @@ class SelectedWithHandler {
 
   /**
    * 对期刊进行缩写, 使用 iso-4 标准进行缩写
-   * @param data 为了保持一致, 这里这个data参数没有用到, 一般用传递 {} 即可
-   * @param oldField  字符串类型, 为item 的字段名称,即要对item的字段,根据 iso标准, 找出对应的缩写
-   * @param newField   字符串类型,为item 的字段名称, 把找到的缩写更新到这个字段中
-   * @param addtagsname 字符串数组类型, 当更新成功以后, 添加的标签, 用于标记识别
-   * @param removetagsname 字符串数组类型, 当更新成功以后, 删除的标签, 防止重复
+   * @param { { [key: string]: any } } data 为了保持一致, 这里这个data参数没有用到, 一般用传递 {} 即可
+   * @param {string} oldField  字符串类型  为item 的字段名称,即要对item的字段,根据 iso标准, 找出对应的缩写
+   * @param {string} newField  字符串类型  为item 的字段名称, 把找到的缩写更新到这个字段中
+   * @param {Array<string>} addtagsname  字符串数组类型, 当更新成功以后, 添加的标签, 用于标记识别
+   * @param {Array<string>} removetagsname  字符串数组类型, 当更新成功以后, 删除的标签, 防止重复
    * @returns 返回一个处理函数
    */
   static updateJournalAbbrHandlerISO4(data: { [key: string]: any }, oldField: string, newField: string, addtagsname: string[], removetagsname: string[]) {
@@ -936,10 +942,10 @@ class SelectedWithHandler {
 class FeildExport {
   /**
    * 把jsonData转换为csv
-   * @param jsonData  是一个数组对象(类似python的字典), 把数组对象转换为 csv
-   * @returns 返回一个字符串, 表示转换后的csv
+   * @param {any} jsonData  是一个数组对象, 把数组对象转换为 csv
+   * @returns {string} 返回一个字符串, 表示转换后的csv
    */
-  static convertJsonToCsv(jsonData: any) {
+  static convertJsonToCsv(jsonData: any): string {
     /**
      * 参数: jsonData 是一个数组对象, 把数组对象转换为 csv
      * 作用:  根据对象转换为 csv, key 为 header, value 为数据
@@ -972,7 +978,7 @@ class FeildExport {
 
   /**
    * 把 数组authors按照一定的格式进行处理,转为字符串
-   * @param authors 是一个数组对象, 每个对象一般有两个属性: firstName, lastName,
+   * @param {any} authors  是一个数组对象, 每个对象一般有两个属性: firstName, lastName,
    * @returns 返回一个字符串
    * 作用: 通过遍历数组, 把数组中的每个对象的 firstName 和 lastName 进行拼接,空格隔开, 然后再把数组中的每个对象拼接起来, 用逗号隔开, 最终返回一个字符串
    */
@@ -987,8 +993,8 @@ class FeildExport {
 
   /**
    * 把数组authors按照一定的格式进行处理,转为对象
-   * @param maxAuthorNum  是一个数字, 表示当前选择的 item 种 最大的作者数量
-   * @param authors  是一个数组对象, 每个对象一般有两个属性: firstName, lastName,
+   * @param {number} maxAuthorNum  是一个数字, 表示当前选择的 item 种 最大的作者数量
+   * @param {any} authors  是一个数组对象, 每个对象一般有两个属性: firstName, lastName,
    * @returns  返回一个对象
    * 作用: 通过遍历数组, 把数组中的每个对象的 firstName 和 lastName 进行拼接,空格隔开, 然后把拼接后的字符串 作为jsonData_author 的属性, 最终返回一个对象
    */
@@ -1007,7 +1013,7 @@ class FeildExport {
 
   /**
    * 给定一个 item, 根据item的类型, 获取不同类型的期刊名称, 这里都用 publicationTitle 表示, 特别的, 对于 journalarticle 类型, 优先使用 journalAbbreviation, 如果没有, 则使用 publicationTitle
-   * @param item  传递的 item
+   * @param {any} item  传递的 item
    * @returns 返回一个字符串
    * 作用: 通过 item 的类型, 处理 PublicationTitle, 从不同类型的 item 中获取
    */
@@ -1141,16 +1147,17 @@ class FeildExport {
 
   /**
    * 获取 item 的基本信息, 生成一个对象, 用于存储 item 的基本信息
-   * @param item  传递的 item
-   * @param selectTagSets  选择的标签集合
-   * @param maxAuthorNum  最大作者数量
-   * @param cslEngine  生成参考文献格式的引擎
+   * @param {any} item  传递的 item, 但由于 dateAdded 和 dateModified 不在 Zotero.Item 指定的属性中, 这里用 any 类型
+   * @param {any} selectTagSets  选择的标签集合
+   * @param {number} maxAuthorNum  最大作者数量
+   * @param {any} cslEngine  生成参考文献格式的引擎
    * @returns 返回一个对象, 用于存储 item 的基本信息, 这个对象可以转为 csv
    */
-  static getItemData(item: any, selectTagSets: any, maxAuthorNum: number, cslEngine: any) {
+  static getItemData(item: any,  selectTagSets: any, maxAuthorNum: number, cslEngine: any) {
     const item_ckey = String(item.getField("citationKey")).trim();
     const item_title = String(item.getField("title")).trim();
     const item_date = item.getField("date");
+    
     const item_dateAdded = item.getField("dateAdded");
     const item_dateModified = item.getField("dateModified");
     const item_doi = item.getField("DOI");
@@ -1203,11 +1210,11 @@ class FeildExport {
 
   /**
    * 循环每个 item, 获取数据, 得到一个数组对象, 然后转为 csv
-   * @param items  选择的条目,是数组
-   * @param filetype  导出的文件类型, 可以是 json 或者 csv(默认是 csv)
+   * @param {Array<Zotero.Item>} items  选择的条目,是数组
+   * @param {string} filetype  导出的文件类型, 可以是 json 或者 csv(默认是 csv)
    * @returns 返回一个字符串
    */
-  static generateFile(items: any, filetype: string) {
+  static generateFile(items: Array<Zotero.Item>, filetype: string) {
     const cslEngine = Basefun.getQuickCopyFormat2();
     const libColorTagSet = this.getLibTagColors(items);
     const selectTagSets = this.getSelectTagColors(items, libColorTagSet);

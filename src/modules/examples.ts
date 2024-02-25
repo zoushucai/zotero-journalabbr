@@ -78,23 +78,28 @@ export class BasicExampleFactory {
       .show();
   }
 
-  // 选择地址,
+  /**
+   * 通过文件选择器选择文件
+   * @param {string} fileExtension 文件扩展名, 默认为 *.csv;*.json,如果多个扩展名,则用分号隔开
+   * @returns {string | null} 返回选择的文件路径, 如果没有选择, 则返回 null
+   */
   @example
-  static async filePickerExample() {
+  static async filePickerExample(fileExtension: string = "*.csv;*.json") {
+    const showfileExtension = fileExtension.split(";").map((item) => item.split(".").pop()).join("/");
     const path = await new ztoolkit.FilePicker("Import File", "open", [
-      ["CSV/JSON (*.csv, *.json)", "*.csv;*.json"],
+      [`${showfileExtension}(${fileExtension})`, fileExtension],
       ["Any(*.*)", "*"],
     ]).open();
+
     // 判断选择的地址是否为空,以及是否为字符串 false
-    if (typeof path === "string" && path !== "" && path !== "false" && path !== "undefined" && path !== "null") {
-      return path;
-    } else {
-      return null;
-    }
+    return (typeof path === "string" && path !== "" && path !== "false" && path !== "undefined" && path !== "null") ? path : null;
     //ztoolkit.getGlobal("alert")(`Selected ${path}`);
   }
 
-  // 显示事件改变的信息 -- 下拉框/复选框
+  /**
+   * 通过绑定事件,如果改变了下拉框/复选框的值,则显示相应的信息
+   * @param event 事件对象
+   */
   @example
   static async showChangeEventInfo(event: Event) {
     const target = event.target as HTMLInputElement;
@@ -123,7 +128,14 @@ export class BasicExampleFactory {
     }
   }
 
-  // 显示参考文献转换信息
+  /**
+   * 主要用于显示参考文献转换信息
+   * @param {number} ruleItemCount  规则的 item 数量
+   * @param {number} successfulCount  成功的数量
+   * @param {number} noActionCount  没有操作的数量
+   * @param {number} missingInfoItemCount  缺少信息的数量
+   * @returns null, 无返回值
+   */
   static async showBibConversionStatus(ruleItemCount: number, successfulCount: number, noActionCount: number, missingInfoItemCount: number) {
     if (successfulCount > 0) {
       this.ShowStatus(ruleItemCount, successfulCount, "items are converted.");
@@ -136,7 +148,10 @@ export class BasicExampleFactory {
     }
   }
 
-  // 初始化设置
+  /**
+   * 对于首次安装的用户,初始化设置, 用于设置默认值
+   * @returns 无
+   */
   @example
   static async initPrefs() {
     const initpref_data = {
@@ -493,13 +508,17 @@ export class UIExampleFactory {
   // }
 }
 
-///////////////////////////////
+/**
+ * 用于处理期刊缩写的工厂类
+ * @class HelperAbbrFactory 期刊缩写工厂类
+ */
 export class HelperAbbrFactory {
   /**
    * 对选中的条目进行处理, 根据 journalAbbreviation 的字段进行特殊转换 -- 大写
-   * @param selectedItems 要处理的项目数组（可选）
+   * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
+   * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_toUpperCase(selectedItems?: any[]) {
+  static async JA_toUpperCase(selectedItems?: Array<Zotero.Item>): Promise<void> {
     const transformFn = (value: any) => value.toUpperCase();
     const successinfo = getString("prompt-success-abbrToupper-info");
     const failinfo = getString("prompt-fail-abbrToupper-info");
@@ -514,8 +533,10 @@ export class HelperAbbrFactory {
 
   /**
    * 对选中的条目进行处理, 根据 journalAbbreviation 的字段进行特殊转换 -- 小写
+   * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
+   * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_toLowerCase(selectedItems?: any[]) {
+  static async JA_toLowerCase(selectedItems?: Array<Zotero.Item>): Promise<void> {
     const transformFn = (value: any) => value.toLowerCase();
     const successinfo = getString("prompt-success-abbrTolower-info");
     const failinfo = getString("prompt-fail-abbrTolower-info");
@@ -529,9 +550,10 @@ export class HelperAbbrFactory {
 
   /**
    * 对选中的条目进行处理, 根据 journalAbbreviation 的字段进行特殊转换 -- 首字母大写
-   * @param selectedItems 要处理的项目数组（可选）
+   * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
+   * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_toCapitalize(selectedItems?: any[]) {
+  static async JA_toCapitalize(selectedItems?: Array<Zotero.Item>): Promise<void> {
     const transformFn = (value: any) =>
       value.replace(/(?:^|\s)\S/g, function (firstChar: string) {
         return firstChar.toUpperCase();
@@ -548,9 +570,10 @@ export class HelperAbbrFactory {
 
   /**
    * 对选中的条目进行处理, 根据 journalAbbreviation 的字段进行特殊转换 -- 提取首字母并大写
-   * @param selectedItems 要处理的项目数组（可选）
+   * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
+   * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_InitialismAbbr(selectedItems?: any[]) {
+  static async JA_InitialismAbbr(selectedItems?: Array<Zotero.Item>) {
     const isEnglishWithAllCharacters = (str: string) => /^[\w\s\t\n\r\-'",.;:!?(){}[\]<>#+=*_~%^&|/$\\]+$/.test(str);
     const ignoredWords = new Set([
       "and",
@@ -630,9 +653,10 @@ export class HelperAbbrFactory {
 
   /**
    * 对选中的条目进行处理, 根据 journalAbbreviation 的字段进行特殊转换 -- 移除点
-   * @param selectedItems 要处理的项目数组（可选）
+   * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
+   * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_removeDot(selectedItems?: any[]) {
+  static async JA_removeDot(selectedItems?: Array<Zotero.Item>): Promise<void>{
     const transformFn = (value: any) => value.replace(/\./g, "");
     const successinfo = getString("prompt-success-removeAbbrdot-info");
     const failinfo = getString("prompt-fail-removeAbbrdot-info");
@@ -647,9 +671,10 @@ export class HelperAbbrFactory {
   /**
    * 对选中的条目进行处理, 根据标签名称, 删除对应的标签
    * @param usertags 要删除的标签名称数组
-   * @param selectedItems 要处理的项目数组（可选）
+   * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
+   * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_removeTagname(usertags: string[], selectedItems?: any[]) {
+  static async JA_removeTagname(usertags: string[], selectedItems?: Array<Zotero.Item>): Promise<void>{
     await Basefun.processSelectedItemsWithPromise(
       SelectedWithHandler.removeTagHandler(usertags),
       getString("prompt-success-removetag-info") + ": " + usertags[0],
@@ -663,12 +688,12 @@ export class HelperAbbrFactory {
 
   /**
    * 对选中的条目进行处理, 交换两个字段的值, 如果交换成功, 则添加给定的标签,
-   * @param key1 ,字符串, 默认值为 "journalAbbreviation"
-   * @param key2 , 字符串, 默认值为 "publicationTitle"
-   * @param exchangetagname , 字符串, 默认值为 "exchange", 当两个字段交换成功以后, 如果以前没有存在该标签, 则添加的标签, 如果以前存在该标签, 则删除
-   * @param selectedItems 要处理的项目数组（可选）
+   * @param {Zotero.Item.ItemField} [key1="journalAbbreviation"] 字符串, 默认值为 "journalAbbreviation"
+   * @param {Zotero.Item.ItemField} [key2="publicationTitle"] 字符串, 默认值为 "publicationTitle"
+   * @param {string} [exchangetagname="exchange"] 字符串, 默认值为 "exchange", 当两个字段交换成功以后, 如果以前没有存在该标签, 则添加的标签, 如果以前存在该标签, 则删除
+   * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    */
-  static async JA_exchangeName(key1: any = "journalAbbreviation", key2: any = "publicationTitle", exchangetagname = "exchange", selectedItems?: any[]) {
+  static async JA_exchangeName(key1: Zotero.Item.ItemField = "journalAbbreviation", key2: Zotero.Item.ItemField = "publicationTitle", exchangetagname = "exchange", selectedItems?: Array<Zotero.Item>) {
     const successinfo = getString("prompt-success-exchange-info");
     const failinfo = getString("prompt-error-exchange-info");
     Basefun.executeFunctionWithTryCatch(async () => await Selected.exchangeJournalName(key1, key2, exchangetagname, selectedItems), successinfo, failinfo);
@@ -679,7 +704,7 @@ export class HelperAbbrFactory {
    */
   @example
   static async buttonSelectFilePath() {
-    const mypath = await BasicExampleFactory.filePickerExample();
+    const mypath = await BasicExampleFactory.filePickerExample("*.csv;*.json"); // "*.csv;*.json
 
     // 判断选择的地址是否为空
     if (!mypath) {
@@ -695,7 +720,7 @@ export class HelperAbbrFactory {
    */
   @example
   static async buttonJsonSelectFilePath() {
-    const mypath = await BasicExampleFactory.filePickerExample();
+    const mypath = await BasicExampleFactory.filePickerExample("*.json"); // "*.csv;*.json
 
     // 判断选择的地址是否为空
     if (!mypath) {
@@ -708,8 +733,8 @@ export class HelperAbbrFactory {
 
   /**
    * 对选中的条目进行处理, 添加/删除指定的标签, 对一个固定的数组进行处理, 返回添加的标签名称数组和删除的标签名称数组
-   * @param isselect_addAutotags 是否添加自动标签
-   * @param addtagsname 要添加的标签名称数组
+   * @param {boolean} isselect_addAutotags 是否添加自动标签
+   * @param {string[]} addtagsname 要添加的标签名称数组
    */
   static JA_processTags(isselect_addAutotags: boolean, addtagsname: string[]) {
     const tagsall = ["abbr", "abbr_user", "abbr_iso4", "regex"]; // 定义包含多个固定值的数组
@@ -727,9 +752,9 @@ export class HelperAbbrFactory {
 
   /**
    * 1.对选中的条目进行处理, 采用内部数据集对期刊缩写进行更新.
-   * @param selectedItems 要处理的项目数组（可选）
+   * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    */
-  static async JA_update_UseInnerData(selectedItems?: any[]) {
+  static async JA_update_UseInnerData(selectedItems?: Array<Zotero.Item>) {
     const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addAutotags");
 
     // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
@@ -753,10 +778,11 @@ export class HelperAbbrFactory {
 
   /**
    * 2.对选中的条目进行处理, 采用用户数据集(通过用户根据文件路径进行指定) 对期刊缩写进行更新
-   * @param selectedItems 要处理的项目数组（可选）
-   * @returns
+   * @param {boolean} [isshowinfo=true] 是否显示提示信息
+   * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
+   * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_update_UseUserData(isshowinfo: boolean = true, selectedItems?: any[]) {
+  static async JA_update_UseUserData(isshowinfo: boolean = true, selectedItems?: Array<Zotero.Item>) {
     const user_abbr_data = await Basefun.get_user_data(isshowinfo);
     if (!user_abbr_data) return;
 
@@ -783,9 +809,9 @@ export class HelperAbbrFactory {
   /**
    *
    * 3. 对选中的条目进行处理, 采用 ISO4 规则进行更新
-   * @param selectedItems 要处理的项目数组（可选）
+   * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    */
-  static async JA_update_UseISO4(selectedItems?: any[]) {
+  static async JA_update_UseISO4(selectedItems?: Array<Zotero.Item>) {
     const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addAutotags");
     // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
     const isselect_addAutotags =
@@ -808,9 +834,9 @@ export class HelperAbbrFactory {
   /**
    *
    * 一键更新期刊缩写, 首先使用 iso4 标准, 然后使用内部数据集, 最后使用自定义数据集, 因此如果一个期刊存在多种标准,优先级: iso4 < 内部数据集 < 自定义数据集
-   * @param selectedItems  要处理的项目数组（可选）
+   * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    */
-  static async JA_oneStepUpdate(selectedItems?: any[]) {
+  static async JA_oneStepUpdate(selectedItems?: Array<Zotero.Item>) {
     await this.JA_update_UseISO4(selectedItems); // 使用 iso4 标准
     await this.JA_update_UseInnerData(selectedItems); // 使用内部数据集
     await this.JA_update_UseUserData(true, selectedItems); // 使用自定义数据集, 会提示用户选择文件,如果出错,可以忽略
@@ -852,8 +878,6 @@ export class HelperAbbrFactory {
 
   /**
    * 主要是zotero启动时运行该函数, 对所有文献, 采用一键更新期刊缩写, 然后对所有文献(不同类别的文献)期刊字段, 转移到自定义字段 `itemBoxRowabbr` 中(在面板中显示的是 abbr 值)
-   * @param selectedItems  要处理的项目数组（可选）
-   * @returns
    */
   static async JA_transferAllItemsToCustomFieldStart() {
     try {
@@ -868,9 +892,11 @@ export class HelperAbbrFactory {
 
   /**
    *主要是在菜单栏中进行点击操作, 点击的标签是: abbrall,  对选中的文献, 采用一键更新期刊缩写, 然后对选中的文献(不同类别的文献)期刊字段, 转移到自定义字段 `itemBoxRowabbr` 中(在面板中显示的是 abbr 值)
-   * @param selectedItems 要转移的项目数组（可选）
+   * @param {boolean} [isshowinfo=true] 是否显示提示信息
+   * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
+   * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_transferAllItemsToCustomField(isshowinfo: boolean = true, selectedItems?: any[]) {
+  static async JA_transferAllItemsToCustomField(isshowinfo: boolean = true, selectedItems?: Array<Zotero.Item>) {
     // // 方法一 : 一键更新期刊缩写, 然后对选中的文献(不同类别的文献)期刊字段, 转移到自定义字段 `itemBoxRowabbr` 中(在面板中显示的是 abbr 值)
     await this.JA_update_UseISO4(selectedItems); // 使用 iso4 标准
     await new Promise((resolve) => setTimeout(resolve, 3000)); // 休眠3秒钟

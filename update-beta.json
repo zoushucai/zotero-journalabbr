@@ -1,9 +1,9 @@
 {
   "addons": {
-    "addontemplate@euclpts.com": {
+    "journalabbr@zsc.com": {
       "updates": [
         {
-          "version": "1.0.0",
+          "version": "0.7.11",
           "update_link": "https://github.com/zoushucai/zotero-journalabbr/releases/latest/download/zotero-journalabbr.xpi",
           "applications": {
             "zotero": {
