@@ -1,12 +1,13 @@
 # zotero-journalabbr
 
-- 备注: 内置缩写表不一定准确, 导出数据以后需要仔细检查
+[![zotero target version](https://img.shields.io/badge/Zotero-7-green?style=flat-square&logo=zotero&logoColor=CC2936)](https://www.zotero.org)
+[![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)
 
-  **[功能介绍](./introduce.md)**
-
-- 该插件基于[windingwind/zotero-plugin-template](https://github.com/windingwind/zotero-plugin-template) V1.0.0开发, [![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)
+- 内置缩写表不一定准确, 导出数据以后需要仔细检查
 
 - Release 0.7.0 以后的只支持 zotero7, 需要 zotero6 的可以手动下载 Release 0.6.\*
+
+- **[详细功能介绍](./introduce.md)**
 
 ## 2024-2-22更新
 
