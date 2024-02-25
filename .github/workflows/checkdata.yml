@@ -33,7 +33,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      # 由于涉及到爬虫,不知道合不合规矩, 这里从私有仓库拉取数据
       - name: Run script
         run: |
           git config user.name "${{ secrets.MY_GITHUB_NAME }}"
@@ -45,16 +44,3 @@ jobs:
           wget --header="Authorization: token ${{ secrets.MY_TOKEN }}"  --no-check-certificate -O data_new.ts ${{ secrets.MY_REPO }}
           echo -e "\nexport { journal_abbr };\n\n\n" >> data_new.ts
           bash ./action_compare_file.sh
-
-      # - name: Create Release and Upload Release Asset
-      #   uses: softprops/action-gh-release@v1
-      #   if: env.current_date != ''
-      #   with:
-      #     prerelease: false
-      #     body: |
-      #       This is an auto-generated commit.
-      #       Commit message: ${{ github.event.head_commit.message }}
-      #       Commit hash: ${{ github.sha }}
-    # # # 使得 action 进入 ssh 环境, 用于调试
-    # # - name: Setup tmate session
-    # #   uses: mxschmitt/action-tmate@v3
