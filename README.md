@@ -3,11 +3,17 @@
 [![zotero target version](https://img.shields.io/badge/Zotero-7-green?style=flat-square&logo=zotero&logoColor=CC2936)](https://www.zotero.org)
 [![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)
 
-- 内置缩写表不一定准确, 导出数据以后需要仔细检查
+- 内置缩写表不一定准确, 导出数据以后需要仔细检查, 数据源来源[zoushucai/journalmerge](https://github.com/zoushucai/journalmerge)
 
 - Release 0.7.0 以后的只支持 zotero7, 需要 zotero6 的可以手动下载 Release 0.6.\*
 
 - **[详细功能介绍](./introduce.md)**
+
+## 2024-3-26 更新
+
+- [#705](https://github.com/windingwind/zotero-pdf-translate/issues/705) 问题修复了
+
+- 删除了菜单监听功能
 
 ## 2024-2-22更新
 
