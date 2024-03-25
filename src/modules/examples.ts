@@ -13,7 +13,11 @@ import { ClipboardHelper } from "zotero-plugin-toolkit/dist/helpers/clipboard";
 
 Components.utils.import("resource://gre/modules/osfile.jsm");
 
-function example(target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
+function example(
+  target: any,
+  propertyKey: string | symbol,
+  descriptor: PropertyDescriptor,
+) {
   const original = descriptor.value;
   descriptor.value = function (...args: any) {
     try {
@@ -59,7 +63,11 @@ export class BasicExampleFactory {
 
   // 通知 1
   @example
-  static ShowPopUP(descInfo: string, headerInfo: string = getString(`${config.addonRef}`), n = 3000) {
+  static ShowPopUP(
+    descInfo: string,
+    headerInfo: string = getString(`${config.addonRef}`),
+    n = 3000,
+  ) {
     const progressWindow = new Zotero.ProgressWindow({ closeOnClick: true });
     progressWindow.changeHeadline(headerInfo);
     progressWindow.addDescription(descInfo);
@@ -85,14 +93,23 @@ export class BasicExampleFactory {
    */
   @example
   static async filePickerExample(fileExtension: string = "*.csv;*.json") {
-    const showfileExtension = fileExtension.split(";").map((item) => item.split(".").pop()).join("/");
+    const showfileExtension = fileExtension
+      .split(";")
+      .map((item) => item.split(".").pop())
+      .join("/");
     const path = await new ztoolkit.FilePicker("Import File", "open", [
       [`${showfileExtension}(${fileExtension})`, fileExtension],
       ["Any(*.*)", "*"],
     ]).open();
 
     // 判断选择的地址是否为空,以及是否为字符串 false
-    return (typeof path === "string" && path !== "" && path !== "false" && path !== "undefined" && path !== "null") ? path : null;
+    return typeof path === "string" &&
+      path !== "" &&
+      path !== "false" &&
+      path !== "undefined" &&
+      path !== "null"
+      ? path
+      : null;
     //ztoolkit.getGlobal("alert")(`Selected ${path}`);
   }
 
@@ -136,7 +153,12 @@ export class BasicExampleFactory {
    * @param {number} missingInfoItemCount  缺少信息的数量
    * @returns null, 无返回值
    */
-  static async showBibConversionStatus(ruleItemCount: number, successfulCount: number, noActionCount: number, missingInfoItemCount: number) {
+  static async showBibConversionStatus(
+    ruleItemCount: number,
+    successfulCount: number,
+    noActionCount: number,
+    missingInfoItemCount: number,
+  ) {
     if (successfulCount > 0) {
       this.ShowStatus(ruleItemCount, successfulCount, "items are converted.");
     }
@@ -144,7 +166,11 @@ export class BasicExampleFactory {
       this.ShowStatus(ruleItemCount, noActionCount, "items are not converted.");
     }
     if (missingInfoItemCount > 0) {
-      this.ShowStatus(ruleItemCount, missingInfoItemCount, "items are missing information.");
+      this.ShowStatus(
+        ruleItemCount,
+        missingInfoItemCount,
+        "items are missing information.",
+      );
     }
   }
 
@@ -183,7 +209,12 @@ export class BasicExampleFactory {
   @example
   static registerNotifier() {
     const callback = {
-      notify: async (event: string, type: string, ids: number[] | string[], extraData: { [key: string]: any }) => {
+      notify: async (
+        event: string,
+        type: string,
+        ids: number[] | string[],
+        extraData: { [key: string]: any },
+      ) => {
         if (!addon?.data.alive) {
           this.unregisterNotifier(notifierID);
           return;
@@ -193,7 +224,11 @@ export class BasicExampleFactory {
     };
 
     // Register the callback in Zotero as an item observer
-    const notifierID = Zotero.Notifier.registerObserver(callback, ["tab", "item", "file"]);
+    const notifierID = Zotero.Notifier.registerObserver(callback, [
+      "tab",
+      "item",
+      "file",
+    ]);
 
     // Unregister callback when the window closes (important to avoid a memory leak)
     window.addEventListener(
@@ -238,11 +273,23 @@ export class UIExampleFactory {
   // 在标题上添加自定义列名,通过该列可以进行排序
   @example
   static async registerExtraColumn() {
-    await ztoolkit.ItemTree.register("extraColumnabbr", "abbr", (field: string, unformatted: boolean, includeBaseMapped: boolean, item: Zotero.Item) => {
-      //ztoolkit.log(`field3: ${field}`) // field === 'extraColumnabbr'
-      const fieldValue = ztoolkit.ExtraField.getExtraField(item, "itemBoxRowabbr");
-      return String(fieldValue ?? "");
-    });
+    await ztoolkit.ItemTree.register(
+      "extraColumnabbr",
+      "abbr",
+      (
+        field: string,
+        unformatted: boolean,
+        includeBaseMapped: boolean,
+        item: Zotero.Item,
+      ) => {
+        //ztoolkit.log(`field3: ${field}`) // field === 'extraColumnabbr'
+        const fieldValue = ztoolkit.ExtraField.getExtraField(
+          item,
+          "itemBoxRowabbr",
+        );
+        return String(fieldValue ?? "");
+      },
+    );
   }
 
   // 注册额外的字段
@@ -426,7 +473,8 @@ export class UIExampleFactory {
           tag: "menuitem",
           label: getString("menuitem-deleteUserTag"), // 子菜单: 删除 abbr_user 标签
           id: "zotero-itemmenu-abbr-journal-deleteUserTag",
-          commandListener: (ev) => HelperAbbrFactory.JA_removeTagname(["abbr_user"]),
+          commandListener: (ev) =>
+            HelperAbbrFactory.JA_removeTagname(["abbr_user"]),
         },
         {
           tag: "menuseparator",
@@ -474,7 +522,8 @@ export class UIExampleFactory {
           tag: "menuitem",
           id: "zotero-itemmenu-abbr-journal-itemBoxRowabbr",
           label: "abbrall",
-          commandListener: (ev) => HelperAbbrFactory.JA_transferAllItemsToCustomField(true),
+          commandListener: (ev) =>
+            HelperAbbrFactory.JA_transferAllItemsToCustomField(true),
         },
         // {
         //   tag: "menuitem",
@@ -519,13 +568,20 @@ export class HelperAbbrFactory {
    * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_toUpperCase(selectedItems?: Array<Zotero.Item>): Promise<void> {
+  static async JA_toUpperCase(
+    selectedItems?: Array<Zotero.Item>,
+  ): Promise<void> {
     const transformFn = (value: any) => value.toUpperCase();
     const successinfo = getString("prompt-success-abbrToupper-info");
     const failinfo = getString("prompt-fail-abbrToupper-info");
     //Basefun.executeFunctionWithTryCatch(Selected.processSelectItems, successinfo, failinfo )
     Basefun.executeFunctionWithTryCatch(
-      async () => await Selected.processSelectItems(transformFn, "journalAbbreviation", selectedItems),
+      async () =>
+        await Selected.processSelectItems(
+          transformFn,
+          "journalAbbreviation",
+          selectedItems,
+        ),
       successinfo,
       failinfo,
     );
@@ -537,12 +593,19 @@ export class HelperAbbrFactory {
    * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_toLowerCase(selectedItems?: Array<Zotero.Item>): Promise<void> {
+  static async JA_toLowerCase(
+    selectedItems?: Array<Zotero.Item>,
+  ): Promise<void> {
     const transformFn = (value: any) => value.toLowerCase();
     const successinfo = getString("prompt-success-abbrTolower-info");
     const failinfo = getString("prompt-fail-abbrTolower-info");
     Basefun.executeFunctionWithTryCatch(
-      async () => await Selected.processSelectItems(transformFn, "journalAbbreviation", selectedItems),
+      async () =>
+        await Selected.processSelectItems(
+          transformFn,
+          "journalAbbreviation",
+          selectedItems,
+        ),
       successinfo,
       failinfo,
     );
@@ -554,7 +617,9 @@ export class HelperAbbrFactory {
    * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_toCapitalize(selectedItems?: Array<Zotero.Item>): Promise<void> {
+  static async JA_toCapitalize(
+    selectedItems?: Array<Zotero.Item>,
+  ): Promise<void> {
     const transformFn = (value: any) =>
       value.replace(/(?:^|\s)\S/g, function (firstChar: string) {
         return firstChar.toUpperCase();
@@ -562,7 +627,12 @@ export class HelperAbbrFactory {
     const successinfo = getString("prompt-success-abbrTocapitalize-info");
     const failinfo = getString("prompt-fail-abbrTocapitalize-info");
     Basefun.executeFunctionWithTryCatch(
-      async () => await Selected.processSelectItems(transformFn, "journalAbbreviation", selectedItems),
+      async () =>
+        await Selected.processSelectItems(
+          transformFn,
+          "journalAbbreviation",
+          selectedItems,
+        ),
       successinfo,
       failinfo,
     );
@@ -575,7 +645,8 @@ export class HelperAbbrFactory {
    * @returns {Promise} 返回一个 Promise 对象
    */
   static async JA_InitialismAbbr(selectedItems?: Array<Zotero.Item>) {
-    const isEnglishWithAllCharacters = (str: string) => /^[\w\s\t\n\r\-'",.;:!?(){}[\]<>#+=*_~%^&|/$\\]+$/.test(str);
+    const isEnglishWithAllCharacters = (str: string) =>
+      /^[\w\s\t\n\r\-'",.;:!?(){}[\]<>#+=*_~%^&|/$\\]+$/.test(str);
     const ignoredWords = new Set([
       "and",
       "but",
@@ -633,7 +704,9 @@ export class HelperAbbrFactory {
           return words[0].toUpperCase();
         }
 
-        const transformedWords = words.filter((word: any) => !ignoredWords.has(word.toLowerCase())).map((word: any) => word.charAt(0).toUpperCase());
+        const transformedWords = words
+          .filter((word: any) => !ignoredWords.has(word.toLowerCase()))
+          .map((word: any) => word.charAt(0).toUpperCase());
 
         return transformedWords.join("");
       } catch (error) {
@@ -645,7 +718,12 @@ export class HelperAbbrFactory {
     const successinfo = getString("prompt-success-InitialismAbbr-info");
     const failinfo = getString("prompt-fail-InitialismAbbr-info");
     Basefun.executeFunctionWithTryCatch(
-      async () => await Selected.processSelectItems(transformFn, "journalAbbreviation", selectedItems),
+      async () =>
+        await Selected.processSelectItems(
+          transformFn,
+          "journalAbbreviation",
+          selectedItems,
+        ),
       successinfo,
       failinfo,
     );
@@ -657,12 +735,17 @@ export class HelperAbbrFactory {
    * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_removeDot(selectedItems?: Array<Zotero.Item>): Promise<void>{
+  static async JA_removeDot(selectedItems?: Array<Zotero.Item>): Promise<void> {
     const transformFn = (value: any) => value.replace(/\./g, "");
     const successinfo = getString("prompt-success-removeAbbrdot-info");
     const failinfo = getString("prompt-fail-removeAbbrdot-info");
     Basefun.executeFunctionWithTryCatch(
-      async () => await Selected.processSelectItems(transformFn, "journalAbbreviation", selectedItems),
+      async () =>
+        await Selected.processSelectItems(
+          transformFn,
+          "journalAbbreviation",
+          selectedItems,
+        ),
       successinfo,
       failinfo,
     );
@@ -675,7 +758,10 @@ export class HelperAbbrFactory {
    * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_removeTagname(usertags: string[], selectedItems?: Array<Zotero.Item>): Promise<void>{
+  static async JA_removeTagname(
+    usertags: string[],
+    selectedItems?: Array<Zotero.Item>,
+  ): Promise<void> {
     await Basefun.processSelectedItemsWithPromise(
       SelectedWithHandler.removeTagHandler(usertags),
       getString("prompt-success-removetag-info") + ": " + usertags[0],
@@ -694,10 +780,25 @@ export class HelperAbbrFactory {
    * @param {string} [exchangetagname="exchange"] 字符串, 默认值为 "exchange", 当两个字段交换成功以后, 如果以前没有存在该标签, 则添加的标签, 如果以前存在该标签, 则删除
    * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    */
-  static async JA_exchangeName(key1: Zotero.Item.ItemField = "journalAbbreviation", key2: Zotero.Item.ItemField = "publicationTitle", exchangetagname = "exchange", selectedItems?: Array<Zotero.Item>) {
+  static async JA_exchangeName(
+    key1: Zotero.Item.ItemField = "journalAbbreviation",
+    key2: Zotero.Item.ItemField = "publicationTitle",
+    exchangetagname = "exchange",
+    selectedItems?: Array<Zotero.Item>,
+  ) {
     const successinfo = getString("prompt-success-exchange-info");
     const failinfo = getString("prompt-error-exchange-info");
-    Basefun.executeFunctionWithTryCatch(async () => await Selected.exchangeJournalName(key1, key2, exchangetagname, selectedItems), successinfo, failinfo);
+    Basefun.executeFunctionWithTryCatch(
+      async () =>
+        await Selected.exchangeJournalName(
+          key1,
+          key2,
+          exchangetagname,
+          selectedItems,
+        ),
+      successinfo,
+      failinfo,
+    );
   }
 
   /**
@@ -709,10 +810,15 @@ export class HelperAbbrFactory {
 
     // 判断选择的地址是否为空
     if (!mypath) {
-      BasicExampleFactory.ShowPopUP(getString("prompt-show-cancel-selectpath-info"));
+      BasicExampleFactory.ShowPopUP(
+        getString("prompt-show-cancel-selectpath-info"),
+      );
     } else {
       await Zotero.Prefs.set(`${config.addonRef}.input`, mypath);
-      BasicExampleFactory.ShowPopUP(getString("prompt-show-success-selectpath-info") + getString(`${mypath}`));
+      BasicExampleFactory.ShowPopUP(
+        getString("prompt-show-success-selectpath-info") +
+          getString(`${mypath}`),
+      );
     }
   }
 
@@ -725,10 +831,15 @@ export class HelperAbbrFactory {
 
     // 判断选择的地址是否为空
     if (!mypath) {
-      BasicExampleFactory.ShowPopUP(getString("prompt-show-cancel-selectpath-info"));
+      BasicExampleFactory.ShowPopUP(
+        getString("prompt-show-cancel-selectpath-info"),
+      );
     } else {
       await Zotero.Prefs.set(`${config.addonRef}.replaceJsonFile`, mypath);
-      BasicExampleFactory.ShowPopUP(getString("prompt-show-success-selectpath-info") + getString(`${mypath}`));
+      BasicExampleFactory.ShowPopUP(
+        getString("prompt-show-success-selectpath-info") +
+          getString(`${mypath}`),
+      );
     }
   }
 
@@ -756,13 +867,20 @@ export class HelperAbbrFactory {
    * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    */
   static async JA_update_UseInnerData(selectedItems?: Array<Zotero.Item>) {
-    const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addAutotags");
+    const isselect_addAutotagsRaw = Zotero.Prefs.get(
+      config.addonRef + ".addAutotags",
+    );
 
     // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
     const isselect_addAutotags =
-      typeof isselect_addAutotagsRaw === "boolean" ? isselect_addAutotagsRaw : isselect_addAutotagsRaw === "true" || isselect_addAutotagsRaw === 1;
+      typeof isselect_addAutotagsRaw === "boolean"
+        ? isselect_addAutotagsRaw
+        : isselect_addAutotagsRaw === "true" || isselect_addAutotagsRaw === 1;
 
-    const { addtagsname, removetagsname } = this.JA_processTags(isselect_addAutotags, ["abbr"]);
+    const { addtagsname, removetagsname } = this.JA_processTags(
+      isselect_addAutotags,
+      ["abbr"],
+    );
 
     await Selected.updateJournalAbbr(
       journal_abbr,
@@ -783,15 +901,25 @@ export class HelperAbbrFactory {
    * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_update_UseUserData(isshowinfo: boolean = true, selectedItems?: Array<Zotero.Item>) {
+  static async JA_update_UseUserData(
+    isshowinfo: boolean = true,
+    selectedItems?: Array<Zotero.Item>,
+  ) {
     const user_abbr_data = await Basefun.get_user_data(isshowinfo);
     if (!user_abbr_data) return;
 
-    const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addAutotags");
+    const isselect_addAutotagsRaw = Zotero.Prefs.get(
+      config.addonRef + ".addAutotags",
+    );
     // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
     const isselect_addAutotags =
-      typeof isselect_addAutotagsRaw === "boolean" ? isselect_addAutotagsRaw : isselect_addAutotagsRaw === "true" || isselect_addAutotagsRaw === 1;
-    const { addtagsname, removetagsname } = this.JA_processTags(isselect_addAutotags, ["abbr_user"]);
+      typeof isselect_addAutotagsRaw === "boolean"
+        ? isselect_addAutotagsRaw
+        : isselect_addAutotagsRaw === "true" || isselect_addAutotagsRaw === 1;
+    const { addtagsname, removetagsname } = this.JA_processTags(
+      isselect_addAutotags,
+      ["abbr_user"],
+    );
 
     // 更新期刊缩写 -- 返回的信息为 已有 2/2 条目缩写更新
     await Selected.updateJournalAbbr(
@@ -813,11 +941,18 @@ export class HelperAbbrFactory {
    * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    */
   static async JA_update_UseISO4(selectedItems?: Array<Zotero.Item>) {
-    const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addAutotags");
+    const isselect_addAutotagsRaw = Zotero.Prefs.get(
+      config.addonRef + ".addAutotags",
+    );
     // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
     const isselect_addAutotags =
-      typeof isselect_addAutotagsRaw === "boolean" ? isselect_addAutotagsRaw : isselect_addAutotagsRaw === "true" || isselect_addAutotagsRaw === 1;
-    const { addtagsname, removetagsname } = this.JA_processTags(isselect_addAutotags, ["abbr_iso4"]);
+      typeof isselect_addAutotagsRaw === "boolean"
+        ? isselect_addAutotagsRaw
+        : isselect_addAutotagsRaw === "true" || isselect_addAutotagsRaw === 1;
+    const { addtagsname, removetagsname } = this.JA_processTags(
+      isselect_addAutotags,
+      ["abbr_iso4"],
+    );
 
     await Selected.updateUseISO4(
       {}, // 为了和上面的函数保持一致, 这里传入一个空对象
@@ -884,7 +1019,9 @@ export class HelperAbbrFactory {
     try {
       const libraryID = Zotero.Libraries.userLibraryID;
       const items = await Zotero.Items.getAll(libraryID);
-      const selectedItems = items.filter((item) => !item.isNote() && item.isRegularItem()); // 过滤笔记 且 是规则的 item
+      const selectedItems = items.filter(
+        (item) => !item.isNote() && item.isRegularItem(),
+      ); // 过滤笔记 且 是规则的 item
       await this.JA_transferAllItemsToCustomField(false, selectedItems);
     } catch (error) {
       ztoolkit.log(`journalabbr error: ${error}`);
@@ -897,7 +1034,10 @@ export class HelperAbbrFactory {
    * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_transferAllItemsToCustomField(isshowinfo: boolean = true, selectedItems?: Array<Zotero.Item>) {
+  static async JA_transferAllItemsToCustomField(
+    isshowinfo: boolean = true,
+    selectedItems?: Array<Zotero.Item>,
+  ) {
     // // 方法一 : 一键更新期刊缩写, 然后对选中的文献(不同类别的文献)期刊字段, 转移到自定义字段 `itemBoxRowabbr` 中(在面板中显示的是 abbr 值)
     await this.JA_update_UseISO4(selectedItems); // 使用 iso4 标准
     await new Promise((resolve) => setTimeout(resolve, 3000)); // 休眠3秒钟
@@ -960,17 +1100,28 @@ export class HelperAbbrFactory {
    */
   static async JA_ReplaceByJson() {
     //1 ,读取 json 文件
-    const jsonpath = String(Zotero.Prefs.get(config.addonRef + ".replaceJsonFile"));
+    const jsonpath = String(
+      Zotero.Prefs.get(config.addonRef + ".replaceJsonFile"),
+    );
     if (!jsonpath) {
-      BasicExampleFactory.ShowPopUP(getString("prompt-show-cancel-selectpath-info"));
+      BasicExampleFactory.ShowPopUP(
+        getString("prompt-show-cancel-selectpath-info"),
+      );
       return;
     }
     // 2. 读取用户设置
-    const isselect_addAutotagsRaw = Zotero.Prefs.get(config.addonRef + ".addRegexAutotags");
+    const isselect_addAutotagsRaw = Zotero.Prefs.get(
+      config.addonRef + ".addRegexAutotags",
+    );
     // 检查原始值是否是布尔类型，如果不是，则进行适当的转换
     const isselect_addAutotags =
-      typeof isselect_addAutotagsRaw === "boolean" ? isselect_addAutotagsRaw : isselect_addAutotagsRaw === "true" || isselect_addAutotagsRaw === 1;
-    const { addtagsname, removetagsname } = this.JA_processTags(isselect_addAutotags, ["regex"]);
+      typeof isselect_addAutotagsRaw === "boolean"
+        ? isselect_addAutotagsRaw
+        : isselect_addAutotagsRaw === "true" || isselect_addAutotagsRaw === 1;
+    const { addtagsname, removetagsname } = this.JA_processTags(
+      isselect_addAutotags,
+      ["regex"],
+    );
 
     const jsonstr = await Zotero.File.getContentsAsync(jsonpath, "utf-8");
     let jsondata: any;
@@ -983,7 +1134,11 @@ export class HelperAbbrFactory {
 
     const data = filterValidEntries(jsondata);
     // ztoolkit.log(`valid data number: ${data.length}`);
-    BasicExampleFactory.ShowStatus(jsondata.length, data.length, getString("prompt-show-regular-valid"));
+    BasicExampleFactory.ShowStatus(
+      jsondata.length,
+      data.length,
+      getString("prompt-show-regular-valid"),
+    );
     if (!data || data.length === 0) {
       return;
     }

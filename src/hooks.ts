@@ -12,9 +12,16 @@ import { registerPrefsScripts } from "./modules/preferenceScript";
 import { createZToolkit } from "./utils/ztoolkit";
 
 async function onStartup() {
-  await Promise.all([Zotero.initializationPromise, Zotero.unlockPromise, Zotero.uiReadyPromise]);
+  await Promise.all([
+    Zotero.initializationPromise,
+    Zotero.unlockPromise,
+    Zotero.uiReadyPromise,
+  ]);
   initLocale();
-  ztoolkit.ProgressWindow.setIconURI("default", `chrome://${config.addonRef}/content/icons/favicon.png`);
+  ztoolkit.ProgressWindow.setIconURI(
+    "default",
+    `chrome://${config.addonRef}/content/icons/favicon.png`,
+  );
 
   BasicExampleFactory.registerPrefs();
   await BasicExampleFactory.initPrefs();
@@ -50,10 +57,19 @@ function onShutdown(): void {
  * This function is just an example of dispatcher for Notify events.
  * Any operations should be placed in a function to keep this funcion clear.
  */
-async function onNotify(event: string, type: string, ids: Array<string | number>, extraData: { [key: string]: any }) {
+async function onNotify(
+  event: string,
+  type: string,
+  ids: Array<string | number>,
+  extraData: { [key: string]: any },
+) {
   // You can add your code to the corresponding notify type
   ztoolkit.log("notify", event, type, ids, extraData);
-  if (event == "select" && type == "tab" && extraData[ids[0]].type == "reader") {
+  if (
+    event == "select" &&
+    type == "tab" &&
+    extraData[ids[0]].type == "reader"
+  ) {
     BasicExampleFactory.exampleNotifierCallback();
   } else {
     return;

@@ -40,7 +40,10 @@ class StringUtil {
       }
 
       // 判断字符是否为英文字符（包括大写和小写字母）
-      if ((charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122)) {
+      if (
+        (charCode >= 65 && charCode <= 90) ||
+        (charCode >= 97 && charCode <= 122)
+      ) {
         englishCount++;
       }
       // 判断字符是否为中文字符（包括简体和繁体）
@@ -57,7 +60,12 @@ class StringUtil {
   }
 
   //3. 把字符串 A 和字符 B 都替换为 C, 其实感觉没有必要,可以做两次替换
-  static replaceStrings(str: string, str1: string, str2: string, replaceStr: string) {
+  static replaceStrings(
+    str: string,
+    str1: string,
+    str2: string,
+    replaceStr: string,
+  ) {
     const pattern = new RegExp(`${str1}|${str2}`, "gi"); // 使用正则表达式创建匹配字符串的模式
     const replacedStr = str.replace(pattern, replaceStr); // 使用 replace() 方法进行替换
     return replacedStr; // 返回替换过的字符串
@@ -95,7 +103,9 @@ class StringUtil {
     //let match = new RegExp(/\[(0|[1-9]\d?|1\d{2}|200)\]/).test(bib_prefix);
 
     // 前缀中存在 "数字" 是 0-200 之间的整数 或 1700 -- 2099 之间的整数
-    const match2 = new RegExp(/(0|[1-9]\d?|1\d{2}|200|1[7-9]\d{2}|20[0-9]\d)/).test(bib_prefix);
+    const match2 = new RegExp(
+      /(0|[1-9]\d?|1\d{2}|200|1[7-9]\d{2}|20[0-9]\d)/,
+    ).test(bib_prefix);
     if (match2) {
       return true;
     } else {
@@ -132,7 +142,10 @@ class StringUtil {
     if (ishaveSpecialChar) {
       bibwithSpeace = "";
     }
-    const bibstr = prefixvalue + bibwithSpeace + bib_prefix.slice(index + 1, bib_prefix.length);
+    const bibstr =
+      prefixvalue +
+      bibwithSpeace +
+      bib_prefix.slice(index + 1, bib_prefix.length);
     return bibstr;
   }
 
@@ -147,7 +160,10 @@ class StringUtil {
     const escapedVariableB = this.escapeRegExp(stringB);
 
     // 使用正则表达式，使得匹配时忽略大小写
-    const regexA = new RegExp(`\\s${escapedVariableA}|^${escapedVariableA}`, "i");
+    const regexA = new RegExp(
+      `\\s${escapedVariableA}|^${escapedVariableA}`,
+      "i",
+    );
     const regexB = new RegExp(`${escapedVariableB}`, "i");
 
     // 查找变量 A 和变量 B 在文本中的位置
@@ -220,7 +236,10 @@ class StringUtil {
       .sort((a: any, b: any) => {
         // 比较 columnToSort 数组中 a 和 b 两个位置的值
         // 通过 typeof 判断类型，如果是数字则直接比较大小，否则按字符串比较
-        if (typeof columnToSort[a] === "number" && typeof columnToSort[b] === "number") {
+        if (
+          typeof columnToSort[a] === "number" &&
+          typeof columnToSort[b] === "number"
+        ) {
           return (columnToSort[a] - columnToSort[b]) * sortOrder;
         }
 
@@ -248,7 +267,9 @@ class StringUtil {
       });
 
     // 返回重新排列后的输入数组
-    return arrays.map((array) => sortedIndices.map((index: any) => array[index]));
+    return arrays.map((array) =>
+      sortedIndices.map((index: any) => array[index]),
+    );
   }
 
   // 把字符转为 Unicode 编码
@@ -287,7 +308,13 @@ class StringUtil {
     return replacedStr;
   }
 
-  static handleBibtoFormat2(bib: string[], nkey: string, keyornum: string, bibprenum: number, isdiscardDOI: boolean) {
+  static handleBibtoFormat2(
+    bib: string[],
+    nkey: string,
+    keyornum: string,
+    bibprenum: number,
+    isdiscardDOI: boolean,
+  ) {
     // bib:string[] 必须是分成三个部分的字符串数组
     // nkey:string 为引用的关键字, 用于生成 \\bibitem{nkey} 的格式
     // keyornum:string 为引用格式, num为数字, key为关键字,
@@ -335,10 +362,19 @@ class StringUtil {
     // text is usually an author field
     const keyword = this.isMainlyChinese(text) ? "等." : "et al.";
     // Replace the matching pattern with the keyword
-    return text.replace(keyword === "等." ? /et al\./ : /(等|\u7b49)\s*\./u, keyword);
+    return text.replace(
+      keyword === "等." ? /et al\./ : /(等|\u7b49)\s*\./u,
+      keyword,
+    );
   }
 
-  static handleBibtoFormat1(text: string, nkey: string, keyornum: string, bibprenum: number, isdiscardDOI: boolean) {
+  static handleBibtoFormat1(
+    text: string,
+    nkey: string,
+    keyornum: string,
+    bibprenum: number,
+    isdiscardDOI: boolean,
+  ) {
     // text:string 是一个字符串
     // nkey:string 为引用的关键字, 用于生成 \\bibitem{nkey} 的格式
     // keyornum:string 为引用格式, num为数字, key为关键字,

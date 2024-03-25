@@ -123,12 +123,20 @@ function getCollatingMatch(s, t) {
       } else {
         return false; // `ss` is too short to match `tt`.
       }
-    } else if (i + 1 < ss.length && j + 1 < tt.length && cEquiv(ss[i] + ss[i + 1], tt[j] + tt[j + 1])) {
+    } else if (
+      i + 1 < ss.length &&
+      j + 1 < tt.length &&
+      cEquiv(ss[i] + ss[i + 1], tt[j] + tt[j + 1])
+    ) {
       result[0].push(ss[i]);
       result[1].push(tt[j]);
       i++;
       j++;
-    } else if (j + 1 < tt.length && cEquiv(ss[i], tt[j] + tt[j + 1]) && !cEquiv(tt[j + 1], "")) {
+    } else if (
+      j + 1 < tt.length &&
+      cEquiv(ss[i], tt[j] + tt[j + 1]) &&
+      !cEquiv(tt[j + 1], "")
+    ) {
       if (cEquiv("", tt[j])) {
         result[0].push("");
         result[1].push(tt[j]);
@@ -139,7 +147,11 @@ function getCollatingMatch(s, t) {
         i++;
         j += 2;
       }
-    } else if (i + 1 < ss.length && cEquiv(ss[i] + ss[i + 1], tt[j]) && !cEquiv(ss[i + 1], "")) {
+    } else if (
+      i + 1 < ss.length &&
+      cEquiv(ss[i] + ss[i + 1], tt[j]) &&
+      !cEquiv(ss[i + 1], "")
+    ) {
       if (cEquiv(ss[i], "")) {
         result[0].push(ss[i]);
         result[1].push("");
@@ -293,17 +305,22 @@ class LTWAPattern {
   /** @param {string} line A full tab-separated line from the LTWA CSV.*/
   constructor(line) {
     const a = line.split("\t");
-    if (a.length != 3) throw new Error('Number of fields in LTWA line is not 3: "' + line + '"');
+    if (a.length != 3)
+      throw new Error('Number of fields in LTWA line is not 3: "' + line + '"');
 
     this.line = line;
     let p = a[0].normalize("NFC").trim();
     // Some patterns include a disambiguation comment in parentheses, remove it.
     p = p.replace(/\(.*\)/, "").trim();
     this.pattern = p;
-    if (p.length < 3) throw new Error('LTWA line has too short pattern: "' + line + '"');
+    if (p.length < 3)
+      throw new Error('LTWA line has too short pattern: "' + line + '"');
     this.replacement = a[1].normalize("NFC").trim();
-    if (["n.a.", "n. a.", "n.a"].includes(this.replacement)) this.replacement = "–";
-    this.languages = a[2].split(",").map(Function.prototype.call, String.prototype.trim);
+    if (["n.a.", "n. a.", "n.a"].includes(this.replacement))
+      this.replacement = "–";
+    this.languages = a[2]
+      .split(",")
+      .map(Function.prototype.call, String.prototype.trim);
     this.startDash = p.charAt(0) == "-";
     this.endDash = p.charAt(p.length - 1) == "-";
   }
@@ -365,7 +382,8 @@ class AbbrevIso {
       this.addPattern(new LTWAPattern(line));
     }
     // Trim all shortWords.
-    if (!(shortWords instanceof Array)) shortWords = shortWords.split(newlineRegex);
+    if (!(shortWords instanceof Array))
+      shortWords = shortWords.split(newlineRegex);
     shortWords = shortWords.map((s) => s.trim());
     this.shortWords_ = shortWords.filter((s) => s.length > 0);
   }
@@ -408,7 +426,8 @@ class AbbrevIso {
         isNewWord = true;
         continue;
       }
-      if (isNewWord || pretendDash) result = result.concat(this.dictPatterns_.get(s.substr(i)));
+      if (isNewWord || pretendDash)
+        result = result.concat(this.dictPatterns_.get(s.substr(i)));
       result = result.concat(this.nonprefixPatterns_.get(s.substr(i)));
       isNewWord = false;
     }
@@ -443,7 +462,12 @@ class AbbrevIso {
    */
   getPatternMatches(value, pattern, languages = ["*"], pretendDash = false) {
     // If a list of languages is given, check it intersects the pattern's list.
-    if (languages !== undefined && !languages.includes("*") && !pattern.languages.some((x) => languages.includes(x))) return [];
+    if (
+      languages !== undefined &&
+      !languages.includes("*") &&
+      !pattern.languages.some((x) => languages.includes(x))
+    )
+      return [];
 
     let replacement = pattern.replacement;
     if (replacement == "–") replacement = "";
@@ -483,7 +507,11 @@ class AbbrevIso {
         }
         // Omit value characters until we get to one
         // also present in the replacement.
-        while (!cEquiv(r[1][ii], replacement[j]) && (j + 1 >= replacement.length || !cEquiv(r[1][ii], replacement[j] + replacement[j + 1]))) {
+        while (
+          !cEquiv(r[1][ii], replacement[j]) &&
+          (j + 1 >= replacement.length ||
+            !cEquiv(r[1][ii], replacement[j] + replacement[j + 1]))
+        ) {
           ii++;
           iend += r[0][ii].length;
         }
@@ -502,12 +530,16 @@ class AbbrevIso {
       // If the pattern had an ending dash,
       // omit all characters until we get a boundary.
       if (pattern.endDash || pretendDash) {
-        while (iend < value.length && !boundariesRegex.test(value[iend])) iend++;
+        while (iend < value.length && !boundariesRegex.test(value[iend]))
+          iend++;
         // If the pattern had no ending dash, try to omit some characters due to
         // flection and if we don't have a boundary at iend, discard the pattern.
       } else {
         let valid = true;
-        const ending = new RegExp("^([iaesn'’]{0,3})" + "($|" + boundariesRegex.source + ")", "u");
+        const ending = new RegExp(
+          "^([iaesn'’]{0,3})" + "($|" + boundariesRegex.source + ")",
+          "u",
+        );
         const match = value.substr(iend).match(ending);
         if (match) {
           appendix = match[1];
@@ -545,12 +577,20 @@ class AbbrevIso {
    * @param {?Array<LTWAPattern>} [patterns=getPotentialPatterns(value)]
    * @return {Array<LTWAPattern>}
    */
-  getMatchingPatterns(value, languages = undefined, pretendDash = false, patterns = undefined) {
-    if (patterns === undefined) patterns = this.getPotentialPatterns(value, (pretendDash = pretendDash));
+  getMatchingPatterns(
+    value,
+    languages = undefined,
+    pretendDash = false,
+    patterns = undefined,
+  ) {
+    if (patterns === undefined)
+      patterns = this.getPotentialPatterns(value, (pretendDash = pretendDash));
     value = value.normalize("NFC").trim();
     let matches = [];
     for (const pattern of patterns) {
-      matches = matches.concat(this.getPatternMatches(value, pattern, languages, pretendDash));
+      matches = matches.concat(
+        this.getPatternMatches(value, pattern, languages, pretendDash),
+      );
     }
     const getBeginning = ([i, _iend, _abbr, _pattern, _appendix]) => i;
     matches.sort((a, b) => getBeginning(a) - getBeginning(b));
@@ -573,8 +613,11 @@ class AbbrevIso {
     // lose the 'A').
 
     // Also try the word with the first letter capitalized.
-    let wordList = shortWords.concat(shortWords.map((s) => s.charAt(0).toUpperCase() + s.substr(1)));
-    for (const word of wordList) s = s.replace(new RegExp(before + word + "\\s", "gu"), "$1");
+    let wordList = shortWords.concat(
+      shortWords.map((s) => s.charAt(0).toUpperCase() + s.substr(1)),
+    );
+    for (const word of wordList)
+      s = s.replace(new RegExp(before + word + "\\s", "gu"), "$1");
     return s;
   }
 
@@ -625,7 +668,13 @@ class AbbrevIso {
     //result = result.replace(/([^a-z\s])\s*(Series|Serie|Ser|Part|Section|Sect|Sec|Série)[,.]?/ug, '$1');
     // If followed by single letter A-Z, roman numeral, or digit
     result = result.replace(
-      new RegExp("(Series|Serie|Ser|Part|Section|Sect|Sec|Série)[,.]?\\s*([A-Z]|[0-9IVXivx]+)" + "(" + boundariesRegex.source + "|$)", "gu"),
+      new RegExp(
+        "(Series|Serie|Ser|Part|Section|Sect|Sec|Série)[,.]?\\s*([A-Z]|[0-9IVXivx]+)" +
+          "(" +
+          boundariesRegex.source +
+          "|$)",
+        "gu",
+      ),
       "$2$3",
     );
     // (Otherwise it may be part of a title, like "Bulletin of the Section of Logic").
@@ -667,12 +716,26 @@ class AbbrevIso {
       "'t",
       "'n",
     ];
-    result = this.removeShortWords(result, articles, "(^|" + boundariesRegex$$1.source + ")");
+    result = this.removeShortWords(
+      result,
+      articles,
+      "(^|" + boundariesRegex$$1.source + ")",
+    );
     // French articles "l'", "d'" may be followed by whatever.
-    result = result.replace(new RegExp("((^|" + boundariesRegex.source + "))(l|L|d|D|dell|nell)('|’)", "gu"), "$1");
+    result = result.replace(
+      new RegExp(
+        "((^|" + boundariesRegex.source + "))(l|L|d|D|dell|nell)('|’)",
+        "gu",
+      ),
+      "$1",
+    );
 
     // Check if we have a single word after removing all short words.
-    let preResult = this.removeShortWords(result, this.shortWords_, "(^|" + boundariesRegex$$1.source + ")");
+    let preResult = this.removeShortWords(
+      result,
+      this.shortWords_,
+      "(^|" + boundariesRegex$$1.source + ")",
+    );
     const r = new RegExp("." + boundariesRegex.source + ".", "u");
     if (!r.test(preResult)) return result.replace(/\s+/gu, " ").trim();
 
@@ -680,19 +743,26 @@ class AbbrevIso {
     // Find and apply patterns, being careful about overlaps.
     let matches = []; // A list of [i, iend, startDash, endDash, abbr, line].
     for (const pattern of patterns) {
-      matches = matches.concat(this.getPatternMatches(result, pattern, languages));
+      matches = matches.concat(
+        this.getPatternMatches(result, pattern, languages),
+      );
     }
 
     // Sort by priority: patterns with no starting dashes first,
     // patterns with longer matches first, longer patterns first.
     // The fine details regulate whether we prefer to match 'futures' to 'futur-' or 'future'.
     const getPriority = ([i, iend, _abbr, pattern, appendix]) =>
-      (pattern.startDash ? 100 : 0) + (pattern.endDash ? 3 : 0) + appendix.length - (iend - i - appendix.length) - pattern.pattern.length;
+      (pattern.startDash ? 100 : 0) +
+      (pattern.endDash ? 3 : 0) +
+      appendix.length -
+      (iend - i - appendix.length) -
+      pattern.pattern.length;
     matches.sort((a, b) => getPriority(a) - getPriority(b));
     // Resolve overlapping patterns according to priority.
     for (let j = 0; j < matches.length; ++j) {
       for (let k = j + 1; k < matches.length; ++k) {
-        if (matches[j][1] > matches[k][0] && matches[k][1] > matches[j][0]) matches.splice(k--, 1); // Remove the later one from matches.
+        if (matches[j][1] > matches[k][0] && matches[k][1] > matches[j][0])
+          matches.splice(k--, 1); // Remove the later one from matches.
       }
     }
 
@@ -708,7 +778,11 @@ class AbbrevIso {
     }
 
     // Other short words are not removed from beginning.
-    result = this.removeShortWords(result, this.shortWords_, "(" + boundariesRegex$$1.source + ")");
+    result = this.removeShortWords(
+      result,
+      this.shortWords_,
+      "(" + boundariesRegex$$1.source + ")",
+    );
 
     // Remove superfluous whitepace.
     result = result.replace(/\s+/gu, " ").trim();

@@ -37,7 +37,9 @@ function replaceString(buildTime) {
     ? config.updateJSON.replace("update.json", "update-beta.json")
     : config.updateJSON;
 
-  replaceFrom.push(...Object.keys(config).map((k) => new RegExp(`__${k}__`, "g")));
+  replaceFrom.push(
+    ...Object.keys(config).map((k) => new RegExp(`__${k}__`, "g")),
+  );
   replaceTo.push(...Object.values(config));
 
   const replaceResult = replaceInFileSync({

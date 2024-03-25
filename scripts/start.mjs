@@ -54,7 +54,10 @@ function prepareDevEnv() {
   if (existsSync(prefsPath)) {
     const PrefsLines = readFileSync(prefsPath, "utf-8").split("\n");
     const filteredLines = PrefsLines.map((line) => {
-      if (line.includes("extensions.lastAppBuildId") || line.includes("extensions.lastAppVersion")) {
+      if (
+        line.includes("extensions.lastAppBuildId") ||
+        line.includes("extensions.lastAppVersion")
+      ) {
         return;
       }
       if (line.includes("extensions.zotero.dataDir") && dataDir !== "") {

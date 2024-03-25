@@ -171,7 +171,16 @@ function isValidType(value: any, type: any) {
 
 function filterValidEntries(objectsArray: any[]) {
   const filteredObjects = objectsArray.filter((obj: any) => {
-    const { itemType, searchField, replaceField, methodName, searchType, searchString, replaceType, replaceString } = obj;
+    const {
+      itemType,
+      searchField,
+      replaceField,
+      methodName,
+      searchType,
+      searchString,
+      replaceType,
+      replaceString,
+    } = obj;
     return (
       ItemType.includes(itemType) &&
       ItemField.includes(searchField) &&
@@ -193,7 +202,14 @@ function filterValidEntries(objectsArray: any[]) {
 }
 
 class replaceHandle {
-  static async sreplace(text: string, methodName: string, searchType: string, searchString: string, replaceType: string, replaceString: string) {
+  static async sreplace(
+    text: string,
+    methodName: string,
+    searchType: string,
+    searchString: string,
+    replaceType: string,
+    replaceString: string,
+  ) {
     // 简单验证一下输入的参数是否合法, 注意:  replaceString 可以为空, 即 replaceString === ""
     if (!text || !searchType || !searchString || !replaceType) {
       return -654321;
@@ -219,18 +235,23 @@ class replaceHandle {
       },
     };
 
-    const searchvar = searchType === "regex" ? replaceMethods.regex(searchString) : searchString;
+    const searchvar =
+      searchType === "regex"
+        ? replaceMethods.regex(searchString)
+        : searchString;
     if (!searchvar) return -654321;
     if (methodName === "match") {
       const matchcontent = text[methodName](searchvar) || "";
-      if (Array.isArray(matchcontent) && matchcontent.length > 1) return matchcontent.join(" ");
+      if (Array.isArray(matchcontent) && matchcontent.length > 1)
+        return matchcontent.join(" ");
       return matchcontent.toString();
     } else if (methodName === "replace") {
       let replacevar;
       if (replaceType === "regex" || replaceType === "string") {
         replacevar = replaceString;
       } else if (replaceType === "function") {
-        const replaceFunction = replaceMethods[replaceType as keyof typeof replaceMethods];
+        const replaceFunction =
+          replaceMethods[replaceType as keyof typeof replaceMethods];
         replacevar = replaceFunction ? replaceFunction(replaceString) : null;
         if (typeof replacevar !== "function") return -654321;
       } else {
@@ -241,7 +262,11 @@ class replaceHandle {
       return -654321;
     }
   }
-  static async replacejson(data: any, addtagsname: string[], removetagsname: string[]) {
+  static async replacejson(
+    data: any,
+    addtagsname: string[],
+    removetagsname: string[],
+  ) {
     const selectedItems = Basefun.filterSelectedItems();
     if (!selectedItems) return;
 
@@ -261,7 +286,10 @@ class replaceHandle {
           let searchFieldContent = "";
           if (m_entry.searchField === "abbr") {
             // ztoolkit.log("-----------------------------------------------")
-            searchFieldContent = String(ztoolkit.ExtraField.getExtraField(item, "itemBoxRowabbr")) || "";
+            searchFieldContent =
+              String(
+                ztoolkit.ExtraField.getExtraField(item, "itemBoxRowabbr"),
+              ) || "";
           } else {
             searchFieldContent = String(item.getField(m_entry.searchField));
           }
@@ -280,11 +308,18 @@ class replaceHandle {
 
           if (m_entry.replaceField === "abbr") {
             const selectExtraField = "itemBoxRowabbr";
-            const oldfieldValue = ztoolkit.ExtraField.getExtraField(item, selectExtraField)?.trim();
+            const oldfieldValue = ztoolkit.ExtraField.getExtraField(
+              item,
+              selectExtraField,
+            )?.trim();
 
             if (oldfieldValue !== replaceContent) {
               // const fieldValue = FeildExport.getPublicationTitleForItemType(item);
-              ztoolkit.ExtraField.setExtraField(item, selectExtraField, replaceContent?.trim());
+              ztoolkit.ExtraField.setExtraField(
+                item,
+                selectExtraField,
+                replaceContent?.trim(),
+              );
             }
           } else {
             // 保护一下, 防止替换后的内容为空
@@ -293,8 +328,12 @@ class replaceHandle {
             }
           }
 
-          const removeTags = Array.from(removeTagsSet).filter((tag) => itemTags.some((t: any) => t.tag === tag));
-          const addTags = Array.from(addTagsSet).filter((tag) => !itemTags.some((t: any) => t.tag === tag));
+          const removeTags = Array.from(removeTagsSet).filter((tag) =>
+            itemTags.some((t: any) => t.tag === tag),
+          );
+          const addTags = Array.from(addTagsSet).filter(
+            (tag) => !itemTags.some((t: any) => t.tag === tag),
+          );
 
           removeTags.forEach((tag) => item.removeTag(tag));
           addTags.forEach((tag) => item.addTag(tag));
