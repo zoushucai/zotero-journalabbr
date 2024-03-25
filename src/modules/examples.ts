@@ -297,36 +297,37 @@ export class UIExampleFactory {
     );
   }
   //禁止显示某些菜单
-  static displayMenuitem() {
-    const items = ZoteroPane.getSelectedItems(); // 等价于 Zotero.getActiveZoteroPane().getSelectedItems();
-    //const exchange = document.getElementById('zotero-itemmenu-abbr-journal-exchange'); // 交换期刊名
-    // 检查是否存在 exchange tag
-    //var elementss = document.querySelectorAll('[id^="zotero-itemmenu-abbr-"]');
-    // 定义一个包含特殊 ID 的数组
-    const excludeIds = [
-      "zotero-itemmenu-abbr-journal-exchange",
-      "zotero-itemmenu-abbr-journal-deleteAbbrTag",
-      "zotero-itemmenu-abbr-journal-bibliography",
-      "zotero-itemmenu-abbr-journal-deleteUserTag",
-      "zotero-itemmenu-abbr-journal-selectFile",
-    ];
 
-    // 获取所有以 'zotero-itemmenu-abbr-journal-' 开头的元素
-    const elements = document.querySelectorAll('[id^="zotero-itemmenu-abbr-journal-"]');
+  // static async displayMenuitem() {
+  //   const items = ZoteroPane.getSelectedItems(); // 等价于 Zotero.getActiveZoteroPane().getSelectedItems();
+  //   //const exchange = document.getElementById('zotero-itemmenu-abbr-journal-exchange'); // 交换期刊名
+  //   // 检查是否存在 exchange tag
+  //   //var elementss = document.querySelectorAll('[id^="zotero-itemmenu-abbr-"]');
+  //   // 定义一个包含特殊 ID 的数组
+  //   const excludeIds = [
+  //     "zotero-itemmenu-abbr-journal-exchange",
+  //     "zotero-itemmenu-abbr-journal-deleteAbbrTag",
+  //     "zotero-itemmenu-abbr-journal-bibliography",
+  //     "zotero-itemmenu-abbr-journal-deleteUserTag",
+  //     "zotero-itemmenu-abbr-journal-selectFile",
+  //   ];
 
-    // 使用 Array.prototype.filter() 函数过滤特殊 ID 的元素
-    const filteredElements = Array.from(elements).filter((element) => !excludeIds.includes(element.id));
+  //   // 获取所有以 'zotero-itemmenu-abbr-journal-' 开头的元素
+  //   const elements = document.querySelectorAll('[id^="zotero-itemmenu-abbr-journal-"]');
 
-    const hasExchangeTag = items.some((item) => {
-      return item.hasTag("exchange");
-    });
+  //   // 使用 Array.prototype.filter() 函数过滤特殊 ID 的元素
+  //   const filteredElements = Array.from(elements).filter((element) => !excludeIds.includes(element.id));
 
-    if (hasExchangeTag) {
-      filteredElements.forEach((element) => element.setAttribute("disabled", "true"));
-    } else {
-      filteredElements.forEach((element) => element.setAttribute("disabled", "false"));
-    }
-  }
+  //   const hasExchangeTag = items.some((item) => {
+  //     return item.hasTag("exchange");
+  //   });
+
+  //   if (hasExchangeTag) {
+  //     filteredElements.forEach((element) => element.setAttribute("disabled", "true"));
+  //   } else {
+  //     filteredElements.forEach((element) => element.setAttribute("disabled", "false"));
+  //   }
+  // }
 
   // 分割条
   @example

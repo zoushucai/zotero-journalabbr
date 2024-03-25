@@ -41,5 +41,5 @@ jobs:
           echo $(npm -v)
           echo $(node -v)
           echo "-----------------------------------"
-          wget https://github.com/zoushucai/journalmerge/raw/main/data.ts -O ./src/modules/data_new.ts
+          wget https://github.com/zoushucai/journalmerge/raw/main/data.ts -O ./data_new.ts
           bash ./action_compare_file.sh

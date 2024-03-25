@@ -16,20 +16,10 @@ async function onStartup() {
   initLocale();
   ztoolkit.ProgressWindow.setIconURI("default", `chrome://${config.addonRef}/content/icons/favicon.png`);
 
-  ////用于测试的进度条
-  // const popupWin = new ztoolkit.ProgressWindow(config.addonName, {
-  //   closeOnClick: true,
-  //   closeTime: -1,
-  // })
-  //   .createLine({
-  //     text: getString("startup-begin"),
-  //     type: "default",
-  //     progress: 0,
-  //   })
-  //   .show();
   BasicExampleFactory.registerPrefs();
   await BasicExampleFactory.initPrefs();
-  ZoteroPane.itemsView.onSelect.addListener(UIExampleFactory.displayMenuitem); //监听右键显示菜单
+  // 好像失效了
+  // ZoteroPane.itemsView.onSelect.addListener(UIExampleFactory.displayMenuitem); //监听右键显示菜单
   UIExampleFactory.registerWindowMenuWithSeparator(); // 分割线
   UIExampleFactory.registerRightClickMenuPopup(); // 二级菜单
   // UIExampleFactory.registerWindowMenuWithSeparator2(); // 分割线
