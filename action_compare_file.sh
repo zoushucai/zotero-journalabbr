@@ -17,7 +17,7 @@ fi
 echo "=========文件内容不同======="
 cp -f "$file_a" "$file_b"
 rm -f "$file_a"
-npm run build-dev
+npm run build
 
 check_changes() {
     echo "-------------------------------------------------------"
