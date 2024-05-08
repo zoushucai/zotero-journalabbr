@@ -45,7 +45,6 @@ async function onMainWindowLoad(win: Window): Promise<void> {
     // ztoolkit.log 可以输出多个参数, 如:  ztoolkit.log("ssssssss", "ssssssss") ,多个参数会自动用空格拼接,这样有时候很方便.
     //, 而 Zotero.debug 只能输出一个参数
   }
-  
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
