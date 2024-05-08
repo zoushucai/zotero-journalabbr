@@ -22,8 +22,6 @@ async function onStartup() {
 
   BasicExampleFactory.registerPrefs();
   await BasicExampleFactory.initPrefs();
-
-
   UIExampleFactory.registerWindowMenuWithSeparator(); // 分割线
   UIExampleFactory.registerRightClickMenuPopup(); // 二级菜单
   UIExampleFactory.registerRightClickMenuItem(); // (改为二级菜单了,简单的一个分类操作)
@@ -38,7 +36,7 @@ async function onStartup() {
     // ztoolkit.log 可以输出多个参数, 如:  ztoolkit.log("ssssssss", "ssssssss") ,多个参数会自动用空格拼接,这样有时候很方便.
     //, 而 Zotero.debug 只能输出一个参数
   }
-
+  
   await onMainWindowLoad(window);
 }
 
@@ -47,7 +45,6 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   addon.data.ztoolkit = createZToolkit();
 
   window.MozXULElement.insertFTLIfNeeded(`${config.addonRef}-mainWindow.ftl`);
-
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
