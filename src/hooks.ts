@@ -27,7 +27,6 @@ async function onStartup() {
   UIExampleFactory.registerRightClickMenuItem(); // (改为二级菜单了,简单的一个分类操作)
   UIExampleFactory.registerWindowMenuWithSeparator(); // 分割线
   await UIExampleFactory.registerExtraColumn(); // 菜单的额外列
-  // await UIExampleFactory.registerCustomItemBoxCitationkey(); // 右边的`信息`下注册额外字段 abbrCkey
   if (Zotero.Prefs.get(config.addonRef + ".autorunabbrall")) {
     ztoolkit.log(`--------- auto run abbrall ---------`);
     await HelperAbbrFactory.JA_transferAllItemsToCustomFieldStart(); // 根据item的类型, 把所有类似 publicationTitle 的字段转移到 自定义字段 itemBoxRowabbr 上

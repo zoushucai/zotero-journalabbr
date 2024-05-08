@@ -89,10 +89,10 @@ export class BasicExampleFactory {
     /**
      * 通过文件选择器选择文件
      * @param {string} fileExtension 文件扩展名, 默认为 *.csv;*.json,如果多个扩展名,则用分号隔开
-     * @returns {string | null} 返回选择的文件路径, 如果没有选择, 则返回 null
+     * @returns {Promise<string | null>} 返回选择的文件路径, 如果没有选择, 则返回 null
      */
     @example
-    static async filePickerExample(fileExtension: string = "*.csv;*.json") {
+    static async filePickerExample(fileExtension: string = "*.csv;*.json"): Promise<string | null> {
       const showfileExtension = fileExtension
         .split(";")
         .map((item) => item.split(".").pop())
@@ -269,25 +269,11 @@ export class BasicExampleFactory {
 
 
 export class UIExampleFactory {
-  // @example
-  // static registerStyleSheet() {
-  //   const styles = ztoolkit.UI.createElement(document, "link", {
-  //     properties: {
-  //       type: "text/css",
-  //       rel: "stylesheet",
-  //       href: `chrome://${config.addonRef}/content/zoteroPane.css`,
-  //     },
-  //   });
-  //   document.documentElement.appendChild(styles);
-  //   document
-  //     .getElementById("zotero-item-pane-content")
-  //     ?.classList.add("makeItRed");
-  // }
 
  // 注册右键菜单
   @example
   static registerRightClickMenuItem() {
-    const menuIcon = `chrome://${config.addonRef}/content/icons/favicon@0.5x.png`;
+    const menuIcon = `chrome://${config.addonRef}/content/icons/faviconsmall.png`;
     // item menuitem with icon
     ztoolkit.Menu.register("item", {
       tag: "menu",
@@ -329,7 +315,7 @@ export class UIExampleFactory {
   // 右键菜单: 期刊缩写
   @example
   static registerRightClickMenuPopup() {
-    const menuIcon = `chrome://${config.addonRef}/content/icons/favicon@0.5x.png`;
+    const menuIcon = `chrome://${config.addonRef}/content/icons/faviconsmall.png`;
     ztoolkit.Menu.register("item", {
       tag: "menu",
       id: "zotero-itemmenu-abbr-journal",
@@ -553,7 +539,7 @@ export class HelperAbbrFactory {
    * @param {Array<Zotero.Item>} [selectedItems] 要处理的项目数组（可选）
    * @returns {Promise} 返回一个 Promise 对象
    */
-  static async JA_InitialismAbbr(selectedItems?: Array<Zotero.Item>) {
+  static async JA_InitialismAbbr(selectedItems?: Array<Zotero.Item>): Promise<any> {
     const isEnglishWithAllCharacters = (str: string) =>
       /^[\w\s\t\n\r\-'",.;:!?(){}[\]<>#+=*_~%^&|/$\\]+$/.test(str);
     const ignoredWords = new Set([
@@ -692,7 +678,7 @@ export class HelperAbbrFactory {
   static async JA_exchangeName(
     key1: Zotero.Item.ItemField = "journalAbbreviation",
     key2: Zotero.Item.ItemField = "publicationTitle",
-    exchangetagname = "exchange",
+    exchangetagname: string = "exchange",
     selectedItems?: Array<Zotero.Item>,
   ) {
     const successinfo = getString("prompt-success-exchange-info");
@@ -813,7 +799,7 @@ export class HelperAbbrFactory {
   static async JA_update_UseUserData(
     isshowinfo: boolean = true,
     selectedItems?: Array<Zotero.Item>,
-  ) {
+  ): Promise<any> {
     const user_abbr_data = await Basefun.get_user_data(isshowinfo);
     if (!user_abbr_data) return;
 
@@ -946,7 +932,7 @@ export class HelperAbbrFactory {
   static async JA_transferAllItemsToCustomField(
     isshowinfo: boolean = true,
     selectedItems?: Array<Zotero.Item>,
-  ) {
+  ): Promise<any> {
     // // 方法一 : 一键更新期刊缩写, 然后对选中的文献(不同类别的文献)期刊字段, 转移到自定义字段 `itemBoxRowabbr` 中(在面板中显示的是 abbr 值)
     await this.JA_update_UseISO4(selectedItems); // 使用 iso4 标准
     await new Promise((resolve) => setTimeout(resolve, 3000)); // 休眠3秒钟
