@@ -17,22 +17,19 @@ async function onStartup() {
     Zotero.unlockPromise,
     Zotero.uiReadyPromise,
   ]);
+
   initLocale();
-  ztoolkit.ProgressWindow.setIconURI(
-    "default",
-    `chrome://${config.addonRef}/content/icons/favicon.png`,
-  );
 
   BasicExampleFactory.registerPrefs();
   await BasicExampleFactory.initPrefs();
-  // 好像失效了
-  // ZoteroPane.itemsView.onSelect.addListener(UIExampleFactory.displayMenuitem); //监听右键显示菜单
+
+
   UIExampleFactory.registerWindowMenuWithSeparator(); // 分割线
   UIExampleFactory.registerRightClickMenuPopup(); // 二级菜单
-  // UIExampleFactory.registerWindowMenuWithSeparator2(); // 分割线
-  await UIExampleFactory.registerCustomItemBoxRow(); // 右边的`信息`下注册额外字段 abbr
-  await UIExampleFactory.registerCustomItemBoxCitationkey(); // 右边的`信息`下注册额外字段 abbrCkey
+  UIExampleFactory.registerRightClickMenuItem(); // (改为二级菜单了,简单的一个分类操作)
+  UIExampleFactory.registerWindowMenuWithSeparator(); // 分割线
   await UIExampleFactory.registerExtraColumn(); // 菜单的额外列
+  // await UIExampleFactory.registerCustomItemBoxCitationkey(); // 右边的`信息`下注册额外字段 abbrCkey
   if (Zotero.Prefs.get(config.addonRef + ".autorunabbrall")) {
     ztoolkit.log(`--------- auto run abbrall ---------`);
     await HelperAbbrFactory.JA_transferAllItemsToCustomFieldStart(); // 根据item的类型, 把所有类似 publicationTitle 的字段转移到 自定义字段 itemBoxRowabbr 上
@@ -42,7 +39,20 @@ async function onStartup() {
     //, 而 Zotero.debug 只能输出一个参数
   }
 
-  // await UIExampleFactory.registerFel();
+  await onMainWindowLoad(window);
+}
+
+async function onMainWindowLoad(win: Window): Promise<void> {
+  // Create ztoolkit for every window
+  addon.data.ztoolkit = createZToolkit();
+
+  window.MozXULElement.insertFTLIfNeeded(`${config.addonRef}-mainWindow.ftl`);
+
+}
+
+async function onMainWindowUnload(win: Window): Promise<void> {
+  ztoolkit.unregisterAll();
+  addon.data.dialog?.window?.close();
 }
 
 function onShutdown(): void {
@@ -92,6 +102,19 @@ async function onPrefsEvent(type: string, data: { [key: string]: any }) {
   }
 }
 
+function onShortcuts(type: string) {
+  switch (type) {
+    case "larger":
+      // KeyExampleFactory.exampleShortcutLargerCallback();
+      break;
+    case "smaller":
+      // KeyExampleFactory.exampleShortcutSmallerCallback();
+      break;
+    default:
+      break;
+  }
+}
+
 async function onDialogEvents(type: string, event: Event) {
   switch (type) {
     case "dialogExample":
@@ -121,7 +144,10 @@ async function onDialogEvents(type: string, event: Event) {
 export default {
   onStartup,
   onShutdown,
+  onMainWindowLoad,
+  onMainWindowUnload,
   onNotify,
   onPrefsEvent,
+  onShortcuts,
   onDialogEvents,
 };

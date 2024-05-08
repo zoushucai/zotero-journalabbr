@@ -1,6 +1,7 @@
 startup-begin=Addon is loading
 startup-finish=Addon is ready
 menupopup-label=Journalabbr
+menupopup-export=Journalabbr export
 menuitem-updateUserAbbr=Custom journalabbr
 menuitem-updatejournal=Default journalabbr
 menuitem-abbrToupper=toUpperCase

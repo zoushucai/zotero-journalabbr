@@ -1,6 +1,7 @@
 startup-begin=插件加载中
 startup-finish=插件已就绪
 menupopup-label=期刊缩写
+menupopup-export=期刊简写导出
 menuitem-updateUserAbbr=自定义缩写
 menuitem-updatejournal=内置缩写
 menuitem-abbrToupper=大写简写期刊

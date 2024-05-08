@@ -1,4 +1,4 @@
-import { BasicExampleFactory } from "./examples";
+﻿import { BasicExampleFactory } from "./examples";
 import { getString } from "../utils/locale";
 import { StringUtil } from "./stringutil";
 import { config } from "../../package.json";
@@ -42,15 +42,14 @@ class Basefun {
    * 用于筛选合格的条目, 所选的条目应该 过滤笔记 且 是规则的 item
    * @returns {Array<Zotero.Item> | undefined} 返回一个数组, 里面包含选中的条目, 如果没有选中的条目, 则返回 undefined
    */
-  static filterSelectedItems() {
+  static filterSelectedItems(): Array<Zotero.Item> | undefined {
     //const items = Zotero.getActiveZoteroPane().getSelectedItems();
-    const items = ZoteroPane.getSelectedItems(); // 等价于 Zotero.getActiveZoteroPane().getSelectedItems();
+    const items = ZoteroPane.getSelectedItems(); // 与上述等价
     const selectedItems = items.filter(
       (item) => !item.isNote() && item.isRegularItem(),
     ); // 过滤笔记 且 是规则的 item
     const selectedItemsLength = selectedItems.length;
     if (selectedItemsLength == 0) {
-      BasicExampleFactory.ShowStatus(0, 0, "没有选中任何条目");
       return;
     }
     return selectedItems;

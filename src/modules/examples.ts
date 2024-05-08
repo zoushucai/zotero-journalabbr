@@ -1,5 +1,6 @@
 import { config } from "../../package.json";
 import { getString } from "../utils/locale";
+
 import { journal_abbr } from "./data";
 import { replaceHandle, filterValidEntries } from "./replacehandle";
 import {
@@ -7,11 +8,10 @@ import {
   Selected, // for 循环来处理
   SelectedWithHandler, //  异步处理
   FeildExport, // 字段导出
-} from "./util";
+} from "./baseselect";
 
-import { ClipboardHelper } from "zotero-plugin-toolkit/dist/helpers/clipboard";
 
-Components.utils.import("resource://gre/modules/osfile.jsm");
+
 
 function example(
   target: any,
@@ -32,180 +32,177 @@ function example(
 }
 
 export class BasicExampleFactory {
-  // 剪贴板
-  @example
-  static async copyToClipboard(text: string) {
-    new ClipboardHelper().addText(text, "text/unicode").copy();
-  }
-  // 显示状态
-  @example
-  static ShowStatus(totol: number, sucess: number, str: string) {
-    new ztoolkit.ProgressWindow(config.addonName)
-      .createLine({
-        text: " " + sucess + "/" + totol + " " + str,
-        type: "success",
-        progress: 100,
-      })
-      .show();
-  }
-
-  // 失败状态
-  @example
-  static ShowError(str: string) {
-    new ztoolkit.ProgressWindow(config.addonName)
-      .createLine({
-        text: str,
-        type: "fail",
-        progress: 100,
-      })
-      .show();
-  }
-
-  // 通知 1
-  @example
-  static ShowPopUP(
-    descInfo: string,
-    headerInfo: string = getString(`${config.addonRef}`),
-    n = 3000,
-  ) {
-    const progressWindow = new Zotero.ProgressWindow({ closeOnClick: true });
-    progressWindow.changeHeadline(headerInfo);
-    progressWindow.addDescription(descInfo);
-    progressWindow.show();
-    progressWindow.startCloseTimer(n);
-  }
-  // 通知 2
-  @example
-  static ShowInfo(str: string) {
-    new ztoolkit.ProgressWindow(config.addonName)
-      .createLine({
-        text: str,
-        type: "success",
-        progress: 100,
-      })
-      .show();
-  }
-
-  /**
-   * 通过文件选择器选择文件
-   * @param {string} fileExtension 文件扩展名, 默认为 *.csv;*.json,如果多个扩展名,则用分号隔开
-   * @returns {string | null} 返回选择的文件路径, 如果没有选择, 则返回 null
-   */
-  @example
-  static async filePickerExample(fileExtension: string = "*.csv;*.json") {
-    const showfileExtension = fileExtension
-      .split(";")
-      .map((item) => item.split(".").pop())
-      .join("/");
-    const path = await new ztoolkit.FilePicker("Import File", "open", [
-      [`${showfileExtension}(${fileExtension})`, fileExtension],
-      ["Any(*.*)", "*"],
-    ]).open();
-
-    // 判断选择的地址是否为空,以及是否为字符串 false
-    return typeof path === "string" &&
-      path !== "" &&
-      path !== "false" &&
-      path !== "undefined" &&
-      path !== "null"
-      ? path
-      : null;
-    //ztoolkit.getGlobal("alert")(`Selected ${path}`);
-  }
-
-  /**
-   * 通过绑定事件,如果改变了下拉框/复选框的值,则显示相应的信息
-   * @param event 事件对象
-   */
-  @example
-  static async showChangeEventInfo(event: Event) {
-    const target = event.target as HTMLInputElement;
-    const selectedValue = target.value.trim();
-    const isChecked = target.checked;
-
-    if (selectedValue && typeof isChecked === "boolean") {
-      this.ShowPopUP(`Checkbox is ${isChecked ? "" : "not "}checked`);
-    } else if (selectedValue) {
-      this.ShowPopUP(`Select ${selectedValue}`);
-    } else {
-      this.ShowPopUP("No option is selected");
+    // 剪贴板
+    @example
+    static async copyToClipboard(text: string) {
+      new ztoolkit.Clipboard().addText(text, "text/unicode").copy();
     }
-  }
-  static async showChangeMenulistEventInfo(event: Event) {
-    const target = event.target as HTMLInputElement;
-    const selectedValue = target.value.trim();
-    const isChecked = target.checked;
-
-    if (selectedValue && typeof isChecked === "boolean") {
-      this.ShowPopUP(`Checkbox is ${isChecked ? "" : "not "}checked`);
-    } else if (selectedValue) {
-      this.ShowPopUP(`Select ${selectedValue}`);
-    } else {
-      this.ShowPopUP("No option is selected");
+    // 显示状态
+    @example
+    static ShowStatus(totol: number, sucess: number, str: string) {
+      new ztoolkit.ProgressWindow(config.addonName)
+        .createLine({
+          text: " " + sucess + "/" + totol + " " + str,
+          type: "success",
+          progress: 100,
+        })
+        .show();
     }
-  }
-
-  /**
-   * 主要用于显示参考文献转换信息
-   * @param {number} ruleItemCount  规则的 item 数量
-   * @param {number} successfulCount  成功的数量
-   * @param {number} noActionCount  没有操作的数量
-   * @param {number} missingInfoItemCount  缺少信息的数量
-   * @returns null, 无返回值
-   */
-  static async showBibConversionStatus(
-    ruleItemCount: number,
-    successfulCount: number,
-    noActionCount: number,
-    missingInfoItemCount: number,
-  ) {
-    if (successfulCount > 0) {
-      this.ShowStatus(ruleItemCount, successfulCount, "items are converted.");
+  
+    // 失败状态
+    @example
+    static ShowError(str: string) {
+      new ztoolkit.ProgressWindow(config.addonName)
+        .createLine({
+          text: str,
+          type: "fail",
+          progress: 100,
+        })
+        .show();
     }
-    if (noActionCount > 0) {
-      this.ShowStatus(ruleItemCount, noActionCount, "items are not converted.");
+  
+    // 通知 1
+    @example
+    static ShowPopUP(
+      descInfo: string,
+      headerInfo: string = getString(`${config.addonRef}`),
+      n = 3000,
+    ) {
+      const progressWindow = new Zotero.ProgressWindow({ closeOnClick: true });
+      progressWindow.changeHeadline(headerInfo);
+      progressWindow.addDescription(descInfo);
+      progressWindow.show();
+      progressWindow.startCloseTimer(n);
     }
-    if (missingInfoItemCount > 0) {
-      this.ShowStatus(
-        ruleItemCount,
-        missingInfoItemCount,
-        "items are missing information.",
-      );
+    // 通知 2
+    @example
+    static ShowInfo(str: string) {
+      new ztoolkit.ProgressWindow(config.addonName)
+        .createLine({
+          text: str,
+          type: "success",
+          progress: 100,
+        })
+        .show();
     }
-  }
-
-  /**
-   * 对于首次安装的用户,初始化设置, 用于设置默认值
-   * @returns 无
-   */
-  @example
-  static async initPrefs() {
-    const initpref_data = {
-      [config.addonRef + ".input"]: Zotero.Prefs.get("dataDir"),
-      [config.addonRef + ".separator"]: ",",
-      [config.addonRef + ".sortoptions"]: "originid", // 二维数组:[fianl_bib, nkey, ntitle, nauthor, id_arr], 利用['originid','nkey','ntitle','nauthor','id']来排序,这是他们的列名
-      [config.addonRef + ".keyornum"]: "num", //
-      [config.addonRef + ".discardDOI"]: true,
-      [config.addonRef + ".bibemptyline"]: true,
-      [config.addonRef + ".addAutotags"]: true,
-      [config.addonRef + ".autorunabbrall"]: false,
-      //[config.addonRef + ".isreplaceJsoncFile"]: true,
-      [config.addonRef + ".addRegexAutotags"]: true,
-      [config.addonRef + ".replaceJsonFile"]: "",
-    };
-    // BasicExampleFactory.ShowPopUP(`${Zotero.Prefs.get(config.addonRef + ".addAutotags")}`);
-    // Check if preference is already set and set it if not
-    for (const p in initpref_data) {
-      //BasicExampleFactory.ShowPopUP(`initPrefs: ${p}`, getString(`${config.addonRef}`),9000);
-      if (typeof Zotero.Prefs.get(p) === "undefined") {
-        Zotero.Prefs.set(p, initpref_data[p] as string);
+  
+    /**
+     * 通过文件选择器选择文件
+     * @param {string} fileExtension 文件扩展名, 默认为 *.csv;*.json,如果多个扩展名,则用分号隔开
+     * @returns {string | null} 返回选择的文件路径, 如果没有选择, 则返回 null
+     */
+    @example
+    static async filePickerExample(fileExtension: string = "*.csv;*.json") {
+      const showfileExtension = fileExtension
+        .split(";")
+        .map((item) => item.split(".").pop())
+        .join("/");
+      const path = await new ztoolkit.FilePicker("Import File", "open", [
+        [`${showfileExtension}(${fileExtension})`, fileExtension],
+        ["Any(*.*)", "*"],
+      ]).open();
+  
+      // 判断选择的地址是否为空,以及是否为字符串 false
+      return typeof path === "string" &&
+        path !== "" &&
+        path !== "false" &&
+        path !== "undefined" &&
+        path !== "null"
+        ? path
+        : null;
+      //ztoolkit.getGlobal("alert")(`Selected ${path}`);
+    }
+  
+    /**
+     * 通过绑定事件,如果改变了下拉框/复选框的值,则显示相应的信息
+     * @param event 事件对象
+     */
+    @example
+    static async showChangeEventInfo(event: Event) {
+      const target = event.target as HTMLInputElement;
+      const selectedValue = target.value.trim();
+      const isChecked = target.checked;
+  
+      if (selectedValue && typeof isChecked === "boolean") {
+        this.ShowPopUP(`Checkbox is ${isChecked ? "" : "not "}checked`);
+      } else if (selectedValue) {
+        this.ShowPopUP(`Select ${selectedValue}`);
+      } else {
+        this.ShowPopUP("No option is selected");
       }
     }
-  }
+    static async showChangeMenulistEventInfo(event: Event) {
+      const target = event.target as HTMLInputElement;
+      const selectedValue = target.value.trim();
+      const isChecked = target.checked;
+  
+      if (selectedValue && typeof isChecked === "boolean") {
+        this.ShowPopUP(`Checkbox is ${isChecked ? "" : "not "}checked`);
+      } else if (selectedValue) {
+        this.ShowPopUP(`Select ${selectedValue}`);
+      } else {
+        this.ShowPopUP("No option is selected");
+      }
+    }
+  
+    /**
+     * 主要用于显示参考文献转换信息
+     * @param {number} ruleItemCount  规则的 item 数量
+     * @param {number} successfulCount  成功的数量
+     * @param {number} noActionCount  没有操作的数量
+     * @param {number} missingInfoItemCount  缺少信息的数量
+     * @returns null, 无返回值
+     */
+    static async showBibConversionStatus(
+      ruleItemCount: number,
+      successfulCount: number,
+      noActionCount: number,
+      missingInfoItemCount: number,
+    ) {
+      if (successfulCount > 0) {
+        this.ShowStatus(ruleItemCount, successfulCount, "items are converted.");
+      }
+      if (noActionCount > 0) {
+        this.ShowStatus(ruleItemCount, noActionCount, "items are not converted.");
+      }
+      if (missingInfoItemCount > 0) {
+        this.ShowStatus(
+          ruleItemCount,
+          missingInfoItemCount,
+          "items are missing information.",
+        );
+      }
+    }
+  
+    /**
+     * 对于首次安装的用户,初始化设置, 用于设置默认值
+     * @returns 无
+     */
+    @example
+    static async initPrefs() {
+      const initpref_data = {
+        [config.addonRef + ".input"]: Zotero.Prefs.get("dataDir"),
+        [config.addonRef + ".separator"]: ",",
+        [config.addonRef + ".sortoptions"]: "originid", // 二维数组:[fianl_bib, nkey, ntitle, nauthor, id_arr], 利用['originid','nkey','ntitle','nauthor','id']来排序,这是他们的列名
+        [config.addonRef + ".keyornum"]: "num", //
+        [config.addonRef + ".discardDOI"]: true,
+        [config.addonRef + ".bibemptyline"]: true,
+        [config.addonRef + ".addAutotags"]: true,
+        [config.addonRef + ".autorunabbrall"]: false,
+        //[config.addonRef + ".isreplaceJsoncFile"]: true,
+        [config.addonRef + ".addRegexAutotags"]: true,
+        [config.addonRef + ".replaceJsonFile"]: "",
+      };
+      // BasicExampleFactory.ShowPopUP(`${Zotero.Prefs.get(config.addonRef + ".addAutotags")}`);
+      // Check if preference is already set and set it if not
+      for (const p in initpref_data) {
+        //BasicExampleFactory.ShowPopUP(`initPrefs: ${p}`, getString(`${config.addonRef}`),9000);
+        if (typeof Zotero.Prefs.get(p) === "undefined") {
+          Zotero.Prefs.set(p, initpref_data[p] as string);
+        }
+      }
+    }
 
-  ////////////////////////
-  ///// 以下是模板自带的 ///
-  ////////////////////////
   @example
   static registerNotifier() {
     const callback = {
@@ -269,136 +266,79 @@ export class BasicExampleFactory {
   }
 }
 
+
+
 export class UIExampleFactory {
-  // 在标题上添加自定义列名,通过该列可以进行排序
-  @example
-  static async registerExtraColumn() {
-    await ztoolkit.ItemTree.register(
-      "extraColumnabbr",
-      "abbr",
-      (
-        field: string,
-        unformatted: boolean,
-        includeBaseMapped: boolean,
-        item: Zotero.Item,
-      ) => {
-        //ztoolkit.log(`field3: ${field}`) // field === 'extraColumnabbr'
-        const fieldValue = ztoolkit.ExtraField.getExtraField(
-          item,
-          "itemBoxRowabbr",
-        );
-        return String(fieldValue ?? "");
-      },
-    );
-  }
-
-  // 注册额外的字段
-  @example
-  static async registerCustomItemBoxRow() {
-    await ztoolkit.ItemBox.register(
-      "itemBoxRowabbr",
-      "abbr",
-      (field, unformatted, includeBaseMapped, item, original) => {
-        //ztoolkit.log(`field1: ${field}`)
-        const fieldValue = ztoolkit.ExtraField.getExtraField(item, field);
-        // ztoolkit.log(`+++++++++++++++++++++++++++`);
-        // ztoolkit.log(`+++ fieldValue: ${fieldValue} +++`);
-        return String(fieldValue ?? "");
-      },
-      {
-        editable: true,
-        setFieldHook: (field, value, loadIn, item, original) => {
-          if (value) {
-            ztoolkit.ExtraField.setExtraField(item, field, value?.trim());
-          }
-          return true;
-        },
-        index: 12,
-        multiline: false, // 是否多行
-        collapsible: false, // 是否可折叠
-      },
-    );
-  }
-
-  static async registerCustomItemBoxCitationkey() {
-    await ztoolkit.ItemBox.register(
-      "itemBoxCitationkey",
-      "abbrCkey",
-      (field, unformatted, includeBaseMapped, item, original) => {
-        //ztoolkit.log(`field1: ${field}`)
-        const fieldValue = ztoolkit.ExtraField.getExtraField(item, field);
-        return fieldValue !== undefined ? String(fieldValue) : "";
-      },
-      {
-        editable: true,
-        setFieldHook: (field, value, loadIn, item, original) => {
-          if (value) {
-            ztoolkit.ExtraField.setExtraField(item, field, value?.trim());
-          }
-          return true;
-        },
-        index: 1,
-        multiline: false, // 是否多行
-        collapsible: false, // 是否可折叠
-      },
-    );
-  }
-  //禁止显示某些菜单
-
-  // static async displayMenuitem() {
-  //   const items = ZoteroPane.getSelectedItems(); // 等价于 Zotero.getActiveZoteroPane().getSelectedItems();
-  //   //const exchange = document.getElementById('zotero-itemmenu-abbr-journal-exchange'); // 交换期刊名
-  //   // 检查是否存在 exchange tag
-  //   //var elementss = document.querySelectorAll('[id^="zotero-itemmenu-abbr-"]');
-  //   // 定义一个包含特殊 ID 的数组
-  //   const excludeIds = [
-  //     "zotero-itemmenu-abbr-journal-exchange",
-  //     "zotero-itemmenu-abbr-journal-deleteAbbrTag",
-  //     "zotero-itemmenu-abbr-journal-bibliography",
-  //     "zotero-itemmenu-abbr-journal-deleteUserTag",
-  //     "zotero-itemmenu-abbr-journal-selectFile",
-  //   ];
-
-  //   // 获取所有以 'zotero-itemmenu-abbr-journal-' 开头的元素
-  //   const elements = document.querySelectorAll('[id^="zotero-itemmenu-abbr-journal-"]');
-
-  //   // 使用 Array.prototype.filter() 函数过滤特殊 ID 的元素
-  //   const filteredElements = Array.from(elements).filter((element) => !excludeIds.includes(element.id));
-
-  //   const hasExchangeTag = items.some((item) => {
-  //     return item.hasTag("exchange");
+  // @example
+  // static registerStyleSheet() {
+  //   const styles = ztoolkit.UI.createElement(document, "link", {
+  //     properties: {
+  //       type: "text/css",
+  //       rel: "stylesheet",
+  //       href: `chrome://${config.addonRef}/content/zoteroPane.css`,
+  //     },
   //   });
-
-  //   if (hasExchangeTag) {
-  //     filteredElements.forEach((element) => element.setAttribute("disabled", "true"));
-  //   } else {
-  //     filteredElements.forEach((element) => element.setAttribute("disabled", "false"));
-  //   }
+  //   document.documentElement.appendChild(styles);
+  //   document
+  //     .getElementById("zotero-item-pane-content")
+  //     ?.classList.add("makeItRed");
   // }
 
-  // 分割条
+ // 注册右键菜单
   @example
-  static registerWindowMenuWithSeparator() {
+  static registerRightClickMenuItem() {
+    const menuIcon = `chrome://${config.addonRef}/content/icons/favicon@0.5x.png`;
+    // item menuitem with icon
     ztoolkit.Menu.register("item", {
-      tag: "menuseparator",
-      id: "zotero-itemmenu-abbr-separator",
+      tag: "menu",
+      id: "zotero-itemmenu-abbr-journal-export",
+      label: getString("menupopup-export"), //期刊缩写导出
+      children: [
+        {
+          tag: "menuitem",
+          id: "zotero-itemmenu-abbr-journal-bibliography1",
+          label: getString("menuitem-bibliography1"),
+          commandListener: (ev) => HelperAbbrFactory.JA_getbibliography1(),
+        },
+        {
+          tag: "menuitem",
+          id: "zotero-itemmenu-abbr-journal-bibliography2",
+          label: getString("menuitem-bibliography2"),
+          commandListener: (ev) => HelperAbbrFactory.JA_getbibliography2(),
+        },
+        {
+          tag: "menuseparator",
+        },
+        {
+          tag: "menuitem",
+          id: "zotero-itemmenu-abbr-journal-abbrkey",
+          label: "show Ckey", // 该key 直接从 biblatex 中获取, 用于生成 citationKey
+          commandListener: (ev) => HelperAbbrFactory.JA_exportAbbrKey(),
+        },
+        {
+          tag: "menuitem",
+          id: "zotero-itemmenu-abbr-journal-exportcsv",
+          label: "export csv",
+          commandListener: (ev) => HelperAbbrFactory.JA_selectItemsExportCsv(),
+        },
+      ],
+      icon: menuIcon,
     });
   }
+
   // 右键菜单: 期刊缩写
   @example
   static registerRightClickMenuPopup() {
-    const menuIcon = `chrome://${config.addonRef}/content/icons/`;
+    const menuIcon = `chrome://${config.addonRef}/content/icons/favicon@0.5x.png`;
     ztoolkit.Menu.register("item", {
       tag: "menu",
       id: "zotero-itemmenu-abbr-journal",
       label: getString("menupopup-label"), //期刊缩写
-      icon: menuIcon + "faviconsmall.png", //mac 上不显示, windows 上显示, why?
       children: [
         {
           tag: "menuitem",
           label: getString("menuitem-updateUserAbbr"), // 子菜单: 用户指定期刊缩写路径
           id: "zotero-itemmenu-abbr-journal-updateUserAbbr",
-          //icon: menuIcon + "faviconsmall.png",
           commandListener: (ev) => HelperAbbrFactory.JA_update_UseUserData(), // JA  表示journalAbbreviation
         },
         {
@@ -481,39 +421,6 @@ export class UIExampleFactory {
         },
         {
           tag: "menuitem",
-          label: getString("menuitem-selectFile"), // 子菜单: 选择文件
-          id: "zotero-itemmenu-abbr-journal-selectFile",
-          commandListener: (ev) => HelperAbbrFactory.buttonSelectFilePath(),
-        },
-        {
-          tag: "menuitem",
-          id: "zotero-itemmenu-abbr-journal-bibliography1",
-          label: getString("menuitem-bibliography1"),
-          commandListener: (ev) => HelperAbbrFactory.JA_getbibliography1(),
-        },
-        {
-          tag: "menuitem",
-          id: "zotero-itemmenu-abbr-journal-bibliography2",
-          label: getString("menuitem-bibliography2"),
-          commandListener: (ev) => HelperAbbrFactory.JA_getbibliography2(),
-        },
-        {
-          tag: "menuseparator",
-        },
-        {
-          tag: "menuitem",
-          id: "zotero-itemmenu-abbr-journal-abbrkey",
-          label: "show Ckey", // 该key 直接从 biblatex 中获取, 用于生成 citationKey
-          commandListener: (ev) => HelperAbbrFactory.JA_exportAbbrKey(),
-        },
-        {
-          tag: "menuitem",
-          id: "zotero-itemmenu-abbr-journal-exportcsv",
-          label: "export csv",
-          commandListener: (ev) => HelperAbbrFactory.JA_selectItemsExportCsv(),
-        },
-        {
-          tag: "menuitem",
           id: "zotero-itemmenu-abbr-journal-replacejsonFile",
           label: "replace",
           commandListener: (ev) => HelperAbbrFactory.JA_ReplaceByJson(),
@@ -522,8 +429,7 @@ export class UIExampleFactory {
           tag: "menuitem",
           id: "zotero-itemmenu-abbr-journal-itemBoxRowabbr",
           label: "abbrall",
-          commandListener: (ev) =>
-            HelperAbbrFactory.JA_transferAllItemsToCustomField(true),
+          commandListener: (ev) =>HelperAbbrFactory.JA_transferAllItemsToCustomField(true),
         },
         // {
         //   tag: "menuitem",
@@ -532,31 +438,34 @@ export class UIExampleFactory {
         //   commandListener: (ev) => HelperAbbrFactory.JA_test(),
         // }
       ],
+      icon: menuIcon
     });
   }
-  // 分割条
-  // @example
-  // static registerWindowMenuWithSeparator2() {
-  //   ztoolkit.Menu.register("item", {
-  //     tag: "menuseparator",
-  //     id: "zotero-itemmenu-abbr-separator2",
-  //   });
-  // }
-  // // 右键菜单: 用来测试新功能用,  用完后可以删除
-  // // 右键菜单: 一键更新期刊缩写
-  // @example
-  // static registerRightClickMenuItem() {
-  //     //const menuIcon = `chrome://${config.addonRef}/content/icons/faviconsmall.png`;
-  //     // item menuitem with icon
-  //     ztoolkit.Menu.register("item", {
-  //         tag: "menuitem",
-  //         id: "zotero-itemmenu-abbr-journal-onestepupate",
-  //         label: getString("menuitem-onestepupate"),
-  //         //icon: menuIcon,
-  //         commandListener: (ev) => HelperAbbrFactory.JA_oneStepUpdate(),
-  //     });
-  // }
+
+  @example
+  static registerWindowMenuWithSeparator() {
+    ztoolkit.Menu.register("item", {
+      tag: "menuseparator",
+      id: "zotero-itemmenu-abbr-separator",
+    });
+  }
+
+  @example
+  static async registerExtraColumn() {
+    const field = "itemBoxRowabbr";
+    await Zotero.ItemTreeManager.registerColumns({
+      pluginID: config.addonID,
+      dataKey: field,
+      label: "abbr", //额外列的名称
+      dataProvider: (item: Zotero.Item, dataKey: string) => {
+        return ztoolkit.ExtraField.getExtraField(item, field) || "";
+      }
+    });
+  }
+
 }
+
+
 
 /**
  * 用于处理期刊缩写的工厂类

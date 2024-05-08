@@ -1,7 +1,7 @@
 import {
   Basefun, // 基础的选择函数
   FeildExport,
-} from "./util";
+} from "./baseselect";
 
 const ItemType = [
   "attachment-file",
