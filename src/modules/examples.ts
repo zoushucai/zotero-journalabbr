@@ -295,12 +295,13 @@ export class UIExampleFactory {
         {
           tag: "menuseparator",
         },
-        {
-          tag: "menuitem",
-          id: "zotero-itemmenu-abbr-journal-abbrkey",
-          label: "show Ckey", // 该key 直接从 biblatex 中获取, 用于生成 citationKey
-          commandListener: (ev) => HelperAbbrFactory.JA_exportAbbrKey(),
-        },
+        // 弃用
+        // {
+        //   tag: "menuitem",
+        //   id: "zotero-itemmenu-abbr-journal-abbrkey",
+        //   label: "show Ckey", // 该key 直接从 biblatex 中获取, 用于生成 citationKey
+        //   commandListener: (ev) => HelperAbbrFactory.JA_exportAbbrKey(),
+        // },
         {
           tag: "menuitem",
           id: "zotero-itemmenu-abbr-journal-exportcsv",
@@ -404,6 +405,12 @@ export class UIExampleFactory {
         },
         {
           tag: "menuseparator",
+        },
+        {
+          tag: "menuitem",
+          label: getString("menuitem-selectFile"), // 子菜单: 选择文件, 通过选择文件来自定义缩写期刊
+          id: "zotero-itemmenu-abbr-journal-selectFile",
+          commandListener: (ev) => HelperAbbrFactory.buttonSelectFilePath(),
         },
         {
           tag: "menuitem",
@@ -951,15 +958,17 @@ export class HelperAbbrFactory {
 
   /**
    *  用于显示获取到的 citationKey,  citationKey 的值的生成, 依靠其他插件. -----  better-bibtex
+   *  (弃用) 
    * @returns
    */
   static async JA_exportAbbrKey() {
     Basefun.executeFunctionWithTryCatch(
       async () => {
         const resultInfo = await Selected.exportCitationkey();
+        ztoolkit.log(`resultInfo: ${resultInfo}`);
         if (!resultInfo) return;
 
-        // await BasicExampleFactory.copyToClipboard(resultInfo.strinfo);
+        await BasicExampleFactory.copyToClipboard(resultInfo.strinfo);
         return resultInfo;
       },
       getString("prompt-success-exportkey"),

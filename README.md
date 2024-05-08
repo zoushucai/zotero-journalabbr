@@ -9,6 +9,14 @@
 
 - **[详细功能介绍](./introduce.md)**
 
+## 2024-5-8 更新
+
+- 适合最新版本的zotero7
+- 删除了 导出 citationKey 的功能,新版的zotero7右侧已经可以显示了
+- 把原来的二级菜单改为两个, 一个是对数据进行修改操作, 另一个仅对数据进行导出操作
+
+- 如果选择了 当 zotero 启动时运行`abbrall` 选项, 需要耐心等待一会,等待数据被加载到内存, 感觉更新了以后, 加载速度变慢了(能跑就行)
+
 ## 2024-3-26 更新
 
 - [#705](https://github.com/windingwind/zotero-pdf-translate/issues/705) 问题修复了
