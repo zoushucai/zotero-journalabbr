@@ -1,18 +1,16 @@
-import { BasicTool } from "zotero-plugin-toolkit/dist/basic";
+import { BasicTool } from "zotero-plugin-toolkit";
 import Addon from "./addon";
 import { config } from "../package.json";
 
 const basicTool = new BasicTool();
 
+// @ts-ignore - Plugin instance is not typed
 if (!basicTool.getGlobal("Zotero")[config.addonInstance]) {
-  defineGlobal("window");
-  defineGlobal("document");
-  defineGlobal("ZoteroPane");
-  defineGlobal("Zotero_Tabs");
   _globalThis.addon = new Addon();
   defineGlobal("ztoolkit", () => {
     return _globalThis.addon.data.ztoolkit;
   });
+  // @ts-ignore - Plugin instance is not typed
   Zotero[config.addonInstance] = addon;
 }
 

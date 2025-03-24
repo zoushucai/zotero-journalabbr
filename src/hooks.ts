@@ -1,15 +1,16 @@
 import {
   BasicExampleFactory,
-  // HelperExampleFactory,
+  //HelperExampleFactory,
   // KeyExampleFactory,
   // PromptExampleFactory,
   HelperAbbrFactory,
   UIExampleFactory,
 } from "./modules/examples";
-import { config } from "../package.json";
 import { getString, initLocale } from "./utils/locale";
 import { registerPrefsScripts } from "./modules/preferenceScript";
 import { createZToolkit } from "./utils/ztoolkit";
+import { config } from "../package.json";
+import { registerCustomFields } from "./modules/fields";
 
 async function onStartup() {
   await Promise.all([
@@ -21,30 +22,45 @@ async function onStartup() {
   initLocale();
 
   BasicExampleFactory.registerPrefs();
+
+  registerCustomFields();
   await BasicExampleFactory.initPrefs();
 
-  await onMainWindowLoad(window);
+  
+  // await UIExampleFactory.registerExtraColumn(); // 不能正确显示标题, 但是可以显示内容
+  
+  await UIExampleFactory.registerExtraColumnWithCustomCell(); // 自定义的列, 类似registerExtraColumn, 但可以自定义显示的内容以及正确显示标题
+  UIExampleFactory.registerItemPaneCustomInfoRow();
+
+
+  await Promise.all(
+    Zotero.getMainWindows().map((win) => onMainWindowLoad(win)),
+  );
 }
 
 async function onMainWindowLoad(win: Window): Promise<void> {
   // Create ztoolkit for every window
   addon.data.ztoolkit = createZToolkit();
 
-  window.MozXULElement.insertFTLIfNeeded(`${config.addonRef}-mainWindow.ftl`);
+  // @ts-ignore This is a moz feature
+  win.MozXULElement.insertFTLIfNeeded(
+    `${addon.data.config.addonRef}-mainWindow.ftl`,
+  );
 
   UIExampleFactory.registerWindowMenuWithSeparator(); // 分割线
   UIExampleFactory.registerRightClickMenuPopup(); // 二级菜单
   UIExampleFactory.registerRightClickMenuItem(); // (改为二级菜单了,简单的一个分类操作)
   UIExampleFactory.registerWindowMenuWithSeparator(); // 分割线
-  await UIExampleFactory.registerExtraColumn(); // 菜单的额外列
-  if (Zotero.Prefs.get(config.addonRef + ".autorunabbrall")) {
-    ztoolkit.log(`--------- auto run abbrall ---------`);
+  if (Zotero.Prefs.get(config.addonRef + ".autorunabbrauto")) {
+    ztoolkit.log(`--------- auto run abbrauto ---------`);
     await HelperAbbrFactory.JA_transferAllItemsToCustomFieldStart(); // 根据item的类型, 把所有类似 publicationTitle 的字段转移到 自定义字段 itemBoxRowabbr 上
-  } else {
-    ztoolkit.log(`--------- not auto run abbrall ----------`);
-    // ztoolkit.log 可以输出多个参数, 如:  ztoolkit.log("ssssssss", "ssssssss") ,多个参数会自动用空格拼接,这样有时候很方便.
-    //, 而 Zotero.debug 只能输出一个参数
   }
+  else {
+      ztoolkit.log(`--------- not auto run abbrauto ----------`);
+      // ztoolkit.log 可以输出多个参数, 如:  ztoolkit.log("ssssssss", "ssssssss") ,多个参数会自动用空格拼接,这样有时候很方便.
+      //, 而 Zotero.debug 只能输出一个参数
+  }
+    //addon.hooks.onDialogEvents("dialogExample");
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
@@ -57,7 +73,8 @@ function onShutdown(): void {
   addon.data.dialog?.window?.close();
   // Remove addon object
   addon.data.alive = false;
-  delete Zotero[config.addonInstance];
+  // @ts-ignore - Plugin instance is not typed
+  delete Zotero[addon.data.config.addonInstance];
 }
 
 /**
@@ -99,18 +116,6 @@ async function onPrefsEvent(type: string, data: { [key: string]: any }) {
   }
 }
 
-function onShortcuts(type: string) {
-  switch (type) {
-    case "larger":
-      // KeyExampleFactory.exampleShortcutLargerCallback();
-      break;
-    case "smaller":
-      // KeyExampleFactory.exampleShortcutSmallerCallback();
-      break;
-    default:
-      break;
-  }
-}
 
 async function onDialogEvents(type: string, event: Event) {
   switch (type) {
@@ -145,6 +150,5 @@ export default {
   onMainWindowUnload,
   onNotify,
   onPrefsEvent,
-  onShortcuts,
   onDialogEvents,
 };

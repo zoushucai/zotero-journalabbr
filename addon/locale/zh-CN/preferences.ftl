@@ -1,7 +1,15 @@
+pref-title = 插件模板设置示例
+pref-enable =
+    .label = 开启
+pref-input = 输入
+pref-help = { $name } Build { $version } { $time }
+
+
+# #####以上不用 ##################
 pref-title-one = 自定义缩写文件设置
 pref-groupbox-first = 路径设置:
 
-pref-input = csv/json地址: 
+pref-abbr-input = csv/json地址: 
 pref-separator = 文件分隔符(仅csv生效):
 pref-separator-semicolon =
     .label = 分号
@@ -32,9 +40,4 @@ help-version-label = __addonName__ 版本 __buildVersion__
 help-releasetime-label = Build __buildTime__
 
 pref-title-five = 当Zotero启动时
-autorunabbrall-label = 运行 abbrall
-
-# 以下不用
-pref-enable =
-    .label = 开启
-pref-help = { $name } Build { $version } { $time }
+autorunabbrauto-label = 运行 abbrauto

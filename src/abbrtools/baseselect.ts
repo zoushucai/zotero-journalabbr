@@ -1,4 +1,4 @@
-﻿import { BasicExampleFactory } from "./examples";
+﻿import { BasicExampleFactory } from "../modules/examples";
 import { getString } from "../utils/locale";
 import { StringUtil } from "./stringutil";
 import { config } from "../../package.json";
@@ -43,8 +43,8 @@ class Basefun {
    * @returns {Array<Zotero.Item> | undefined} 返回一个数组, 里面包含选中的条目, 如果没有选中的条目, 则返回 undefined
    */
   static filterSelectedItems(): Array<Zotero.Item> | undefined {
-    //const items = Zotero.getActiveZoteroPane().getSelectedItems();
-    const items = ZoteroPane.getSelectedItems(); // 与上述等价
+    const items = Zotero.getActiveZoteroPane().getSelectedItems();
+    // const items = ZoteroPane.getSelectedItems(); // 与上述等价
     const selectedItems = items.filter(
       (item) => !item.isNote() && item.isRegularItem(),
     ); // 过滤笔记 且 是规则的 item
@@ -346,7 +346,7 @@ class Selected {
    */
   static async processSelectItems(
     transformFn: (originalValue: string) => string,
-    key: Zotero.Item.ItemField = "journalAbbreviation",
+    key: string = "journalAbbreviation",
     selectedItems?: Array<Zotero.Item>,
   ) {
     if (!selectedItems) {
@@ -389,8 +389,8 @@ class Selected {
    * @param {Array<Zotero.Item>} [selectedItems]  , 传递的第四个参数为选中的条目, 如果没有传递, 则默认为当前选中的条目
    */
   static async exchangeJournalName(
-    key1: Zotero.Item.ItemField = "journalAbbreviation",
-    key2: Zotero.Item.ItemField = "publicationTitle",
+    key1: string = "journalAbbreviation",
+    key2: string= "publicationTitle",
     exchangetagname: string = "exchange",
     selectedItems?: Array<Zotero.Item>,
   ) {
@@ -598,6 +598,8 @@ class Selected {
     const sortoptions = Zotero.Prefs.get(
       `${config.addonRef}.sortoptions`,
     ) as string; // 获得持久化的变量
+
+    ztoolkit.log(`========= sortoptions: ${config.addonRef}`); // addon.data.config.addonRef
     // 与 [ fianl_bib, nkey, ntitle, nauthor, id_arr] 对应的索引, 其中 id_arr 为原始的 id, 用于排序
     const optionarr = ["originid", "nkey", "ntitle", "nauthor", "id"];
     let sortindex = optionarr.indexOf(sortoptions);
@@ -605,6 +607,7 @@ class Selected {
 
     // 获取bib format
     const keyornum = Zotero.Prefs.get(`${config.addonRef}.keyornum`) as string; // 获得持久化的变量
+    ztoolkit.log(`==== keyornum: ${keyornum}`);
     const isdiscardDOI = Zotero.Prefs.get(
       `${config.addonRef}.discardDOI`,
     ) as boolean; // 获得持久化的变量

@@ -1,11 +1,12 @@
 import { config } from "../../package.json";
 import { getString } from "../utils/locale";
 import { getPref, setPref } from "../utils/prefs";
-
 import { BasicExampleFactory } from "./examples";
+
 
 export async function registerPrefsScripts(_window: Window) {
   // This function is called when the prefs window is opened
+  // See addon/content/preferences.xhtml onpaneload
   if (!addon.data.prefs) {
     addon.data.prefs = {
       window: _window,
@@ -15,11 +16,12 @@ export async function registerPrefsScripts(_window: Window) {
   } else {
     addon.data.prefs.window = _window;
   }
-
   // updatePrefsUI();
-  // bindPrefEvents();
+  //bindPrefEvents();
   buildPrefsPane();
 }
+
+
 
 function buildPrefsPane() {
   const doc = addon.data.prefs!.window?.document;

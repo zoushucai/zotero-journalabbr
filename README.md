@@ -9,13 +9,17 @@
 
 - **[详细功能介绍](./introduce.md)**
 
+## 2025-3-24 更新
+
+- 日常更新,未添加新功能, 适合最新版本的zotero7
+- 修复了一些小问题, 添加了`abbrmanual`的功能, 用来手动转换
+
 ## 2024-5-8 更新
 
-- 适合最新版本的zotero7
 - 删除了 导出 citationKey 的功能,新版的zotero7右侧已经可以显示了
 - 把原来的二级菜单改为两个, 一个是对数据进行修改操作, 另一个仅对数据进行导出操作
 
-- 如果选择了 当 zotero 启动时运行`abbrall` 选项, 需要耐心等待一会,等待数据被加载到内存, 感觉更新了以后, 加载速度变慢了(能跑就行)
+- 如果选择了 当 zotero 启动时运行`abbrauto` 选项, 需要耐心等待一会,等待数据被加载到内存, 感觉更新了以后, 加载速度变慢了(能跑就行)
 
 ## 2024-3-26 更新
 
@@ -25,7 +29,7 @@
 
 ## 2024-2-22更新
 
-- zotero的启动时,自动运行 `abbrall`, 可以手动关闭 并修复`abbrall`对于期刊类, 优先选择`journalAbbreviation` ,当`journalAbbreviation` 为空,则会选择 `publicationTitle`
+- zotero的启动时,自动运行 `abbrauto`, 可以手动关闭 并修复`abbrauto`对于期刊类, 优先选择`journalAbbreviation` ,当`journalAbbreviation` 为空,则会选择 `publicationTitle`
 
 - 等待 [#705](https://github.com/windingwind/zotero-pdf-translate/issues/705) 该问题的修复
 

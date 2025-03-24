@@ -5,8 +5,8 @@
 右键菜单如下
 
 ### 期刊简写导出
-<img src='https://cdn.jsdelivr.net/gh/zoushucai/img_bed@master/uPic/Clip_2024-10-24_21-12-03.png' alt='Clip_2024-10-24_21-12-03.png' width='300'/>
 
+<img src='https://cdn.jsdelivr.net/gh/zoushucai/img_bed@master/uPic/Clip_2024-10-24_21-12-03.png' alt='Clip_2024-10-24_21-12-03.png' width='300'/>
 
 - `复制样式1到剪贴板`,
   - 主要是根据选择的条目生成 `bibliography` 格式的参考文献,
@@ -24,32 +24,26 @@
 
 <img src='https://cdn.jsdelivr.net/gh/zoushucai/img_bed@master/uPic/Clip_2024-10-24_21-11-26.png' alt='Clip_2024-10-24_21-11-26.png' width='200'/>
 
-
 - `自定义缩写刊缩`: 即选择 `csv`或 ` json` 文件进行期刊缩写
-  
-  - 第一, 首先需要配置好 `csv` 或者 `json` 路径, 
+
+  - 第一, 首先需要配置好 `csv` 或者 `json` 路径,
   - 第二, 如果是 `csv` 文件, 则第一列为期刊全名, 第二列为缩写期刊,
   - 第三, 如果是 `json` 文件, 则按照 `json` 格式书写即可, `key` 为期刊全名, `value` 为缩写期刊名
   - 在进行期刊简写的时候, 会自动添加 `abbr_user`标签, 并且会自动检测该条目是否存在 `abbr` 和 `abbr-iso4` 标签, 如果存在则会删除,
-  
+
 - `内置缩写`: 即采用插件提供的内置数据进行期刊缩写
-  
+
   - 自动添加 `abbr` 标签, 并删除 `abbr_user` 和 `abbr-iso4` 标签
-  
   - 内置数据的来源: [JabRef/abbrv.jabref.org](https://github.com/JabRef/abbrv.jabref.org) 和 [该网站](https://woodward.library.ubc.ca/woodward/research-help/journal-abbreviations/) 的期刊缩写数据库, 感谢
+
     - 这里对其两个数据进行了整合, 按照一定规则进行数据处理排序, 基本思想,不改变数据中的值, 只当数据搬运工.
-    
     - 内置期刊缩写的权重优先级: `该网站 > JabRef/abbrv.jabref.org `
-    
     - `JabRef/abbrv.jabref.org` 数据处理规则:
       - 删除了一些特殊的期刊, 比如期刊名中存在 单双引号, 单反斜杠等特殊字符
       - 删除了期刊字符超过 80 以及期刊字符小于5的期刊
       - 对于同一个期刊可能存在多个缩写, 其优先顺序 `点的个数 > 大写个数> 缩写短的`
-    
     - 具体来自仓库：[zoushucai/journalmerge](https://github.com/zoushucai/journalmerge)
-    
-      
-  
+
 - `ISO-4 standard` 采用 ISO-4 的标准来缩写期刊, 来源 [marcinwrochna/abbrevIso](https://github.com/marcinwrochna/abbrevIso), 这里只是做了整合, 感谢其作者
 
   - 自动添加 `abbr-iso4` 标签, 并删除 `abbr_user` 和 `abbr` 标签
@@ -72,40 +66,37 @@
 
 - `自定义文件路径`: 一个快捷的操作, 对应偏好设置中的自定义缩写文件路径
 
--  `abbrall` 选项， 把所有类型的条目都按照某个规则进行缩写, 缩写的结果放在 `extra`中的 `itemBoxRowabbr` 字段, 然后, 条目右侧信息面板中会显示一个 `abbr` 字段,其值为`extra`中对应的`itemBoxRowabbr`字段的值. 并把这个字段放入条目的标题上, 可以通过右键添加自定义的列名(列名为`abbr`), 于是就可对所有条目按照缩写进行排序了.(备注: 好像一定要经过这个 `extra`步骤才能在右侧信息面板中显示且可以编辑, 不知道有没有其他方法. 有的话,可以告诉我一下)
-  - 某个规则缩写:
+- `abbrmanual` 选项, 把不同类型的条目归因在一个字段上, 这个字段在右侧显示为`abbr` .
 
-    - 对所有条目进行分类, 先利用 ISO-4 的标准进行缩写, 然后利用内置的数据进行缩写, 最后利用用户自定义的数据进行缩写, 从而实现优先级: `自定义 > 内置数据 > ISO-4 standard`. 且如果用户没有自定义数据文件,虽然会提示有错,但是不影响使用. (不过这样每次运行会消耗一点点时间)
+- `abbrauto` 选项， 与 `abbrmanual` 选项不同的是,  这个会对先对条目进行缩写(按照一定规则), 然后把缩写的结果放入右侧面板中
 
-    - 对所有条目进行分类, 规则如下
+  - 规则如下:  先所有条目进行分类,  先利用 ISO-4 的标准进行缩写, 然后利用内置的数据进行缩写, 最后利用用户自定义的数据进行缩写, 从而实现优先级: `自定义 > 内置数据 > ISO-4 standard`. 且如果用户没有自定义数据文件,虽然会提示有错,但是不影响使用. (不过这样每次运行会消耗一点点时间)
 
-      ```
-      thesis --> university
-      book --> publisher
-      # 对于期刊类,先从简写中获取,如果简写为空,那么再从全名中获取
-      journalArticle --> journalAbbreviation ---> publicationTitle
-      conferencePaper --> conferenceName
-      preprint --> repository
-      bookSection --> publisher
-      ohther --> itemBoxRowabbr
-      如果获得的值都为空,那么再从 journalAbbreviation 中尝试获取, 如果还是为空, 那么就为空白了
-      对获取的字段会自动按照上述缩写规则进行缩写, 且不会添加任何 标签
-      
-      ```
+  - 对所有条目进行分类, 规则如下
 
+    ```
+    thesis --> university
+    book --> publisher
+    # 对于期刊类,先从简写中获取,如果简写为空,那么再从全名中获取
+    journalArticle --> journalAbbreviation ---> publicationTitle
+    conferencePaper --> conferenceName
+    preprint --> repository
+    bookSection --> publisher
+    ohther --> itemBoxRowabbr
+    如果获得的值都为空,那么再从 journalAbbreviation 中尝试获取, 如果还是为空, 那么就为空白了
+    对获取的字段会自动按照上述缩写规则进行缩写, 且不会添加任何 标签
+    
+    ```
 
 - `replace` 选项, 按照指定的`json `文件, 进行条目缩写, 本质上就是调用 `str.replace()` 函数 或`str.match()`
 
   - 输入对应的 `json `内容格式如下, (记住是标准的` json`,而非` jsonc`, 下面用注释进行解释说明)
 
   - 本质是调用 `js`中的替换函数或匹配函数: `str.replace(regexp|substr, newSubStr|function[, flags])`或 `str.match(regexp|substr_` 根据不同的输入,执行不同的操作
-  
-  
+
     - 支持对同一个字段进行多次操作
-  
-  
     - 如果内部字段被置为空, 则不进行操作(保护一下)
-  
+
       ```json
       [
         {
@@ -160,13 +151,12 @@
         }
       ]
       ```
-  
-  	下面列举一些在 zotero 中常见条目的类型(注意大小写), 其中
-  
-  	-  如果 `searchField` 和 `replaceField` 值相同, 一旦替换了,原来的值就消失了,谨慎操作.
-  
-  	- `abbr` 为该插件的自定义字段, 即可把所有字段的处理后的结果归到`abbr`字段上, 避免误操作
-  
+
+    下面列举一些在 zotero 中常见条目的类型(注意大小写), 其中
+
+    - 如果 `searchField` 和 `replaceField` 值相同, 一旦替换了,原来的值就消失了,谨慎操作.
+    - `abbr` 为该插件的自定义字段, 即可把所有字段的处理后的结果归到`abbr`字段上, 避免误操作
+
       ```
       itemType         ---   searchField     ---->     replaceField
       --------------------------------------------------------------
