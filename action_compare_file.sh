@@ -1,7 +1,7 @@
 #!/bin/bash
 
 file_a="./data_new.ts"
-file_b="./src/modules/data.ts"
+file_b="./src/abbrtools/data.ts"
 
 if ! [[ -e "$file_a" && -e "$file_b" ]]; then
     echo "文件 $file_a 或文件 $file_b 不存在, 直接退出"

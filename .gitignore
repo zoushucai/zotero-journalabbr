@@ -1,19 +1,13 @@
+# dot files
+.DS_Store
+
+# Node.js
+node_modules
+pnpm-lock.yaml
+yarn.lock
+
+# Scaffold
+.env
+.scaffold
 build
 logs
-node_modules
-package-lock.json
-zotero-cmd.json
-**/.DS_Store
-**/test[0-9]+.js
-**/test[0-9]+.ts
-**/test*.js
-**/test*.ts
-data_new.ts
-content.txt
-README.md.tmp
-m.js
-back.txt
-scripts/zotero-cmd-mac.json
-scripts/zotero-cmd-win.json
-
-.DS_Store

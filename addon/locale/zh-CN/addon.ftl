@@ -1,7 +1,18 @@
-startup-begin=插件加载中
-startup-finish=插件已就绪
-menupopup-label=期刊缩写
-menupopup-export=期刊简写导出
+startup-begin = 插件加载中
+startup-finish = 插件已就绪
+menuitem-label = 插件模板: 帮助工具样例
+menupopup-label = 插件模板: 弹出菜单
+menuitem-submenulabel = 插件模板：子菜单
+menuitem-filemenulabel = 插件模板: 文件菜单
+prefs-title = 插件模板
+prefs-table-title = 标题
+prefs-table-detail = 详情
+tabpanel-lib-tab-label = 库标签
+tabpanel-reader-tab-label = 阅读器标签
+
+# #####以上不用 ##################
+menupopup-abbr-label=期刊缩写
+menupopup-abbr-export=期刊简写导出
 menuitem-updateUserAbbr=自定义缩写
 menuitem-updatejournal=内置缩写
 menuitem-abbrToupper=大写简写期刊
@@ -16,7 +27,7 @@ menuitem-selectFile=自定义文件路径
 menuitem-onestepupate=一步更新
 menuitem-bibliography1=复制样式1到剪贴板
 menuitem-bibliography2=复制样式2到剪贴板
-prefs-title=期刊缩写
+prefs-abbr-title=期刊缩写
 
 prompt-success-abbrToupper-info=已大写简写期刊
 prompt-success-abbrTolower-info=已小写简写期刊
@@ -64,15 +75,3 @@ sortoptions-nauthor = authorlastname
 sortoptions-id = id
 keyornum-key = key
 keyornum-num = num
-
-
-
-# 以下用不到,但不删除
-menuitem-filemenulabel=插件模板: 文件菜单
-prefs-table-title=标题
-prefs-table-detail=详情
-tabpanel-lib-tab-label=库标签
-tabpanel-reader-tab-label=阅读器标签
-
-prompt-fail-removetag-info=移除标签失败
-prompt-fail-exchange-info=交换期刊失败

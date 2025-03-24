@@ -1,27 +1,16 @@
 {
   "compilerOptions": {
-    "experimentalDecorators": true,
-    "module": "commonjs",
     "target": "ES2016",
+    "lib": ["ESNext"],
+    "experimentalDecorators": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "skipLibCheck": true,
+    "types": ["zotero-types"],
     "strict": true,
-    "removeComments": true,
-    "allowJs": true,
-    "outDir": "dist"
+    "outDir": "build/dist/",
+    "skipLibCheck": true
   },
-  "include": ["src", "typings", "node_modules/zotero-types"],
-  "exclude": [
-    "builds",
-    "addon",
-    "./src/modules/test.js",
-    "./src/modules/test.ts",
-    "./src/modules/test.tsx",
-    "./src/modules/test[0-9].ts",
-    "./src/modules/test[0-9].tsx",
-    "./src/modules/test.jsx",
-    "./src/modules/test.d.ts",
-    "./src/modules/examples_back.js",
-    "./src/modules/examples_back.ts"
-  ]
+  "include": ["src", "typings"],
+  "exclude": ["build", "addon"]
 }

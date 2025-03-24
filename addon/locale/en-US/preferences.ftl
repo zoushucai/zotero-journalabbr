@@ -1,7 +1,15 @@
+pref-title = Addon Template Example
+pref-enable =
+    .label = Enable
+pref-input = Input
+pref-help = { $name } Build { $version } { $time }
+
+# ###
+
 pref-title-one = Path Settings
 pref-groupbox-first = Path Settings:
 
-pref-input = csv/json address:  
+pref-abbr-input = csv/json address:  
 pref-separator = File separator(only valid for csv):
 pref-separator-semicolon =
     .label = semicolon
@@ -33,3 +41,4 @@ autorunabbrall-label = Run abbrall
 
 help-version-label = __addonName__ VERSION __buildVersion__
 help-releasetime-label = Build __buildTime__
+

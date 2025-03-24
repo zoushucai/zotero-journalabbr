@@ -1,5 +1,18 @@
-startup-begin=Addon is loading
-startup-finish=Addon is ready
+startup-begin = Addon is loading
+startup-finish = Addon is ready
+menuitem-label = Addon Template: Helper Examples
+menupopup-abbr-label = Addon Template: Menupopup
+menuitem-submenulabel = Addon Template
+menuitem-filemenulabel = Addon Template: File Menuitem
+prefs-title = Template
+prefs-table-title = Title
+prefs-table-detail = Detail
+tabpanel-lib-tab-label = Lib Tab
+tabpanel-reader-tab-label = Reader Tab
+
+
+# 以上不用 #####
+
 menupopup-label=Journalabbr
 menupopup-export=Journalabbr export
 menuitem-updateUserAbbr=Custom journalabbr
@@ -16,7 +29,7 @@ menuitem-selectFile=Select File Path
 menuitem-onestepupate=One update
 menuitem-bibliography1=Copy ref. style1 to clipboard
 menuitem-bibliography2=Copy ref. style2 to clipboard
-prefs-title=Journalabbr
+prefs-abbr-title=Journalabbr
 
 prompt-success-abbrToupper-info=Uppercase Abbr J
 prompt-success-abbrTolower-info=Lowercase Abbr J
@@ -63,12 +76,3 @@ sortoptions-nauthor = authorlastname
 sortoptions-id = id
 keyornum-key = key
 keyornum-num = num
-
-
-
-
-
-# NO used
-prompt-fail-removetag-info=Removed Tag failed
-prompt-fail-exchange-info=Exchange failed
-
